@@ -24,7 +24,7 @@
 
 //Sprite's WebGL render command
 (function() {
-
+    var _cc = cc;
     cc.Sprite.WebGLRenderCmd = function (renderable) {
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
@@ -116,7 +116,7 @@
     }
 
     proto.setDirtyFlag = function(dirtyFlag){
-        cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
+        _cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
         this._dirty = true;
     };
 
@@ -303,7 +303,7 @@
     };
 
     proto.transform = function(parentCmd, recursive){
-        cc.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        _cc.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         this._dirty = true;     //use for batching
     };
 

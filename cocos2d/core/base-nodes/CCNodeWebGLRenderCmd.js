@@ -23,6 +23,7 @@
  ****************************************************************************/
 // ------------------------------ The cc.Node's render command for WebGL ----------------------------------
 (function() {
+    var _cc = cc;
     cc.Node.WebGLRenderCmd = function (renderable) {
         cc.Node.RenderCmd.call(this, renderable);
 
@@ -62,10 +63,10 @@
         currentStack.top = currentStack.stack.pop();
     };
 
-    proto.transform = function (parentCmd, recursive) {
+    proto.transformWithoutParentCmd = function (recursive)
+    {
         var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;
-        parentCmd = parentCmd || this.getParentRenderCmd();
-        var parentMatrix = (parentCmd ? parentCmd._stackMatrix : cc.current_stack.top);
+        var parentMatrix = cc.current_stack.top;
 
         // Convert 3x3 into 4x4 matrix
         var trans = this.getNodeToParentTransform();
@@ -81,7 +82,37 @@
         t4x4Mat[13] = trans.ty;
 
         //optimize performance for Javascript
-        cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
+        _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
+        
+        this.setRenderZ(null, stackMatrix);
+
+        if(!recursive || !node._children)
+            return;
+        var i, len, locChildren = node._children;
+        for(i = 0, len = locChildren.length; i< len; i++){
+            locChildren[i]._renderCmd.transform(this, recursive);
+        }
+    }
+
+    proto.transform = function (parentCmd, recursive) {
+        var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;
+        var parentMatrix = parentCmd._stackMatrix;
+
+        // Convert 3x3 into 4x4 matrix
+        var trans = this.getNodeToParentTransform();
+
+        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+
+        var t4x4Mat = t4x4.mat;
+        t4x4Mat[0] = trans.a;
+        t4x4Mat[4] = trans.c;
+        t4x4Mat[12] = trans.tx;
+        t4x4Mat[1] = trans.b;
+        t4x4Mat[5] = trans.d;
+        t4x4Mat[13] = trans.ty;
+
+        //optimize performance for Javascript
+        _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
         
         this.setRenderZ(parentCmd, stackMatrix);
 
