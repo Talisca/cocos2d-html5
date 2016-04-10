@@ -319,18 +319,6 @@ cc.Node.RenderCmd.prototype = {
     getRenderZ: function(parentCmd)
     {
         var node = this._node;
-        if(node.__z)
-        {
-            return node.__z;
-        }
-        else if(parentCmd && parentCmd._node.__z)
-        {
-            return parentCmd._node.__z;
-        }
-        else
-        {
-            return 0;
-        }
     },
     setRenderZ: function(parentCmd, matrix)
     {

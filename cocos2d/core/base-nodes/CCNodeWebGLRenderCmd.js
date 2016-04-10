@@ -114,7 +114,18 @@
         //optimize performance for Javascript
         _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
         
-        this.setRenderZ(parentCmd, stackMatrix);
+        var z = 0;
+        if (node.__z) {
+            z = node.__z;
+        }
+        else {
+            var _z = parentCmd._node.__z;
+            if (_z) {
+                z = _z;
+            }
+        }
+
+        stackMatrix.mat[14] = z;
 
         if(!recursive || !node._children)
             return;
