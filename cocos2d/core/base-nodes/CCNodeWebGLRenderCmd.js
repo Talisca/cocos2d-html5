@@ -127,8 +127,9 @@
 
         if(!recursive)
             return;
-        var i, len, locChildren = node._children;
-        for(i = 0, len = locChildren.length; i< len; i++){
+        var locChildren = node._children;
+        var i = locChildren.length - 1;
+        for( i; i>=0; i--){
             locChildren[i]._renderCmd.transform(this, recursive);
         }
     }
@@ -198,8 +199,9 @@
 
         if(!recursive)
             return;
-        var i, len, locChildren = node._children;
-        for(i = 0, len = locChildren.length; i< len; i++){
+        var locChildren = node._children;
+        var i = locChildren.length - 1;
+        for( i; i>=0; i--){
             locChildren[i]._renderCmd.transform(this, recursive);
         }
     };
