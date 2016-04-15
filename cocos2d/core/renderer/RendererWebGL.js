@@ -48,14 +48,26 @@ cc.rendererWebGL = {
             len;
         var context = ctx || cc._renderContext;
         
+        for(i=locCmds.length-1; i>=0;--i)
+        {
+            var cmd = locCmds[i];
+            if(cmd.setRenderZ)
+            {
+                cmd.setRenderZ(null, cmd._stackMatrix);
+            }
+        }
         //prepare batching
         for (i = 0, len = locCmds.length; i< len; ++i) 
         {
             var cmd = locCmds[i];
+
             if(!cmd._batched && cmd.configureBatch) //may be set to true by processed cmds during this loop 
             {
                 cmd.configureBatch(locCmds,i);
             }
+
+            
+            //cmd.setRenderZ(null, cmd._stackMatrix);
         }
 
         for (i = 0, len = locCmds.length; i< len; ++i) {

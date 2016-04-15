@@ -261,7 +261,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
      */
     drawScene: function () {
         var renderer = cc.renderer;
-
+        
         // calculate "global" dt
         this.calculateDeltaTime();
 

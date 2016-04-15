@@ -88,9 +88,6 @@
             for(var j=0; j < protectChildLen; j++) {
                 var pchild = locRenderers[j];
                 if(pchild) {
-                    
-                    pchild.__z = this.getRenderZ(parentCmd);
-
                     var tempCmd = pchild._renderCmd;
                     tempCmd.transform(this, true);
                 }
@@ -113,7 +110,20 @@
         cc.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
     };
 
-    proto._syncStatus = function (parentCmd){
+    proto._syncStatus = function (parentCmd) {
+
+        //update __z values of all children because they won't be 'visible' from outside
+        var locRenderers = this._node._renderers;
+        var protectChildLen = locRenderers.length;
+        for (var j = 0; j < protectChildLen; j++) {
+            var pchild = locRenderers[j];
+            if (pchild) {
+                pchild.__z = this.getRenderZ(parentCmd);
+            }
+            else
+                break;
+        }
+
         cc.Node.WebGLRenderCmd.prototype._syncStatus.call(this, parentCmd);
         this._updateDisplayColor(this._node._displayedColor);
         this._updateDisplayOpacity(this._node._displayedOpacity);

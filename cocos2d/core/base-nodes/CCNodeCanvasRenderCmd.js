@@ -340,6 +340,7 @@ cc.Node.RenderCmd.prototype = {
          matrix.mat[14] = this.getRenderZ(parentCmd);
     },
     _syncStatus: function (parentCmd) {
+        
         //  In the visit logic does not restore the _dirtyFlag
         //  Because child elements need parent's _dirtyFlag to change himself
         var flags = _cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
@@ -376,17 +377,18 @@ cc.Node.RenderCmd.prototype = {
         if(colorDirty || opacityDirty)
             this._updateColor();
 
-        if (_cc._renderType === _cc.game.RENDER_TYPE_WEBGL || locFlag & flags.transformDirty)
-        if(parentCmd)
+        if (_cc._renderType === _cc.game.RENDER_TYPE_WEBGL && locFlag & flags.transformDirty)
         {
-            //update the transform
-            this.transform(parentCmd,true);
+            if(parentCmd)
+            {
+                //update the transform
+                this.transform(parentCmd,true);
+            }
+            else
+            {
+                this.transformWithoutParentCmd(true);
+            }
         }
-        else
-        {
-            this.transformWithoutParentCmd(true);
-        }
-            
 
         if (locFlag & flags.orderDirty)
             this._dirtyFlag = this._dirtyFlag & flags.orderDirty ^ this._dirtyFlag;

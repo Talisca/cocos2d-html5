@@ -84,7 +84,7 @@
         //optimize performance for Javascript
         _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
         
-        this.setRenderZ(null, stackMatrix);
+        //this.setRenderZ(null, stackMatrix);
 
         if(!recursive || !node._children)
             return;
@@ -95,6 +95,7 @@
     }
 
     proto.transform = function (parentCmd, recursive) {
+        //if(!this._node.isVisible()) return;
         var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;
         var parentMatrix = parentCmd._stackMatrix;
 
@@ -114,7 +115,7 @@
         //optimize performance for Javascript
         _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
         
-        this.setRenderZ(parentCmd, stackMatrix);
+        //this.setRenderZ(parentCmd, stackMatrix);
 
         if(!recursive || !node._children)
             return;
