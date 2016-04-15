@@ -332,12 +332,10 @@ cc.Node.RenderCmd.prototype = {
             return 0;
         }
     },
-    setRenderZ: function(parentCmd, matrix)
+    setRenderZ: function(z)
     {
-        var node = this._node;
-        var parentCmd = parentCmd || this.getParentRenderCmd();
-
-         matrix.mat[14] = this.getRenderZ(parentCmd);
+        this._stackMatrix.mat[14] = z;
+        return;
     },
     _syncStatus: function (parentCmd) {
         

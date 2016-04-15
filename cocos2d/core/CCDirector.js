@@ -284,16 +284,22 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
 
         // draw the scene
         if (this._runningScene) {
+            
+            
             if (renderer.childrenOrderDirty === true) {
                 cc.renderer.clearRenderCommands();
                 this._runningScene._renderCmd._curLevel = 0;                          //level start from 0;
+                
+                //this.assignZ(this._runningScene);
                 this._runningScene.visit();
                 renderer.resetFlag();
-                this.assignZ(this._runningScene);
+                
             } else if (renderer.transformDirty() === true)
                 renderer.transform();
-        }
 
+           
+        }
+        
         // draw the notifications node
         if (this._notificationNode)
             this._notificationNode.visit();
@@ -303,6 +309,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
 
         if (this._afterVisitScene)
             this._afterVisitScene();
+        
 
         renderer.rendering(cc._renderContext);
         this._totalFrames++;
