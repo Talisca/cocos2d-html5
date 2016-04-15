@@ -63,11 +63,8 @@ cc.rendererWebGL = {
 
             if(!cmd._batched && cmd.configureBatch) //may be set to true by processed cmds during this loop 
             {
-                //cmd.configureBatch(locCmds,i);
+                cmd.configureBatch(locCmds,i);
             }
-
-            
-            //cmd.setRenderZ(null, cmd._stackMatrix);
         }
 
         for (i = 0, len = locCmds.length; i< len; ++i) {
@@ -82,7 +79,7 @@ cc.rendererWebGL = {
             }
         }
 
-         //prepare batching
+        //prepare batching
         for (i = 0, len = locCmds.length; i< len; ++i) 
         {
             locCmds[i]._batched = false;
