@@ -308,7 +308,7 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
                 var gl = cc._renderContext;
 
                 cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-                gl.bindBuffer(gl.ARRAY_BUFFER, this._trianglesWebBuffer);
+                cc.glBindArrayBuffer( this._trianglesWebBuffer);
                 if (this._dirty) {
                     gl.bufferData(gl.ARRAY_BUFFER, this._trianglesArrayBuffer, gl.STREAM_DRAW);
                     this._dirty = false;

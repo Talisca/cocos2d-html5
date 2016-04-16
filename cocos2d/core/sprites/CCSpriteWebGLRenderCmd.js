@@ -31,7 +31,7 @@
 
         this._quad = new cc.V3F_C4B_T2F_Quad();
         this._quadBufferView = new Uint32Array(this._quad.arrayBuffer);
-        this._quadWebBuffer = cc._renderContext.createBuffer();
+        this._quadWebBuffer = _cc._quadBufferAllocator.getBuffer();
         this._quadDirty = true;
         this._dirty = false;
         this._recursiveDirty = false;
@@ -54,16 +54,15 @@
     proto.createBatchBuffer = function(numSprites)
     {
         var arrayBuffer = gl.createBuffer();
-        var elementBuffer = gl.createBuffer();
 
-        this.initBatchBuffers(arrayBuffer,elementBuffer,numSprites);
+        this.initBatchBuffers(arrayBuffer,numSprites);
 
-        return {arrayBuffer: arrayBuffer, elementBuffer: elementBuffer, size: numSprites };
+        return {arrayBuffer: arrayBuffer, size: numSprites };
     }
 
-    proto.initBatchBuffers = function(arrayBuffer, elementBuffer, numSprites)
+    proto.initBatchBuffers = function(arrayBuffer, numSprites)
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+        cc.glBindArrayBuffer( arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.byteSizePerSprite * numSprites ,gl.DYNAMIC_DRAW);
     }
 
@@ -100,7 +99,7 @@
             //we only get here if no properly sized buffer was found
             //in that case, take smallest buffer in pool, resize it and return it
             pool.removeByLastSwap(minBufIndex);
-            this.initBatchBuffers(minBuf.arrayBuffer,minBuf.elementBuffer,numSprites);
+            this.initBatchBuffers(minBuf.arrayBuffer,numSprites);
             minBuf.size = numSprites;
             return minBuf;
         }
@@ -504,15 +503,15 @@
                 cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
                 cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
+                cc.glBindArrayBuffer(this._quadWebBuffer.buffer);
                 if (this._quadDirty) {
-                    gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
+                    gl.bufferSubData(gl.ARRAY_BUFFER, this._quadWebBuffer.byteOffset, this._quad.arrayBuffer);
                     this._quadDirty = false;
                 }
                 gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
                 gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
                 gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                gl.drawArrays(gl.TRIANGLE_STRIP, this._quadWebBuffer.quadIndex*4, 4);
             
         } else {
             program.use();
@@ -523,14 +522,14 @@
 
             cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
+            cc.glBindArrayBuffer( this._quadWebBuffer.buffer);
             if (this._quadDirty) {
-                gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.STATIC_DRAW);
+                gl.bufferSubData(gl.ARRAY_BUFFER, this._quadWebBuffer.quadIndex*4, this._quad.arrayBuffer);
                 this._quadDirty = false;
             }
             gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);
             gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            gl.drawArrays(gl.TRIANGLE_STRIP, this._quadWebBuffer.quadIndex*4, 4);
         }
         
        

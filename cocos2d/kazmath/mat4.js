@@ -45,6 +45,8 @@
         } else {
             this.mat = new Float32Array(16);
         }
+
+        this.u32view = new Uint32Array(this.mat.buffer);
     };
     cc.kmMat4 = cc.math.Matrix4;
     var proto = cc.math.Matrix4.prototype;

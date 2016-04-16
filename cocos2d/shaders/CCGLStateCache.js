@@ -338,3 +338,22 @@ cc.glEnable = function (flags) {
     }
 };
 
+cc._currentArrayBuffer = null
+
+cc.glBindArrayBuffer = function(buffer)
+{
+    if(cc._currentArrayBuffer !== buffer)
+    {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        cc._currentArrayBuffer = buffer;
+    }
+}
+
+cc._currentIndexBuffer = null
+
+cc.glBindIndexBuffer = function (buffer) {
+    if (cc._currentIndexBuffer !== buffer) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+        cc._currentIndexBuffer = buffer;
+    }
+}

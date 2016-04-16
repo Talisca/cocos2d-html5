@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var _cc = cc;
 cc._tmp.WebGLTexture2D = function () {
 
     /**
@@ -787,10 +788,10 @@ cc._tmp.WebGLTextureAtlas = function () {
         var _t = this;
         var gl = cc._renderContext;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+        cc.glBindArrayBuffer(_t._quadsWebBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+        cc.glBindIndexBuffer(_t._buffersVBO[1]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _t._indices, gl.STATIC_DRAW);
 
         //cc.checkGLErrorDebug();
@@ -819,7 +820,7 @@ cc._tmp.WebGLTextureAtlas = function () {
         // XXX: update is done in draw... perhaps it should be done in a timer
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+        cc.glBindArrayBuffer(_t._quadsWebBuffer);
         if (_t.dirty){
             gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
             _t.dirty = false;
@@ -829,7 +830,7 @@ cc._tmp.WebGLTextureAtlas = function () {
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+        cc.glBindIndexBuffer(_t._buffersVBO[1]);
 
         if (cc.TEXTURE_ATLAS_USE_TRIANGLE_STRIP)
             gl.drawElements(gl.TRIANGLE_STRIP, n * 6, gl.UNSIGNED_SHORT, start * 6 * _t._indices.BYTES_PER_ELEMENT);

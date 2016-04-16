@@ -87,10 +87,10 @@
         //
         // Attributes
         //
-        context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        cc.glBindArrayBuffer( this._verticesFloat32Buffer);
         context.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
 
-        context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
+        cc.glBindArrayBuffer( this._colorsUint8Buffer);
         context.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
 
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
@@ -140,13 +140,13 @@
 
     proto._bindLayerVerticesBufferData = function(){
         var glContext = cc._renderContext;
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        cc.glBindArrayBuffer( this._verticesFloat32Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareVerticesAB, glContext.STATIC_DRAW);
     };
 
     proto._bindLayerColorsBufferData = function(){
         var glContext = cc._renderContext;
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._colorsUint8Buffer);
+        cc.glBindArrayBuffer( this._colorsUint8Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareColorsAB, glContext.STATIC_DRAW);
     };
 
@@ -290,9 +290,9 @@
         //
         // Attributes
         //
-        context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
+        cc.glBindArrayBuffer( this._verticesFloat32Buffer);
         context.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
-        context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
+        cc.glBindArrayBuffer( this._colorsUint8Buffer);
         context.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
 
