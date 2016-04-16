@@ -65,9 +65,6 @@
     {
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.byteSizePerSprite * numSprites ,gl.DYNAMIC_DRAW);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indicesPerSprite * 2 * numSprites, gl.DYNAMIC_DRAW); //*2 because we use shorts for indices
     }
 
     //returns an object with {arrayBuffer, elementBuffer, size}, where size denotes how many sprites fit in the buffer (no need for bufferData if it's already big enough, bufferSubData enough)

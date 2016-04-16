@@ -62,6 +62,50 @@
         //optimize performance for javascript
         currentStack.top = currentStack.stack.pop();
     };
+    
+    proto.createQuadIndexBuffer = function(glBuffer, numQuads)
+    {
+         //create element buffer
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glBuffer);
+
+        var indices = new Uint16Array(numQuads * 6);
+
+        var currentQuad = 0;
+        for (var i = 0; i < numQuads * 6; i += 6) {
+            indices[i] = currentQuad + 0;
+            indices[i + 1] = currentQuad + 1;
+            indices[i + 2] = currentQuad + 2;
+            indices[i + 3] = currentQuad + 1;
+            indices[i + 4] = currentQuad + 2;
+            indices[i + 5] = currentQuad + 3;
+
+            currentQuad += 4;
+        }
+
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    }
+
+    proto._quadIndexBuffer = {buffer: null, maxQuads: -1};
+
+    //returns an index buffer that contains indices to draw quads in the 'typical' quad setup
+    //i.e. rendering 6 vertices, first index 0 1 2 for the first triangle, then 1 2 3 for the second one.
+    //we provide this here because whenever a render cmd needs to draw multiple quads, we can use the same index buffer for indexing.
+    proto.getQuadIndexBuffer = function(numQuads)
+    {
+        var buf = proto._quadIndexBuffer;
+        if(buf.buffer === null)
+        {
+            buf.buffer = gl.createBuffer();
+        }
+
+        if(buf.maxQuads < numQuads)
+        {
+            this.createQuadIndexBuffer(proto._quadIndexBuffer.buffer, numQuads);
+            buf.maxQuads = numQuads;
+        }
+
+        return proto._quadIndexBuffer.buffer;
+    }
 
     proto.transformWithoutParentCmd = function (recursive)
     {
