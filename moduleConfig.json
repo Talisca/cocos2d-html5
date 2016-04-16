@@ -101,7 +101,6 @@
             "cocos2d/core/sprites/CCSprite.js",
             "cocos2d/core/sprites/CCSpriteCanvasRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteWebGLRenderCmd.js",
-			"cocos2d/core/sprites/SpriteWebGLBasicRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteBatchNode.js",
             "cocos2d/core/sprites/CCSpriteBatchNodeCanvasRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteBatchNodeWebGLRenderCmd.js",
@@ -127,9 +126,8 @@
             "cocos2d/core/labelttf/CCLabelTTFWebGLRenderCmd.js",
 
             "cocos2d/core/CCActionManager.js",
-
-          "cocos2d/core/utils/CCProfiler.js",
-          "cocos2d/core/utils/glbufferallocator.js"
+            
+            "cocos2d/core/utils/CCProfiler.js"
         ],
         "effects" : [
             "core",

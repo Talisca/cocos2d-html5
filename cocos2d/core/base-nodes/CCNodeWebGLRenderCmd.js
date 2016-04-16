@@ -66,7 +66,7 @@
     proto.createQuadIndexBuffer = function(glBuffer, numQuads)
     {
          //create element buffer
-        cc.glBindIndexBuffer(glBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glBuffer);
 
         var indices = new Uint16Array(numQuads * 6);
 

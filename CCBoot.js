@@ -2251,10 +2251,7 @@ cc.game = /** @lends cc.game# */{
             this._prepareCalled = true;
 
             this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
-            
-            //init stuff that can't be inited when the page is loading
-            cc._quadBufferAllocator = new cc.WebGLFixedBufferAllocator(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT);
-            
+
             /**
              * @type {cc.EGLView}
              * @name cc.view

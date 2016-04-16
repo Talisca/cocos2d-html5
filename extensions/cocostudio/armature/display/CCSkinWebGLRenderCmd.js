@@ -108,7 +108,7 @@
             cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
             cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-            cc.glBindArrayBuffer( this._quadWebBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             if (this._quadDirty) {
                 gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
                 this._quadDirty = false;

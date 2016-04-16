@@ -46,17 +46,17 @@ cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
         cc.glBindTexture2D(node.texture);
 
         //position
-        cc.glBindArrayBuffer(node._verticesBuffer);
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._vertices, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, ctx.FLOAT, false, 0, 0);
 
         //texcoords
-        cc.glBindArrayBuffer(node._texCoordsBuffer);
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._texCoordsBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._texCoords, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, ctx.FLOAT, false, 0, 0);
 
         //colors
-        cc.glBindArrayBuffer(node._colorPointerBuffer);
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, node._colorPointerBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._colorPointer, ctx.DYNAMIC_DRAW);
         ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, ctx.UNSIGNED_BYTE, true, 0, 0);
 

@@ -1,5 +1,4 @@
-(function () {
-    var _cc = cc;
+(function() {
     cc.Sprite.BasicWebGLRenderCmd = function (renderable) {
         cc.Sprite.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
@@ -60,7 +59,7 @@
         var totalBufferSize = count * this.byteSizePerSprite;
         var uploadBuffer = new Uint32Array(totalBufferSize / 4);
 
-        cc.glBindArrayBuffer( this._batchBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
 
         for (var j = myIndex; j < i; ++j) {
             var cmd = renderCmds[j];
@@ -72,7 +71,7 @@
                 uploadBuffer[vertexDataOffset + k] = source[k];
             }
 
-            var matData = cmd._stackMatrix.u32view;
+            var matData = new Uint32Array(cmd._stackMatrix.mat.buffer);
 
             source = matData;
             len = source.length;
@@ -114,7 +113,7 @@
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
 
-        cc.glBindArrayBuffer( this._batchBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
 
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
@@ -128,7 +127,7 @@
         }
         
         var elemBuffer = this.getQuadIndexBuffer(count);
-        cc.glBindIndexBuffer( elemBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elemBuffer);
         //gl.drawArrays(gl.TRIANGLE_STRIP, 0, count*4);
         gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, 0);
 
