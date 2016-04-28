@@ -281,6 +281,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
             }
 
             strArr[i] = sLine || tmpText;
+            strArr[i] = strArr[i].trim();
             strArr.splice(i, 0, sText);
         }
     };
