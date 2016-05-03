@@ -646,7 +646,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                         if(animation)
                         {
                         	this._tileAnimations[this.parentGID] = [];
-							var frames = animation.children;
+							var frames = animation.getElementsByTagName("frame");
 							for(var i=0;i<frames.length;++i)
 							{
 								var frame = frames[i];
