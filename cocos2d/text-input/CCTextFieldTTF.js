@@ -319,6 +319,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      * @return {Boolean}
      */
     attachWithIME:function () {
+         cc.LabelTTF.prototype.setString.call(this,"");
         return cc.imeDispatcher.attachDelegateWithIME(this);
     },
 
@@ -327,6 +328,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      * @return {Boolean}
      */
     detachWithIME:function () {
+        cc.LabelTTF.prototype.setString.call(this,this._placeHolder);
         return cc.imeDispatcher.detachDelegateWithIME(this);
     },
 
