@@ -75,57 +75,112 @@
         var curColor = {r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity};
         var locItemWidth = node._itemWidth;
         var locItemHeight = node._itemHeight;
-        for (var i = 0, cr = -1; i < n; i++) {
-            var a = locString.charCodeAt(i) - node._mapStartChar.charCodeAt(0);
-            var row = a % node._itemsPerRow;
-            var col = 0 | (a / node._itemsPerRow);
-            if(row < 0 || col < 0)
-                continue;
-            if(row*locItemWidth + locItemWidth > textureWide || col*locItemHeight + locItemHeight > textureHigh)
-                continue;
+        if(!node._charDictMode)
+        {
+            for (var i = 0, cr = -1; i < n; i++) {
+                var a = locString.charCodeAt(i) - node._mapStartChar.charCodeAt(0);
+                var row = a % node._itemsPerRow;
+                var col = 0 | (a / node._itemsPerRow);
+                if(row < 0 || col < 0)
+                    continue;
+                if(row*locItemWidth + locItemWidth > textureWide || col*locItemHeight + locItemHeight > textureHigh)
+                    continue;
 
-            cr++;
-            var left, right, top, bottom;
-            if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
-                // Issue #938. Don't use texStepX & texStepY
-                left = (2 * row * itemWidthInPixels + 1) / (2 * textureWide);
-                right = left + (itemWidthInPixels * 2 - 2) / (2 * textureWide);
-                top = (2 * col * itemHeightInPixels + 1) / (2 * textureHigh);
-                bottom = top + (itemHeightInPixels * 2 - 2) / (2 * textureHigh);
-            } else {
-                left = row * itemWidthInPixels / textureWide;
-                right = left + itemWidthInPixels / textureWide;
-                top = col * itemHeightInPixels / textureHigh;
-                bottom = top + itemHeightInPixels / textureHigh;
+                cr++;
+                var left, right, top, bottom;
+                if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
+                    // Issue #938. Don't use texStepX & texStepY
+                    left = (2 * row * itemWidthInPixels + 1) / (2 * textureWide);
+                    right = left + (itemWidthInPixels * 2 - 2) / (2 * textureWide);
+                    top = (2 * col * itemHeightInPixels + 1) / (2 * textureHigh);
+                    bottom = top + (itemHeightInPixels * 2 - 2) / (2 * textureHigh);
+                } else {
+                    left = row * itemWidthInPixels / textureWide;
+                    right = left + itemWidthInPixels / textureWide;
+                    top = col * itemHeightInPixels / textureHigh;
+                    bottom = top + itemHeightInPixels / textureHigh;
+                }
+                var quad = quads[i];
+                var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;
+                locQuadTL.texCoords.u = left;
+                locQuadTL.texCoords.v = top;
+                locQuadTR.texCoords.u = right;
+                locQuadTR.texCoords.v = top;
+                locQuadBL.texCoords.u = left;
+                locQuadBL.texCoords.v = bottom;
+                locQuadBR.texCoords.u = right;
+                locQuadBR.texCoords.v = bottom;
+
+                locQuadBL.vertices.x = (cr * locItemWidth);
+                locQuadBL.vertices.y = 0;
+                locQuadBL.vertices.z = 0.0;
+                locQuadBR.vertices.x = (cr * locItemWidth + locItemWidth);
+                locQuadBR.vertices.y = 0;
+                locQuadBR.vertices.z = 0.0;
+                locQuadTL.vertices.x = cr * locItemWidth;
+                locQuadTL.vertices.y = node._itemHeight;
+                locQuadTL.vertices.z = 0.0;
+                locQuadTR.vertices.x = cr * locItemWidth + locItemWidth;
+                locQuadTR.vertices.y = node._itemHeight;
+                locQuadTR.vertices.z = 0.0;
+                locQuadTL.colors = curColor;
+                locQuadTR.colors = curColor;
+                locQuadBL.colors = curColor;
+                locQuadBR.colors = curColor;
             }
-            var quad = quads[i];
-            var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;
-            locQuadTL.texCoords.u = left;
-            locQuadTL.texCoords.v = top;
-            locQuadTR.texCoords.u = right;
-            locQuadTR.texCoords.v = top;
-            locQuadBL.texCoords.u = left;
-            locQuadBL.texCoords.v = bottom;
-            locQuadBR.texCoords.u = right;
-            locQuadBR.texCoords.v = bottom;
-
-            locQuadBL.vertices.x = (cr * locItemWidth);
-            locQuadBL.vertices.y = 0;
-            locQuadBL.vertices.z = 0.0;
-            locQuadBR.vertices.x = (cr * locItemWidth + locItemWidth);
-            locQuadBR.vertices.y = 0;
-            locQuadBR.vertices.z = 0.0;
-            locQuadTL.vertices.x = cr * locItemWidth;
-            locQuadTL.vertices.y = node._itemHeight;
-            locQuadTL.vertices.z = 0.0;
-            locQuadTR.vertices.x = cr * locItemWidth + locItemWidth;
-            locQuadTR.vertices.y = node._itemHeight;
-            locQuadTR.vertices.z = 0.0;
-            locQuadTL.colors = curColor;
-            locQuadTR.colors = curColor;
-            locQuadBL.colors = curColor;
-            locQuadBR.colors = curColor;
         }
+        else
+        {
+            var map = node._charMap;
+            var x =0;
+            var invTexHeight = 1/textureHigh;
+            var invTexWidth =  1/textureWide;
+            var lineHeight = node._lineHeight;
+            var currentLine = lineHeight;
+            for (var i = 0, cr = -1; i < n; i++) {
+                var a = locString.charCodeAt(i);
+                var mapEntry = map[a];
+                var rect = mapEntry.rect;
+
+                var left, right, top, bottom;
+
+                left = (rect.x) * invTexWidth;
+                right = (rect.x + rect.width) * invTexWidth;
+                top = (rect.y) * invTexHeight;
+                bottom = (rect.y + rect.height) * invTexHeight;
+                
+                var quad = quads[i];
+                var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;
+                locQuadTL.texCoords.u = left;
+                locQuadTL.texCoords.v = top;
+                locQuadTR.texCoords.u = right;
+                locQuadTR.texCoords.v = top;
+                locQuadBL.texCoords.u = left;
+                locQuadBL.texCoords.v = bottom;
+                locQuadBR.texCoords.u = right;
+                locQuadBR.texCoords.v = bottom;
+
+                locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5;
+                locQuadBL.vertices.y = currentLine - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBL.vertices.z = 0.0;
+                locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
+                locQuadBR.vertices.y = currentLine - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBR.vertices.z = 0.0;
+                locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5;
+                locQuadTL.vertices.y = currentLine - mapEntry.yOffset + 0.5;
+                locQuadTL.vertices.z = 0.0;
+                locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
+                locQuadTR.vertices.y =  currentLine - mapEntry.yOffset + 0.5 ;
+                locQuadTR.vertices.z = 0.0;
+                locQuadTL.colors = curColor;
+                locQuadTR.colors = curColor;
+                locQuadBL.colors = curColor;
+                locQuadBR.colors = curColor;
+
+                x+= mapEntry.xAdvance;
+            }
+        }
+        
         this.updateContentSize(i, cr+1);
         if (n > 0) {
             locTextureAtlas.dirty = true;
