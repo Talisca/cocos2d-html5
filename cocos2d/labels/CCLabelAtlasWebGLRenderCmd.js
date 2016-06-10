@@ -62,85 +62,85 @@
         var texture = locTextureAtlas.texture;
         var textureWide = texture.pixelsWidth;
         var textureHigh = texture.pixelsHeight;
-        var itemWidthInPixels = node._itemWidth;
-        var itemHeightInPixels = node._itemHeight;
-        if (!node._ignoreContentScaleFactor) {
-            itemWidthInPixels = node._itemWidth * cc.contentScaleFactor();
-            itemHeightInPixels = node._itemHeight * cc.contentScaleFactor();
-        }
-        if (n > locTextureAtlas.getCapacity())
-            cc.log("cc.LabelAtlas._updateAtlasValues(): Invalid String length");
+
         var quads = locTextureAtlas.quads;
         var locDisplayedColor = this._displayedColor;
         var curColor = {r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity};
-        var locItemWidth = node._itemWidth;
-        var locItemHeight = node._itemHeight;
-        if(!node._charDictMode)
+
+        var map = node._charMap;
+        var x =0;
+
+        //first we have to split lines
+        var lines =[];
+        var lastLineBeginning = 0;
+        for(var i=0;i<n;++i)
         {
-            for (var i = 0, cr = -1; i < n; i++) {
-                var a = locString.charCodeAt(i) - node._mapStartChar.charCodeAt(0);
-                var row = a % node._itemsPerRow;
-                var col = 0 | (a / node._itemsPerRow);
-                if(row < 0 || col < 0)
-                    continue;
-                if(row*locItemWidth + locItemWidth > textureWide || col*locItemHeight + locItemHeight > textureHigh)
-                    continue;
-
-                cr++;
-                var left, right, top, bottom;
-                if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
-                    // Issue #938. Don't use texStepX & texStepY
-                    left = (2 * row * itemWidthInPixels + 1) / (2 * textureWide);
-                    right = left + (itemWidthInPixels * 2 - 2) / (2 * textureWide);
-                    top = (2 * col * itemHeightInPixels + 1) / (2 * textureHigh);
-                    bottom = top + (itemHeightInPixels * 2 - 2) / (2 * textureHigh);
-                } else {
-                    left = row * itemWidthInPixels / textureWide;
-                    right = left + itemWidthInPixels / textureWide;
-                    top = col * itemHeightInPixels / textureHigh;
-                    bottom = top + itemHeightInPixels / textureHigh;
-                }
-                var quad = quads[i];
-                var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;
-                locQuadTL.texCoords.u = left;
-                locQuadTL.texCoords.v = top;
-                locQuadTR.texCoords.u = right;
-                locQuadTR.texCoords.v = top;
-                locQuadBL.texCoords.u = left;
-                locQuadBL.texCoords.v = bottom;
-                locQuadBR.texCoords.u = right;
-                locQuadBR.texCoords.v = bottom;
-
-                locQuadBL.vertices.x = (cr * locItemWidth);
-                locQuadBL.vertices.y = 0;
-                locQuadBL.vertices.z = 0.0;
-                locQuadBR.vertices.x = (cr * locItemWidth + locItemWidth);
-                locQuadBR.vertices.y = 0;
-                locQuadBR.vertices.z = 0.0;
-                locQuadTL.vertices.x = cr * locItemWidth;
-                locQuadTL.vertices.y = node._itemHeight;
-                locQuadTL.vertices.z = 0.0;
-                locQuadTR.vertices.x = cr * locItemWidth + locItemWidth;
-                locQuadTR.vertices.y = node._itemHeight;
-                locQuadTR.vertices.z = 0.0;
-                locQuadTL.colors = curColor;
-                locQuadTR.colors = curColor;
-                locQuadBL.colors = curColor;
-                locQuadBR.colors = curColor;
+            var charCode = locString.charCodeAt(i);
+            var char = locString[i];
+            if(char === "\n") //just split to next line 
+            {
+                lines.push(locString.substr(lastLineBeginning, i - lastLineBeginning));
+                i++;//skip over \n
+                x =0;
+                lastLineBeginning = i;
             }
+            else if(char === " ") //if there's a space we have to scan the next word to see if it goes 
+            {
+                //scan next word
+                var begun =false;
+                var nextX = x;
+                for(var j=i+1;j<n;++j) //find next word 
+                {
+                    char = locString[j];
+                    if(char !== " ") //check for starting space, here it begins
+                    {
+                        begun = true;
+
+                        var entry = map[locString.charCodeAt(j)];
+                        if(entry) //advance the x position with every char along the word
+                        {
+                            nextX+= entry.xAdvance;
+                        }
+                    }
+                    else if(char === " " && begun) //another space found, this is the end
+                    {
+                        break;
+                    }
+                }
+
+                if(nextX > node._lineWidth) //bigger than max linewidth? break lines up on last word
+                {
+                    lines.push(locString.substr(lastLineBeginning, i - lastLineBeginning));
+                    lastLineBeginning = i+1;
+                    x=0;
+                }
+            }
+            else
+            {
+                var entry = map[charCode];
+                if(entry)
+                {
+                    x+= entry.xAdvance;
+                }
+            }
+            
         }
-        else
+
+        var invTexHeight = 1/textureHigh;
+        var invTexWidth =  1/textureWide;
+        var lineHeight = node._lineHeight;
+
+        var currentChar = 0;
+        for(var line = 0; line < lines.length; ++line)
         {
-            var map = node._charMap;
-            var x =0;
-            var invTexHeight = 1/textureHigh;
-            var invTexWidth =  1/textureWide;
-            var lineHeight = node._lineHeight;
-            var currentLine = lineHeight;
-            for (var i = 0, cr = -1; i < n; i++) {
-                var a = locString.charCodeAt(i);
+            var y = -lineHeight * line + lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
+            var word = lines[line];
+            x = 0;
+            for (var i = 0; i < word.length; i++) 
+            {
+                var a = word.charCodeAt(i);
                 var mapEntry = map[a];
-                var rect = mapEntry.rect;
+                var rect = mapEntry.rect; //NOTICE FOR DEBUGGERS: IF THIS LINE CRASHES, MOST LIKELY YOUR FONT IS MISSING SOME CHARACTERS YOU USED IN THE STRING
 
                 var left, right, top, bottom;
 
@@ -148,8 +148,8 @@
                 right = (rect.x + rect.width) * invTexWidth;
                 top = (rect.y) * invTexHeight;
                 bottom = (rect.y + rect.height) * invTexHeight;
-                
-                var quad = quads[i];
+
+                var quad = quads[currentChar];
                 var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;
                 locQuadTL.texCoords.u = left;
                 locQuadTL.texCoords.v = top;
@@ -161,16 +161,16 @@
                 locQuadBR.texCoords.v = bottom;
 
                 locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5;
-                locQuadBL.vertices.y = currentLine - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBL.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
                 locQuadBL.vertices.z = 0.0;
                 locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
-                locQuadBR.vertices.y = currentLine - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBR.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
                 locQuadBR.vertices.z = 0.0;
                 locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5;
-                locQuadTL.vertices.y = currentLine - mapEntry.yOffset + 0.5;
+                locQuadTL.vertices.y = y - mapEntry.yOffset + 0.5;
                 locQuadTL.vertices.z = 0.0;
                 locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
-                locQuadTR.vertices.y =  currentLine - mapEntry.yOffset + 0.5 ;
+                locQuadTR.vertices.y =  y - mapEntry.yOffset + 0.5 ;
                 locQuadTR.vertices.z = 0.0;
                 locQuadTL.colors = curColor;
                 locQuadTR.colors = curColor;
@@ -178,10 +178,11 @@
                 locQuadBR.colors = curColor;
 
                 x+= mapEntry.xAdvance;
+                currentChar++;
             }
         }
         
-        this.updateContentSize(i, cr+1);
+        this.updateContentSize(i, 1);
         if (n > 0) {
             locTextureAtlas.dirty = true;
             var totalQuads = locTextureAtlas.totalQuads;

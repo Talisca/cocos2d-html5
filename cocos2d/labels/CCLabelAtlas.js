@@ -67,13 +67,19 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
      * @param {Number} [itemHeight=0]
      * @param {Number} [startCharMap=""]
      */
-    ctor: function (strText, charMapFile, itemWidth, itemHeight, startCharMap) {
+    ctor: function (strText, charMapFile, lineWidth) {
         cc.AtlasNode.prototype.ctor.call(this);
 
         this._renderCmd.setCascade();
-        charMapFile && cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile, itemWidth, itemHeight, startCharMap);
+        this._lineWidth = lineWidth || Number.MAX_VALUE;
+        this._breakWithoutSpace = false;
+        charMapFile && cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile);
     },
-
+    
+    setBreakWithoutSpace: function(value)
+    {
+        this._breakWithoutSpace = value;
+    },
     _createRenderCmd: function(){
             return new cc.LabelAtlas.WebGLRenderCmd(this);
     },
