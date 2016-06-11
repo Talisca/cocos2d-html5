@@ -214,6 +214,8 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
      * @param {String} label
      */
     setString: function(label){
+        if(this._string === label)
+            return;
         label = String(label);
         var len = label.length;
         this._string = label;
