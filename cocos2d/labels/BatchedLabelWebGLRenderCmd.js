@@ -43,6 +43,10 @@
     proto.rendering = function ()
     {
         var node = this._node;
+        if(node._stringDirty)
+        {
+            this.updateAtlasValues();
+        }
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
@@ -59,32 +63,19 @@
         gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
         gl.drawElements(gl.TRIANGLES, 6 * this._drawnQuads, gl.UNSIGNED_SHORT, 0);
     };
+    
+    //parses and prepares various string like splitting up the string into multiple lines based on the maximum line size
+    //returns the maximum measured line length
+    proto.prepareStringData = function(string, outLines, outLineWidths)
+    {
+        var map = this._node._charMap;
+        var words = string.split(" ");
 
-    proto.updateAtlasValues = function () {
-        var node = this._node;
-        var locString = node._string;
-
-        var locTextureAtlas = node._atlasTexture;
-
-        var texture = locTextureAtlas;
-        var textureWide = texture.pixelsWidth;
-        var textureHigh = texture.pixelsHeight;
-
-        var quads = this._quadBuffer.getQuads();
-        var locDisplayedColor = this._displayedColor;
-        var curColor = { r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity };
-
-        var map = node._charMap;
-        var x = 0;
-
-        //// PARSE STRING DATA and make sure it doesnt go above max line size, lines, line widths, etc.
-        var words = locString.split(" ");
-
-        var lineWidths = [];
-        var lines = [];
+        var lineWidths = outLineWidths;
+        var lines = outLines;
         var maxX = 0;
         var lineWidth = 0;
-        var maxLineWidth = node._lineWidth;
+        var maxLineWidth = this._node._lineWidth;
         var line = "";
         
         var word = words[0];
@@ -97,7 +88,7 @@
         line+= word;
         lineWidth += width;
         maxX = Math.max(lineWidth,maxX);
-        
+
         //first and last word must be handled differently (code is above and below this loop) so we start from i = 1
         var spaceWidth = map[" ".charCodeAt(0)].xAdvance;
         for(var i=1;i< words.length; ++i)
@@ -134,8 +125,33 @@
 
         lines.push(line);
         lineWidths.push(lineWidth);
+
+        return maxX;
+    }
+
+    proto.updateAtlasValues = function () {
+        var node = this._node;
+        var locString = node._string;
+
+        var locTextureAtlas = node._atlasTexture;
+
+        var texture = locTextureAtlas;
+        var textureWide = texture.pixelsWidth;
+        var textureHigh = texture.pixelsHeight;
+
+        var quads = this._quadBuffer.getQuads();
+        var locDisplayedColor = this._displayedColor;
+        var curColor = { r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity };
+
+        var map = node._charMap;
+        var x = 0;
+
+        //// PARSE STRING DATA and make sure it doesnt go above max line size, lines, line widths, etc.
+        var lineWidths = [];
+        var lines = [];
         
-      
+        var maxX = this.prepareStringData(locString, lines,lineWidths);
+
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
         var lineHeight = node._lineHeight;
@@ -213,6 +229,7 @@
         node.height = this._contentSize.height;
 
         this._quadBuffer.updateGLBuffers();
+        node._stringDirty = false;
         //this.updateContentSize(i, 1);
         /*if (n > 0) {
             locTextureAtlas.dirty = true;

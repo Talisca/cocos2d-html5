@@ -18,10 +18,12 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
      */
     ctor: function (strText, _charMapFile, lineWidth) {
         cc.Node.prototype.ctor.call(this);
+        this._stringDirty = false;
         this._lineWidth = lineWidth || Number.MAX_VALUE;
         this._displayedColor = new cc.Color(255, 255, 255, 255);
         this.setAnchorPoint(0.5,0.5);
         this.setHorizontalAlignment(cc.TEXT_ALIGNMENT_LEFT);
+       
 
         var dict = cc.loader.getRes(_charMapFile || cc.BatchedLabel.prototype._defaultCharMapFile);
 
@@ -59,12 +61,12 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     setMaxLineWidth: function(width)
     {
         this._lineWidth = width;
-        this._renderCmd.updateAtlasValues();
+        this._stringDirty = true;
     },
     setHorizontalAlignment: function(align)
     {
         this._horizontalAlignment = align;
-        this._renderCmd._updateAtlasValues();  
+        this._stringDirty = true; 
     },
     setVerticalAlignment: function(align)
     {
