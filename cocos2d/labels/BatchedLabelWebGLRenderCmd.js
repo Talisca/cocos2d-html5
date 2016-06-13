@@ -77,70 +77,52 @@
         var x = 0;
 
         //first we have to split lines
-        var lines = [];
+        var lines = locString.split(" ");
+
+        var lineWidths = [];
         var lastLineBeginning = 0;
-        for (var i = 0; i < locString.length; ++i) {
-            var charCode = locString.charCodeAt(i);
-            var char = locString[i];
-            if (char === "\n") //just split to next line 
+        var maxX = 0;
+        for(var i=0;i< lines.length; ++i)
+        {
+            if(lines[i].length ===0)
             {
-                lines.push(locString.substr(lastLineBeginning, i - lastLineBeginning));
-                i++;//skip over \n
-                x = 0;
-                lastLineBeginning = i;
+                lines.removeByLastSwap(i);
             }
-            else if (char === " ") //if there's a space we have to scan the next word to see if it goes 
+
+            var line = lines[i];
+            var width = 0;
+            for(var j=line.length-1;j>=0;--j)
             {
-                //scan next word
-                var begun = false;
-                var nextX = x;
-                for (var j = i + 1; j < locString.length; ++j) //find next word 
-                {
-                    char = locString[j];
-                    if (char !== " ") //check for starting space, here it begins
-                    {
-                        begun = true;
-
-                        var entry = map[locString.charCodeAt(j)];
-                        if (entry) //advance the x position with every char along the word
-                        {
-                            nextX += entry.xAdvance;
-                        }
-                    }
-                    else if (char === " " && begun) //another space found, this is the end
-                    {
-                        break;
-                    }
-                }
-
-                if (nextX > node._lineWidth) //bigger than max linewidth? break lines up on last word
-                {
-                    lines.push(locString.substr(lastLineBeginning, i - lastLineBeginning));
-                    lastLineBeginning = i + 1;
-                    x = 0;
-                }
+                width += map[line.charCodeAt(j)].xAdvance;
             }
-            else {
-                var entry = map[charCode];
-                if (entry) {
-                    x += entry.xAdvance;
-                }
-            }
-
+            maxX = Math.max(width,maxX);
+            lineWidths.push(width);
         }
-
-        lines.push(locString.substr(lastLineBeginning, locString.length-lastLineBeginning));
-
+      
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
         var lineHeight = node._lineHeight;
 
         var currentChar = 0;
-        var maxX = 0;
+        
+        var alignmentOffsetX = 0;
+        var alignmentOffsetY = 0;
+        
         for (var line = 0; line < lines.length; ++line) {
             var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
             var word = lines[line];
             x = 0;
+            
+            switch(node._horizontalAlignment)
+            {
+                case cc.TEXT_ALIGNMENT_CENTER:
+                    alignmentOffsetX = (maxX - lineWidths[line]) /2 ;
+                    break;
+                case cc.TEXT_ALIGNMENT_RIGHT: //offset means shifting it to the right however many pixels are left as a gap between the right character of the line and the end
+                    alignmentOffsetX = maxX - lineWidths[line]; 
+                    break;
+            }
+
             for (var i = 0; i < word.length; i++) {
                 var a = word.charCodeAt(i);
                 var mapEntry = map[a];
@@ -164,16 +146,16 @@
                 locQuadBR.texCoords.u = right;
                 locQuadBR.texCoords.v = bottom;
 
-                locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5;
+                locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
                 locQuadBL.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
                 locQuadBL.vertices.z = 0.0;
-                locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
+                locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
                 locQuadBR.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
                 locQuadBR.vertices.z = 0.0;
-                locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5;
+                locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
                 locQuadTL.vertices.y = y - mapEntry.yOffset + 0.5;
                 locQuadTL.vertices.z = 0.0;
-                locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5;
+                locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
                 locQuadTR.vertices.y = y - mapEntry.yOffset + 0.5;
                 locQuadTR.vertices.z = 0.0;
                 locQuadTL.colors = curColor;
