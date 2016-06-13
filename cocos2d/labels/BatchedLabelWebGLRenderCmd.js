@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -26,26 +26,48 @@
     cc.BatchedLabel.WebGLRenderCmd = function (renderable) {
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
+        this._quadBuffer = new QuadBuffer();
+        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
     };
 
     var proto = cc.BatchedLabel.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.BatchedLabel.WebGLRenderCmd;
 
-
-    proto.rendering = function (ctx)
+    proto.setString = function(str)
     {
+        this._quadBuffer.allocateForSize(str.length);
+    }
+
+    proto.rendering = function ()
+    {
+        var node = this._node;
+        this._shaderProgram.use();
+        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+
+        //optimize performance for javascript
+        cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
+        cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        //cc.glBlendFunc(gl.REPLACE,gl.REPLACE);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer.getGLBuffer());
+
+        var indices = this.getQuadIndexBuffer(node._string.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
+        gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
+        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
+        gl.drawElements(gl.TRIANGLES, 6 * node._string.length, gl.UNSIGNED_SHORT, 0);
     };
 
     proto.updateAtlasValues = function () {
         var node = this._node;
         var locString = node._string;
-        var locTextureAtlas = this._atlasTexture;
+        var locTextureAtlas = node._atlasTexture;
 
-        var texture = locTextureAtlas.texture;
+        var texture = locTextureAtlas;
         var textureWide = texture.pixelsWidth;
         var textureHigh = texture.pixelsHeight;
 
-        var quads = locTextureAtlas.quads;
+        var quads = this._quadBuffer.getQuads();
         var locDisplayedColor = this._displayedColor;
         var curColor = { r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity };
 
@@ -105,6 +127,9 @@
 
         }
 
+        if(lines.length===0)
+            lines.push(locString);
+
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
         var lineHeight = node._lineHeight;
@@ -159,27 +184,14 @@
             }
         }
 
-        this.updateContentSize(i, 1);
-        if (n > 0) {
+        this._quadBuffer.updateGLBuffers();
+        //this.updateContentSize(i, 1);
+        /*if (n > 0) {
             locTextureAtlas.dirty = true;
             var totalQuads = locTextureAtlas.totalQuads;
             if (n > totalQuads)
                 locTextureAtlas.increaseTotalQuadsWith(n - totalQuads);
-        }
-    };
-
-    proto.updateContentSize = function (i, cr) {
-        var node = this._node,
-            contentSize = node._contentSize;
-        if (i !== cr && i * node._itemWidth === contentSize.width && node._itemHeight === contentSize.height) {
-            node.setContentSize(cr * node._itemWidth, node._itemHeight);
-        }
-    };
-
-    proto.setString = function (label) {
-        var len = label.length;
-        if (len > this._textureAtlas.totalQuads)
-            this._textureAtlas.resizeCapacity(len);
+        }*/
     };
 
     proto._addChild = function () { };

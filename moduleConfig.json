@@ -169,6 +169,7 @@
         "cocos2d/labels/CCLabelBMFont.js",
         "cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
         "cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js",
+        "cocos2d/core/utils/QuadBuffer.js",
         "cocos2d/labels/BatchedLabel.js",
         "cocos2d/labels/BatchedLabelWebGLRenderCmd.js"
       ],
