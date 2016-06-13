@@ -28,6 +28,8 @@
         this._needDraw = true;
         this._quadBuffer = new QuadBuffer();
         this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+        this._drawnQuads = 0;
+        this._contentSize = { width: 0, height: 0 };
     };
 
     var proto = cc.BatchedLabel.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
@@ -47,7 +49,7 @@
         //optimize performance for javascript
         cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-        //cc.glBlendFunc(gl.REPLACE,gl.REPLACE);
+         //cc.glBlendFunc(gl.ONE,gl.ZERO);
         gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer.getGLBuffer());
 
         var indices = this.getQuadIndexBuffer(node._string.length);
@@ -55,7 +57,7 @@
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
         gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
         gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
-        gl.drawElements(gl.TRIANGLES, 6 * node._string.length, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, 6 * this._drawnQuads, gl.UNSIGNED_SHORT, 0);
     };
 
     proto.updateAtlasValues = function () {
@@ -92,7 +94,7 @@
                 //scan next word
                 var begun = false;
                 var nextX = x;
-                for (var j = i + 1; j < n; ++j) //find next word 
+                for (var j = i + 1; j < locString.length; ++j) //find next word 
                 {
                     char = locString[j];
                     if (char !== " ") //check for starting space, here it begins
@@ -127,16 +129,16 @@
 
         }
 
-        if(lines.length===0)
-            lines.push(locString);
+        lines.push(locString.substr(lastLineBeginning, locString.length-lastLineBeginning));
 
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
         var lineHeight = node._lineHeight;
 
         var currentChar = 0;
+        var maxX = 0;
         for (var line = 0; line < lines.length; ++line) {
-            var y = -lineHeight * line + lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
+            var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
             var word = lines[line];
             x = 0;
             for (var i = 0; i < word.length; i++) {
@@ -181,8 +183,15 @@
 
                 x += mapEntry.xAdvance;
                 currentChar++;
+                maxX = Math.max(x, maxX);
             }
         }
+
+        this._contentSize.width = maxX;
+        this._contentSize.height = lines.length * lineHeight;
+        this._drawnQuads = currentChar;
+        node.width = this._contentSize.width;
+        node.height = this._contentSize.height;
 
         this._quadBuffer.updateGLBuffers();
         //this.updateContentSize(i, 1);
@@ -193,6 +202,11 @@
                 locTextureAtlas.increaseTotalQuadsWith(n - totalQuads);
         }*/
     };
+
+    proto.getContentSize = function()
+    {
+        return this._contentSize;
+    }
 
     proto._addChild = function () { };
 })();

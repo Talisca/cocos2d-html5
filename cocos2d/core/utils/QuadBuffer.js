@@ -18,6 +18,7 @@ var QuadBuffer = (function () {
         if (this._usedQuads < numQuads)
         {
             this._quadMemory = new Uint8Array(numQuads * cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT); //get a new internal buffer that is big enough for all of this
+            this._quads.length = 0;
             for (var i = 0; i < numQuads; ++i) {
                 this._quads.push(new cc.V3F_C4B_T2F_Quad(null, null, null, null, this._quadMemory.buffer, i * cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT));
             }
@@ -36,7 +37,7 @@ var QuadBuffer = (function () {
     {
         return this._glBuffer;
     }
-    
+
     p.updateGLBuffers = function()
     {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
