@@ -63,7 +63,12 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     },
     setHorizontalAlignment: function(align)
     {
-        this._horizontalAlignment = align;  
+        this._horizontalAlignment = align;
+        this._renderCmd._updateAtlasValues();  
+    },
+    setVerticalAlignment: function(align)
+    {
+        this._verticalAlignment = align;
     },
     getMaxLineWidth: function()
     {

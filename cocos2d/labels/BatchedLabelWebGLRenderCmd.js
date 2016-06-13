@@ -63,6 +63,7 @@
     proto.updateAtlasValues = function () {
         var node = this._node;
         var locString = node._string;
+
         var locTextureAtlas = node._atlasTexture;
 
         var texture = locTextureAtlas;
@@ -76,28 +77,64 @@
         var map = node._charMap;
         var x = 0;
 
-        //first we have to split lines
-        var lines = locString.split(" ");
+        //// PARSE STRING DATA and make sure it doesnt go above max line size, lines, line widths, etc.
+        var words = locString.split(" ");
 
         var lineWidths = [];
-        var lastLineBeginning = 0;
+        var lines = [];
         var maxX = 0;
-        for(var i=0;i< lines.length; ++i)
+        var lineWidth = 0;
+        var maxLineWidth = node._lineWidth;
+        var line = "";
+        
+        var word = words[0];
+        var width = 0;
+        for(var j=word.length-1;j>=0;--j)
         {
-            if(lines[i].length ===0)
+            width += map[word.charCodeAt(j)].xAdvance;
+        }
+
+        line+= word;
+        lineWidth += width;
+        maxX = Math.max(lineWidth,maxX);
+        
+        //first and last word must be handled differently (code is above and below this loop) so we start from i = 1
+        var spaceWidth = map[" ".charCodeAt(0)].xAdvance;
+        for(var i=1;i< words.length; ++i)
+        {
+            if(words[i].length ===0)
             {
-                lines.removeByLastSwap(i);
+                words.removeByLastSwap(i);
             }
 
-            var line = lines[i];
-            var width = 0;
-            for(var j=line.length-1;j>=0;--j)
+            word = words[i];
+            width = 0;
+            for(var j=word.length-1;j>=0;--j)
             {
-                width += map[line.charCodeAt(j)].xAdvance;
+                width += map[word.charCodeAt(j)].xAdvance;
             }
-            maxX = Math.max(width,maxX);
-            lineWidths.push(width);
+            
+            var newLineWidth = lineWidth + width + spaceWidth;
+            if( newLineWidth > maxLineWidth)
+            {
+                lines.push(line);
+                lineWidths.push(lineWidth);
+                lineWidth = width;
+                line = word;
+            }
+            else
+            {
+                line += " ";
+                
+                line += word;
+                lineWidth = newLineWidth;
+            }
+            maxX = Math.max(lineWidth,maxX);
         }
+
+        lines.push(line);
+        lineWidths.push(lineWidth);
+        
       
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
