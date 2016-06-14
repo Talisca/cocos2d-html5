@@ -27,7 +27,7 @@
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._quadBuffer = new QuadBuffer();
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
         this._drawnQuads = 0;
         this._contentSize = { width: 0, height: 0 };
     };
@@ -53,7 +53,7 @@
         //optimize performance for javascript
         cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-         //cc.glBlendFunc(gl.ONE,gl.ZERO);
+         cc.glBlendFunc(gl.ONE, gl.ZERO);
         gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer.getGLBuffer());
 
         var indices = this.getQuadIndexBuffer(node._string.length);
