@@ -70,7 +70,7 @@
     {
         var map = this._node._charMap;
         var words = string.split(" ");
-
+        var sizeFactor = this._node._fontSizeFactor;
         var lineWidths = outLineWidths;
         var lines = outLines;
         var maxX = 0;
@@ -82,7 +82,7 @@
         var width = 0;
         for(var j=word.length-1;j>=0;--j)
         {
-            width += map[word.charCodeAt(j)].xAdvance;
+            width += map[word.charCodeAt(j)].xAdvance * sizeFactor;
         }
 
         line+= word;
@@ -90,7 +90,7 @@
         maxX = Math.max(lineWidth,maxX);
         
         //first and last word must be handled differently (code is above and below this loop) so we start from i = 1
-        var spaceWidth = map[" ".charCodeAt(0)].xAdvance;
+        var spaceWidth = map[" ".charCodeAt(0)].xAdvance * sizeFactor;
         for(var i=1;i< words.length; ++i)
         {
             if(words[i].length ===0)
@@ -104,6 +104,7 @@
             {
                 width += map[word.charCodeAt(j)].xAdvance;
             }
+            width *= sizeFactor;
             
             var newLineWidth = lineWidth + width + spaceWidth;
             if( newLineWidth > maxLineWidth)
@@ -180,6 +181,7 @@
                     break;
             }
         }
+        var sizeFactor = node._fontSizeFactor;
         for (var line = 0; line < lines.length; ++line) {
             var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
             var word = lines[line];
@@ -218,24 +220,24 @@
                 locQuadBR.texCoords.u = right;
                 locQuadBR.texCoords.v = bottom;
 
-                locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadBL.vertices.y = y - rect.height - mapEntry.yOffset + 0.5 + alignmentOffsetY;
+                locQuadBL.vertices.x = x + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
+                locQuadBL.vertices.y = y - rect.height * sizeFactor- mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
                 locQuadBL.vertices.z = 0.0;
-                locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadBR.vertices.y = y - rect.height - mapEntry.yOffset + 0.5 + alignmentOffsetY;
+                locQuadBR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
+                locQuadBR.vertices.y = y - rect.height * sizeFactor - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
                 locQuadBR.vertices.z = 0.0;
-                locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadTL.vertices.y = y - mapEntry.yOffset + 0.5 + alignmentOffsetY;
+                locQuadTL.vertices.x = x + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
+                locQuadTL.vertices.y = y - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
                 locQuadTL.vertices.z = 0.0;
-                locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadTR.vertices.y = y - mapEntry.yOffset + 0.5 + alignmentOffsetY;
+                locQuadTR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
+                locQuadTR.vertices.y = y - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
                 locQuadTR.vertices.z = 0.0;
                 locQuadTL.colors = curColor;
                 locQuadTR.colors = curColor;
                 locQuadBL.colors = curColor;
                 locQuadBR.colors = curColor;
 
-                x += mapEntry.xAdvance;
+                x += mapEntry.xAdvance * sizeFactor;
                 currentChar++;
                 maxX = Math.max(x, maxX);
             }
