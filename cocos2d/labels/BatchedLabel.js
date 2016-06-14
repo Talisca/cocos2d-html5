@@ -85,6 +85,7 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     setTextColor: function(col)
     {
         this._displayedColor = col;
+        this._stringDirty = true;
     },
     /**
      * return the text of this label

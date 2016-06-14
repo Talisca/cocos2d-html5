@@ -147,8 +147,7 @@
         var textureHigh = texture.pixelsHeight;
 
         var quads = this._quadBuffer.getQuads();
-        var locDisplayedColor = this._displayedColor;
-        var curColor = { r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity };
+        var curColor = node._displayedColor;
 
         var map = node._charMap;
         var x = 0;
