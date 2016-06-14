@@ -63,6 +63,70 @@
         currentStack.top = currentStack.stack.pop();
     };
     
+    proto.batchBufferPool = [];
+   
+    //creates webgl buffers and initializes their size to what is properly required for each sprite
+    proto.createQuadBatchBuffer = function(numQuads)
+    {
+        var arrayBuffer = gl.createBuffer();
+
+        this.initQuadBatchBuffer(arrayBuffer,numQuads);
+
+        return {arrayBuffer: arrayBuffer, size: numQuads };
+    }
+    
+    proto.matrixSize = 4*4*4; //4 bytes per float * 4 floats per row * 4 rows
+    proto.initQuadBatchBuffer = function(arrayBuffer, numQuads)
+    {
+        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * this.matrixSize * numQuads ,gl.DYNAMIC_DRAW);
+    }
+
+    //returns an object with {arrayBuffer, elementBuffer, size}, where size denotes how many sprites fit in the buffer (no need for bufferData if it's already big enough, bufferSubData enough)
+    proto.getQuadBatchBuffer = function(numQuads)
+    {
+        var pool = this.batchBufferPool;
+        if(pool.length <=0)
+        {
+            return this.createQuadBatchBuffer(numQuads);
+        }
+        else
+        {
+            var minBuf = null;  //we also track the smallest found buffer because that one will be re-initialized and returned if no fitting buffer can be found
+            var minSize = Number.MAX_VALUE; 
+            var minBufIndex = -1;
+            for(var i=pool.length-1;i>=0;--i)
+            {
+                var buf = pool[i];
+                if(buf.size >= numQuads)
+                {
+                    pool.removeByLastSwap(i);
+                    return buf;
+                }
+
+                if(buf.size < minSize)
+                {
+                    minSize = buf.size;
+                    minBuf = buf;
+                    minBufIndex = i;
+                }
+            }
+
+            //we only get here if no properly sized buffer was found
+            //in that case, take smallest buffer in pool, resize it and return it
+            pool.removeByLastSwap(minBufIndex);
+            this.initQuadBatchBuffer(minBuf.arrayBuffer,numQuads);
+            minBuf.size = numQuads;
+            return minBuf;
+        }
+    }
+
+    proto.storeQuadBatchBuffer = function(buffer)
+    {
+        var pool = this.batchBufferPool;
+        pool.push(buffer);
+    }
+
     proto.createQuadIndexBuffer = function(glBuffer, numQuads)
     {
          //create element buffer
@@ -137,7 +201,7 @@
             locChildren[i]._renderCmd.transform(this, recursive);
         }
     }
-
+    
     proto.transform = function (parentCmd, recursive) {
         //if(!this._node.isVisible()) return;
         var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;

@@ -62,6 +62,8 @@
         gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
         gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
         gl.drawElements(gl.TRIANGLES, 6 * this._drawnQuads, gl.UNSIGNED_SHORT, 0);
+
+        cc.g_NumberOfDraws++;
     };
     
     //parses and prepares various string like splitting up the string into multiple lines based on the maximum line size

@@ -45,9 +45,8 @@
             return 0;
         }
 
-        var buf = this.pooledBuffer = this.getBatchBuffer(count);
+        var buf = this.pooledBuffer = this.getQuadBatchBuffer(count);
         this._batchBuffer = buf.arrayBuffer;
-        this._batchElementBuffer = buf.elementBuffer;
 
         //all of the divisions by 4 are just because we work with uint32arrays instead of uint8 arrays so all indexes need to be shortened by the factor of 4
         var totalSpriteVertexData = this.vertexDataPerSprite * count / 4;
@@ -135,7 +134,7 @@
             gl.disableVertexAttribArray(cc.VERTEX_ATTRIB_MVMAT0 + i);
         }
 
-        this.storeBatchBuffer(this.pooledBuffer);
+        this.storeQuadBatchBuffer(this.pooledBuffer);
 
         cc.g_NumberOfDraws++;
     }

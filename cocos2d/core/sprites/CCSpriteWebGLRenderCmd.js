@@ -48,69 +48,7 @@
 
     proto.updateBlendFunc = function (blendFunc) {};
     
-    proto.batchBufferPool = [];
-   
-    //creates webgl buffers and initializes their size to what is properly required for each sprite
-    proto.createBatchBuffer = function(numSprites)
-    {
-        var arrayBuffer = gl.createBuffer();
-        var elementBuffer = gl.createBuffer();
-
-        this.initBatchBuffers(arrayBuffer,elementBuffer,numSprites);
-
-        return {arrayBuffer: arrayBuffer, elementBuffer: elementBuffer, size: numSprites };
-    }
-
-    proto.initBatchBuffers = function(arrayBuffer, elementBuffer, numSprites)
-    {
-        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.byteSizePerSprite * numSprites ,gl.DYNAMIC_DRAW);
-    }
-
-    //returns an object with {arrayBuffer, elementBuffer, size}, where size denotes how many sprites fit in the buffer (no need for bufferData if it's already big enough, bufferSubData enough)
-    proto.getBatchBuffer = function(numSprites)
-    {
-        var pool = this.batchBufferPool;
-        if(pool.length <=0)
-        {
-            return this.createBatchBuffer(numSprites);
-        }
-        else
-        {
-            var minBuf = null;  //we also track the smallest found buffer because that one will be re-initialized and returned if no fitting buffer can be found
-            var minSize = Number.MAX_VALUE; 
-            var minBufIndex = -1;
-            for(var i=pool.length-1;i>=0;--i)
-            {
-                var buf = pool[i];
-                if(buf.size >= numSprites)
-                {
-                    pool.removeByLastSwap(i);
-                    return buf;
-                }
-
-                if(buf.size < minSize)
-                {
-                    minSize = buf.size;
-                    minBuf = buf;
-                    minBufIndex = i;
-                }
-            }
-
-            //we only get here if no properly sized buffer was found
-            //in that case, take smallest buffer in pool, resize it and return it
-            pool.removeByLastSwap(minBufIndex);
-            this.initBatchBuffers(minBuf.arrayBuffer,minBuf.elementBuffer,numSprites);
-            minBuf.size = numSprites;
-            return minBuf;
-        }
-    }
-
-    proto.storeBatchBuffer = function(buffer)
-    {
-        var pool = this.batchBufferPool;
-        pool.push(buffer);
-    }
+    
 
     proto.setDirtyFlag = function(dirtyFlag){
         _cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
