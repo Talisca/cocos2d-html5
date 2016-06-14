@@ -88,7 +88,7 @@
         line+= word;
         lineWidth += width;
         maxX = Math.max(lineWidth,maxX);
-
+        
         //first and last word must be handled differently (code is above and below this loop) so we start from i = 1
         var spaceWidth = map[" ".charCodeAt(0)].xAdvance;
         for(var i=1;i< words.length; ++i)
@@ -124,6 +124,12 @@
         }
 
         lines.push(line);
+        var maxLines = this._node._maxHeight / this._node._lineHeight;
+        if(lines.length > maxLines)
+        {
+            lines.length = maxLines;
+        }
+
         lineWidths.push(lineWidth);
 
         return maxX;
@@ -132,7 +138,7 @@
     proto.updateAtlasValues = function () {
         var node = this._node;
         var locString = node._string;
-
+        var lineHeight = node._lineHeight;
         var locTextureAtlas = node._atlasTexture;
 
         var texture = locTextureAtlas;
@@ -151,16 +157,29 @@
         var lines = [];
         
         var maxX = this.prepareStringData(locString, lines,lineWidths);
+        var maxY = lines.length * lineHeight;
 
         var invTexHeight = 1 / textureHigh;
         var invTexWidth = 1 / textureWide;
-        var lineHeight = node._lineHeight;
 
         var currentChar = 0;
         
         var alignmentOffsetX = 0;
         var alignmentOffsetY = 0;
         
+        if(node._maxHeight !== Number.MAX_VALUE)
+        {
+            var maxY = Math.floor(node._maxHeight / lineHeight) * lineHeight;
+            switch(node._verticalAlignment)
+            {
+                case cc.VERTICAL_TEXT_ALIGNMENT_TOP:
+                    alignmentOffsetY = maxY - lines.length * lineHeight;
+                    break;
+                case cc.VERTICAL_TEXT_ALIGNMENT_CENTER:
+                    alignmentOffsetY = (maxY - lines.length * lineHeight) / 2;
+                    break;
+            }
+        }
         for (var line = 0; line < lines.length; ++line) {
             var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
             var word = lines[line];
@@ -200,16 +219,16 @@
                 locQuadBR.texCoords.v = bottom;
 
                 locQuadBL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadBL.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBL.vertices.y = y - rect.height - mapEntry.yOffset + 0.5 + alignmentOffsetY;
                 locQuadBL.vertices.z = 0.0;
                 locQuadBR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadBR.vertices.y = y - rect.height - mapEntry.yOffset + 0.5;
+                locQuadBR.vertices.y = y - rect.height - mapEntry.yOffset + 0.5 + alignmentOffsetY;
                 locQuadBR.vertices.z = 0.0;
                 locQuadTL.vertices.x = x + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadTL.vertices.y = y - mapEntry.yOffset + 0.5;
+                locQuadTL.vertices.y = y - mapEntry.yOffset + 0.5 + alignmentOffsetY;
                 locQuadTL.vertices.z = 0.0;
                 locQuadTR.vertices.x = x + rect.width + mapEntry.xOffset + 0.5 + alignmentOffsetX;
-                locQuadTR.vertices.y = y - mapEntry.yOffset + 0.5;
+                locQuadTR.vertices.y = y - mapEntry.yOffset + 0.5 + alignmentOffsetY;
                 locQuadTR.vertices.z = 0.0;
                 locQuadTL.colors = curColor;
                 locQuadTR.colors = curColor;

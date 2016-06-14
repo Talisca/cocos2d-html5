@@ -20,6 +20,7 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
         cc.Node.prototype.ctor.call(this);
         this._stringDirty = false;
         this._lineWidth = lineWidth || Number.MAX_VALUE;
+        this._maxHeight = Number.MAX_VALUE;
         this._displayedColor = new cc.Color(255, 255, 255, 255);
         this.setAnchorPoint(0.5,0.5);
         this.setHorizontalAlignment(cc.TEXT_ALIGNMENT_LEFT);
@@ -63,6 +64,12 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
         this._lineWidth = width;
         this._stringDirty = true;
     },
+    //sets maximum height of the text. when multiple lines would be drawn otherwise, everything after the maximum will simply be cut off
+    setMaxHeight: function(height)
+    {
+        this._maxHeight = height;
+        this._stringDirty = true;
+    },
     setHorizontalAlignment: function(align)
     {
         this._horizontalAlignment = align;
@@ -71,6 +78,7 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     setVerticalAlignment: function(align)
     {
         this._verticalAlignment = align;
+        this._stringDirty = true;
     },
     getMaxLineWidth: function()
     {
