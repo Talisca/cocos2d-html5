@@ -60,6 +60,7 @@
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
 
+        //data is layed out such that first is quad vertex data, then all the matrices
         for (var j = myIndex; j < i; ++j) {
             var cmd = renderCmds[j];
             //copy(uploadBuffer, cmd._quadBufferView, vertexDataOffset);

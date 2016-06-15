@@ -6,11 +6,17 @@ var QuadBuffer = (function () {
         this._quads = [];
         this._usedQuads = -1;
         this._quadMemory = null;
+        this._quadU32View;
         this._glBuffer = gl.createBuffer();
         this._glBufferDirty = false;
     }
 
     var p = QuadBuffer.prototype;
+    
+    p.getU32Memory = function()
+    {
+        return this._quadU32View;
+    }
 
     //makes sure there's enough room for the given number of quads
     p.allocateForSize = function(numQuads)
@@ -18,6 +24,7 @@ var QuadBuffer = (function () {
         if (this._usedQuads < numQuads)
         {
             this._quadMemory = new Uint8Array(numQuads * cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT); //get a new internal buffer that is big enough for all of this
+            this._quadU32View = new Uint32Array(this._quadMemory.buffer);
             this._quads.length = 0;
             for (var i = 0; i < numQuads; ++i) {
                 this._quads.push(new cc.V3F_C4B_T2F_Quad(null, null, null, null, this._quadMemory.buffer, i * cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT));
