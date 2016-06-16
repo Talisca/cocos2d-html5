@@ -93,6 +93,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
             + "uniform vec4 CC_CosTime;         \n"
             + "uniform vec4 CC_Random01;        \n"
             + "uniform sampler2D CC_Texture0;   \n"
+            + "uniform float mipmapBias;"
             + "//CC INCLUDES END                \n" + source;
 
         this._glContext.shaderSource(shader, source);
@@ -273,6 +274,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         this._uniforms[cc.UNIFORM_TIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_TIME_S);
         this._uniforms[cc.UNIFORM_SINTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_SINTIME_S);
         this._uniforms[cc.UNIFORM_COSTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_COSTIME_S);
+        this._uniforms[cc.UNIFORM_MIPMAPBIAS] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MIPMAPBIAS_S);
 
         this._usesTime = (this._uniforms[cc.UNIFORM_TIME] != null || this._uniforms[cc.UNIFORM_SINTIME] != null || this._uniforms[cc.UNIFORM_COSTIME] != null);
 
@@ -282,6 +284,8 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         this.use();
         // Since sample most probably won't change, set it to 0 now.
         this.setUniformLocationWith1i(this._uniforms[cc.UNIFORM_SAMPLER], 0);
+
+        this.setUniformLocationWith1f(this._uniforms[cc.UNIFORM_MIPMAPBIAS], 0);
     },
 
     /**

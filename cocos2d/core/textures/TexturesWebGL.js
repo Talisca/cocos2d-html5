@@ -593,7 +593,7 @@ cc._tmp.WebGLTexture2D = function () {
             if (!this._hasMipmaps)
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             else
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         },
 
@@ -601,6 +601,7 @@ cc._tmp.WebGLTexture2D = function () {
          *  sets alias texture parameters:
          *   GL_TEXTURE_MIN_FILTER = GL_NEAREST
          *   GL_TEXTURE_MAG_FILTER = GL_NEAREST
+         *   the trilinear arg is in case you want trilinear filtering with mip maps if the texture has one
          */
         setAliasTexParameters: function () {
             var gl = cc._renderContext;
@@ -609,7 +610,10 @@ cc._tmp.WebGLTexture2D = function () {
             if (!this._hasMipmaps)
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             else
+            {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+            }
+                
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         },
 

@@ -29,6 +29,7 @@
         this._quadBuffer = new QuadBuffer();
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
         this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
+        this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
         this._drawnQuads = 0;
         this._contentSize = { width: 0, height: 0 };
     };
