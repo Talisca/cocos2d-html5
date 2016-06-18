@@ -69,17 +69,20 @@
     proto.createQuadBatchBuffer = function(numQuads)
     {
         var arrayBuffer = gl.createBuffer();
-
-        this.initQuadBatchBuffer(arrayBuffer,numQuads);
-
-        return {arrayBuffer: arrayBuffer, size: numQuads };
+        
+        var buf = {arrayBuffer: arrayBuffer, size: numQuads, uploadBuffer: null };
+        this.initQuadBatchBuffer(buf,numQuads);
+        
+        return buf;
     }
     
     proto.matrixSize = 4*4*4; //4 bytes per float * 4 floats per row * 4 rows
-    proto.initQuadBatchBuffer = function(arrayBuffer, numQuads)
+    proto.initQuadBatchBuffer = function(buf, numQuads)
     {
+        var arrayBuffer = buf.arrayBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * this.matrixSize * numQuads ,gl.DYNAMIC_DRAW);
+        buf.uploadBuffer = new Uint32Array(numQuads * (cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT + this.matrixSize * 4) / 4);
     }
 
     //returns an object with {arrayBuffer, elementBuffer, size}, where size denotes how many sprites fit in the buffer (no need for bufferData if it's already big enough, bufferSubData enough)
@@ -115,7 +118,7 @@
             //we only get here if no properly sized buffer was found
             //in that case, take smallest buffer in pool, resize it and return it
             pool.removeByLastSwap(minBufIndex);
-            this.initQuadBatchBuffer(minBuf.arrayBuffer,numQuads);
+            this.initQuadBatchBuffer(minBuf, numQuads);
             minBuf.size = numQuads;
             return minBuf;
         }

@@ -56,7 +56,7 @@
         var matrixDataOffset = 0;
 
         var totalBufferSize = count * this.byteSizePerSprite;
-        var uploadBuffer = new Uint32Array(totalBufferSize / 4);
+        var uploadBuffer = buf.uploadBuffer;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
 
