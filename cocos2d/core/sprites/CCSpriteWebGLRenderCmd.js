@@ -438,18 +438,10 @@
                 program._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
                 cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
-                //optimize performance for javascript
+
                 cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
                 cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-                /*cc.glBindArrayBuffer( this._quadWebBuffer);
-                if (this._quadDirty) {
-                    gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
-                    this._quadDirty = false;
-                }*/
-               /* gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
-                gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
-                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS*/
                 cc.glBindVertexFormat(cc.renderer.vertexFormats[1]);
                 
                 gl.drawArrays(gl.TRIANGLE_STRIP, this._firstQuad * 4, 4);

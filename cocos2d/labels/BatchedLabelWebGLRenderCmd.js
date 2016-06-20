@@ -272,7 +272,8 @@
        
         var node = this._node;
         var drawnQuads = 0;
-        //CAREFUL: assuming that all batchedlabels have same font FOR NOW. simply introduce check for cmd._fontName === this._fontName or something
+
+        //CAREFUL: assuming that all batchedlabels have same font FOR NOW. simply introduce check for cmd._fontName === this._fontName to fix
         for (var i = myIndex + 1, len = renderCmds.length; i < len; ++i) {
             var cmd = renderCmds[i];
 
@@ -290,13 +291,14 @@
             drawnQuads += cmd._drawnQuads;
         }
 
-        var count = this._batchedNodes = i - myIndex;
+        var count  = i - myIndex;
 
         if (count > 1) {
             this._batching = true;
+            this._batchedCount = count;
         }
         else {
-            return 0;
+            return 1;
         }
         
         if(node._stringDirty)

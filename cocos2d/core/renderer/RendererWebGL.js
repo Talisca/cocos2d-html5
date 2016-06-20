@@ -46,6 +46,7 @@ cc.rendererWebGL = {
             vertexData: null,
             vertexUpload: null,
             matrixUpload: null,
+            indexBuffer: null, //everything that draws quads of any kind can share this index buffer
             size: -1 //indicates how many quads have place in these buffers
         }
     },
@@ -101,6 +102,7 @@ cc.rendererWebGL = {
             {
                 buffers.vertexUpload = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * numQuads / 4);
                 buffers.matrixUpload = new Float32Array(cc.kmMat4.BYTES_PER_ELEMENT * numQuads); //for now we save 4 matrices for each quad (one for each vertex), so it would be cc.kmMat4.BYTES_PER_ELEMENT * 4 / 4 
+                buffers.indexBuffer = cc.Node.WebGLRenderCmd.prototype.getQuadIndexBuffer(numQuads);
                 buffers.size = numQuads;
             }
 
@@ -171,8 +173,6 @@ cc.rendererWebGL = {
             len;
         var context = ctx || cc._renderContext;
         
-        this.updateBuffers();
-
         for(i=locCmds.length-1; i>=0;--i)
         {
             var cmd = locCmds[i];
@@ -181,6 +181,11 @@ cc.rendererWebGL = {
                 cmd.setRenderZ(i/10000);
             }     
         }
+        
+        this.updateBuffers();
+
+        
+
         //prepare batching
         for (i = 0, len = locCmds.length; i< len; ++i) 
         {
@@ -188,7 +193,7 @@ cc.rendererWebGL = {
 
             if(!cmd._batched && cmd.configureBatch) //may be set to true by processed cmds during this loop 
             {
-                cmd.configureBatch(locCmds,i);
+                 cmd.configureBatch(locCmds, i);
             }
         }
 
@@ -198,7 +203,7 @@ cc.rendererWebGL = {
             {
                 cmd.batchedRendering(context);
             }
-            else if(!cmd._batched) 
+            else if(!cmd._batched)
             {
                 cmd.rendering(context);
             }
@@ -207,8 +212,8 @@ cc.rendererWebGL = {
         //prepare batching
         for (i = 0, len = locCmds.length; i< len; ++i) 
         {
-            locCmds[i]._batched = false;
             locCmds[i]._batching = false;
+            locCmds[i]._batched = false;
         }
     },
 
