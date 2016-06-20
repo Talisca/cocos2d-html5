@@ -47,7 +47,7 @@ var QuadBuffer = (function () {
 
     p.updateGLBuffers = function()
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
+        cc.glBindArrayBuffer( this._glBuffer);
         if(this._glBufferDirty)
         {
             gl.bufferData(gl.ARRAY_BUFFER, this._quadMemory, gl.STATIC_DRAW);

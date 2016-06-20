@@ -55,7 +55,7 @@
 
         cc.glBindTexture2D(node._sprite.texture);
 
-        context.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
+       cc.glBindArrayBuffer( this._vertexWebGLBuffer);
         if (this._vertexDataDirty) {
             context.bufferData(context.ARRAY_BUFFER, this._vertexArrayBuffer, context.DYNAMIC_DRAW);
             this._vertexDataDirty = false;

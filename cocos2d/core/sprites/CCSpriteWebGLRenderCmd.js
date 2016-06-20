@@ -30,9 +30,9 @@
         this._needDraw = true;
 
         this._quad = new cc.V3F_C4B_T2F_Quad();
-        this._quadBufferView = new Uint32Array(this._quad.arrayBuffer);
-        this._quadWebBuffer = cc._renderContext.createBuffer();
+        this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
         this._quadDirty = true;
+        this._firstQuad = -1;
         this._dirty = false;
         this._recursiveDirty = false;
         this._supportsBatching = true;
@@ -47,8 +47,8 @@
     proto.constructor = cc.Sprite.WebGLRenderCmd;
 
     proto.updateBlendFunc = function (blendFunc) {};
-    
-    
+    proto.geometryType = cc.geometryTypes.QUAD;
+    proto._numQuads = 1; //this stays static, one sprite is always one quad
 
     proto.setDirtyFlag = function(dirtyFlag){
         _cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
@@ -442,16 +442,17 @@
                 cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
                 cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
+                /*cc.glBindArrayBuffer( this._quadWebBuffer);
                 if (this._quadDirty) {
                     gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
                     this._quadDirty = false;
-                }
-                gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
+                }*/
+               /* gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
                 gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
-                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            
+                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS*/
+                cc.glBindVertexFormat(cc.renderer.vertexFormats[1]);
+                
+                gl.drawArrays(gl.TRIANGLE_STRIP, this._firstQuad * 4, 4);
         } else {
             program.use();
             program._setUniformForMVPMatrixWithMat4(this._stackMatrix);
@@ -459,16 +460,9 @@
             cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
             cc.glBindTexture2D(null);
 
-            cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
-            if (this._quadDirty) {
-                gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.STATIC_DRAW);
-                this._quadDirty = false;
-            }
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            cc.glBindVertexFormat(cc.renderer.vertexFormats[1]);
+            
+            gl.drawArrays(gl.TRIANGLE_STRIP, this._firstQuad * 4, 4);
         }
         
        

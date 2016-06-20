@@ -38,6 +38,129 @@ cc.rendererWebGL = {
         return renderableObject._createRenderCmd();
     },
 
+    //all of the buffer stuff here references the fact that we try to put renderCmd data with the same vertex layout into the same buffers before uploading it to WebGL
+    //I think some work here can be shifted to the visit function of renderCmds. we iterate over all cmds here quite a bit.
+    buffers: {
+        1: {
+            matrixData: null,
+            vertexData: null,
+            vertexUpload: null,
+            matrixUpload: null,
+            size: -1 //indicates how many quads have place in these buffers
+        }
+    },
+    vertexFormats: {
+        1: null
+    },
+    initialize: function()
+    {
+        //QUAD geometry format
+        this.buffers[cc.geometryTypes.QUAD].matrixData = gl.createBuffer();
+        this.buffers[cc.geometryTypes.QUAD].vertexData = gl.createBuffer();
+
+        var formats = this.vertexFormats[cc.geometryTypes.QUAD] = [];
+        var vertexDataFormat = {
+            buffer: this.buffers[cc.geometryTypes.QUAD].vertexData,
+            formats: []
+        };
+
+        vertexDataFormat.formats.push(cc.makeVertexFormat(0, 3, gl.FLOAT, false, 24, 0));
+        vertexDataFormat.formats.push(cc.makeVertexFormat(1, 4, gl.UNSIGNED_BYTE, true, 24, 12));
+        vertexDataFormat.formats.push(cc.makeVertexFormat(2, 2, gl.FLOAT, false, 24, 16));
+        formats.push(vertexDataFormat);
+
+        var matrixDataFormat = {
+            buffer: this.buffers[cc.geometryTypes.QUAD].matrixData,
+            formats: []
+        };
+
+        for (var i = 0; i < 4; ++i)
+        {
+            matrixDataFormat.formats.push(cc.makeVertexFormat(cc.VERTEX_ATTRIB_MVMAT0 + i, 4, gl.FLOAT, false, cc.kmMat4.BYTES_PER_ELEMENT, cc.kmMat4.BYTES_PER_ROW * i));
+        }
+        formats.push(matrixDataFormat);
+        //end QUAD geometry format
+    },
+    bufferHandlers: {
+        //QUAD handler
+        1: function (cmds)
+        {
+            var cmd;
+            var len = cmds.length;
+            var buffers = this.buffers[1];
+
+            var numQuads = 0;
+            for(var i = 0; i<len;++i)
+            {
+                cmd = cmds[i];
+                cmd._firstQuad = numQuads;
+                numQuads += cmd._numQuads;
+            }
+
+            if(buffers.size < numQuads)
+            {
+                buffers.vertexUpload = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * numQuads / 4);
+                buffers.matrixUpload = new Float32Array(cc.kmMat4.BYTES_PER_ELEMENT * numQuads); //for now we save 4 matrices for each quad (one for each vertex), so it would be cc.kmMat4.BYTES_PER_ELEMENT * 4 / 4 
+                buffers.size = numQuads;
+            }
+
+            var vertexUploadBuffer = buffers.vertexUpload;
+            var matrixUploadBuffer = buffers.matrixUpload;
+
+            var vertexOffset = 0;
+            var matrixOffset = 0;
+            for (var i = 0; i < len; ++i)
+            {
+                cmd = cmds[i];
+                var source = cmd._quadU32View;
+                vertexUploadBuffer.set(source, vertexOffset);
+                vertexOffset += source.length;
+
+                var mat = cmd._stackMatrix.mat;
+                for(var j=0;j<4;++j)
+                {
+                    matrixUploadBuffer.set(mat, matrixOffset);
+                    matrixOffset += mat.length;
+                }
+            }
+
+            //this looks like we create new buffers each frame, but drivers should recognize this pattern and utilize vertex streaming optimizations
+            //we will use a bufferdata, null at the end of the frame to signify that we draw this once then discard it
+            cc.glBindArrayBuffer( buffers.vertexData);
+            gl.bufferData(gl.ARRAY_BUFFER, vertexUploadBuffer, gl.STREAM_DRAW);
+
+            cc.glBindArrayBuffer( buffers.matrixData);
+            gl.bufferData(gl.ARRAY_BUFFER, matrixUploadBuffer, gl.STREAM_DRAW);
+        }
+    },
+    //these are just 'pooled' arrays for the updateBuffers loop, so we don't throw garbage around. theres nothing for the geometryTypes.NONE renderCmds
+    renderCmdArrays: [null, []],
+
+    //keeps buffers required for drawing up-to-date, keep all data for renderCmds with the same underlying geometry type in same buffers, etc.
+    updateBuffers: function(){
+        var locCmds = this._renderCmds,
+            i,
+            len = locCmds.length;
+        for (i = 1; i < this.renderCmdArrays.length; ++i)
+        {
+            this.renderCmdArrays[i].length = 0;
+        }
+
+        for (i = 0; i < len; ++i)
+        {
+            var cmd = locCmds[i];
+            if(cmd.geometryType)
+            {
+                this.renderCmdArrays[cmd.geometryType].push(cmd);
+            }
+        }
+
+        for(i = 1;i<this.renderCmdArrays.length; ++i)
+        {
+            this.bufferHandlers[i].call(this,this.renderCmdArrays[i]);
+        }
+    },
+
     /**
      * drawing all renderer command to context (default is cc._renderContext)
      * @param {WebGLRenderingContext} [ctx=cc._renderContext]
@@ -48,6 +171,8 @@ cc.rendererWebGL = {
             len;
         var context = ctx || cc._renderContext;
         
+        this.updateBuffers();
+
         for(i=locCmds.length-1; i>=0;--i)
         {
             var cmd = locCmds[i];

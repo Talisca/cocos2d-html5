@@ -17,6 +17,7 @@
     proto.constructor = cc.Sprite.BasicWebGLRenderCmd;
 
     proto.configureBatch = function (renderCmds, myIndex) {
+        return;
         var node = this._node;
         var texture = node.getTexture();
 
@@ -58,7 +59,7 @@
         var totalBufferSize = count * this.byteSizePerSprite;
         var uploadBuffer = buf.uploadBuffer;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
+        cc.glBindArrayBuffer( this._batchBuffer);
 
         //data is layed out such that first is quad vertex data, then all the matrices
         for (var j = myIndex; j < i; ++j) {
@@ -113,7 +114,7 @@
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
+        cc.glBindArrayBuffer( this._batchBuffer);
 
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 

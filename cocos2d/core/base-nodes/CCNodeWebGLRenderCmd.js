@@ -23,6 +23,8 @@
  ****************************************************************************/
 // ------------------------------ The cc.Node's render command for WebGL ----------------------------------
 (function() {
+  
+
     var _cc = cc;
     cc.Node.WebGLRenderCmd = function (renderable) {
         cc.Node.RenderCmd.call(this, renderable);
@@ -39,9 +41,10 @@
 
     var proto = cc.Node.WebGLRenderCmd.prototype = Object.create(cc.Node.RenderCmd.prototype);
     proto.constructor = cc.Node.WebGLRenderCmd;
+    proto.geometryType = cc.geometryTypes.NONE;
 
     proto._updateColor = function(){};
-
+    
     proto.visit = function (parentCmd) {
         var node = this._node;
         // quick return if not visible
@@ -80,7 +83,7 @@
     proto.initQuadBatchBuffer = function(buf, numQuads)
     {
         var arrayBuffer = buf.arrayBuffer;
-        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+        cc.glBindArrayBuffer( arrayBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * this.matrixSize * numQuads ,gl.DYNAMIC_DRAW);
         buf.uploadBuffer = new Uint32Array(numQuads * (cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT + this.matrixSize * 4) / 4);
     }

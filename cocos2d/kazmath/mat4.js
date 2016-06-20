@@ -48,7 +48,8 @@
     };
     cc.kmMat4 = cc.math.Matrix4;
     var proto = cc.math.Matrix4.prototype;
-
+    cc.kmMat4.BYTES_PER_ELEMENT = 4 * 4 * 4; //4 rows with 4 floats each, with 4 bytes each
+    cc.kmMat4.BYTES_PER_ROW = 4 * 4;
     /**
      * Fills a cc.math.Matrix4 structure with the values from a 16 element array of floats
      * @param {Array} scalarArr

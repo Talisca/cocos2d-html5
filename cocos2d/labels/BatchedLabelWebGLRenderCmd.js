@@ -56,7 +56,7 @@
         cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
         //cc.glBlendFunc(gl.ONE, gl.ZERO);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer.getGLBuffer());
+        cc.glBindArrayBuffer( this._quadBuffer.getGLBuffer());
 
         var indices = this.getQuadIndexBuffer(node._string.length);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
@@ -316,7 +316,7 @@
         var uploadBuffer = new Uint32Array(totalBufferSize / 4);
         var matrixSize = this.matrixSize / 4;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
+        cc.glBindArrayBuffer( this._batchBuffer);
         
         for (var j = myIndex; j < i; ++j) {
             var cmd = renderCmds[j];
@@ -374,7 +374,7 @@
         //cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._batchBuffer);
+        cc.glBindArrayBuffer( this._batchBuffer);
 
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
