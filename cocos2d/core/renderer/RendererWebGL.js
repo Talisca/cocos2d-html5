@@ -119,7 +119,7 @@ cc.rendererWebGL = {
                 vertexOffset += source.length;
 
                 var mat = cmd._stackMatrix.mat;
-                for(var j=0;j<4;++j)
+                for(var j=0;j<cmd._numQuads*4;++j)
                 {
                     matrixUploadBuffer.set(mat, matrixOffset);
                     matrixOffset += mat.length;
@@ -215,6 +215,9 @@ cc.rendererWebGL = {
             locCmds[i]._batching = false;
             locCmds[i]._batched = false;
         }
+        
+        cc._stateCacheStats.lastFrameVertexFormatSwitches = cc._stateCacheStats.vertexFormatSwitches;
+        cc._stateCacheStats.vertexFormatSwitches = 0;
     },
 
     _turnToCacheMode: function (renderTextureID) {

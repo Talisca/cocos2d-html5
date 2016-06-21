@@ -35,11 +35,8 @@
         this._firstQuad = -1;
         this._dirty = false;
         this._recursiveDirty = false;
-        this._supportsBatching = true;
+        this._batchedCount = 1;
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
-        this._matLocation = gl.getAttribLocation(this._batchShader._programObj, cc.ATTRIBUTE_NAME_MVMAT);
-        this._batchElementBuffer = null;
-        this._batchBuffer = null;
     };
 
     var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);

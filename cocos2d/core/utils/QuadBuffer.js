@@ -35,6 +35,12 @@ var QuadBuffer = (function () {
         }
     }
 
+    //returns the number of quads that can be stored in this quadbuffer
+    p.getCapacity = function()
+    {
+        return this._usedQuads;
+    }
+
     p.getQuads = function()
     {
         return this._quads;

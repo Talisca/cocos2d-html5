@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+cc._stateCacheStats = {
+    vertexFormatSwitches: 0,
+    lastFrameVertexFormatSwitches: 0
+};
+
 cc._currentProjectionMatrix = -1;
 cc._vertexAttribPosition = false;
 cc._vertexAttribColor = false;
@@ -317,6 +322,7 @@ cc.glBindArrayBuffer = function(buffer)
     }
 
     cc.boundVertexFormats = null; //we invalidate this here, the vertex format is assumed to change when renderCmds manually bind buffers
+    cc._stateCacheStats.vertexFormatSwitches++;
 }
 
 cc.boundElementBuffer = null;
@@ -365,6 +371,7 @@ cc.glBindVertexFormat = function (vertexFormats)
         }
 
         cc.boundVertexFormats = vertexFormats;
+        cc._stateCacheStats.vertexFormatSwitches++;
     }
 }
 
