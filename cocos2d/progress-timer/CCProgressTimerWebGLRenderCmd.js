@@ -473,6 +473,13 @@
         var quad = locSprite.quad;
         var min = cc.p(quad.bl.vertices.x, quad.bl.vertices.y);
         var max = cc.p(quad.tr.vertices.x, quad.tr.vertices.y);
+		
+		if (locSprite.textureRectRotated) {
+            var temp = alpha.x;
+            alpha.x = alpha.y;
+            alpha.y = temp;
+        }
+		
         return {x: min.x * (1 - alpha.x) + max.x * alpha.x, y: min.y * (1 - alpha.y) + max.y * alpha.y};
     };
 
