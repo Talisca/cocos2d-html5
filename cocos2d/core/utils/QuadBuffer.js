@@ -35,6 +35,12 @@ var QuadBuffer = (function () {
         }
     }
 
+    //returns the number of quads that can be stored in this quadbuffer
+    p.getCapacity = function()
+    {
+        return this._usedQuads;
+    }
+
     p.getQuads = function()
     {
         return this._quads;
@@ -47,7 +53,7 @@ var QuadBuffer = (function () {
 
     p.updateGLBuffers = function()
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._glBuffer);
+        cc.glBindArrayBuffer( this._glBuffer);
         if(this._glBufferDirty)
         {
             gl.bufferData(gl.ARRAY_BUFFER, this._quadMemory, gl.STATIC_DRAW);

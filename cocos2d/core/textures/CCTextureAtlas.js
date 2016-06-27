@@ -211,7 +211,7 @@ cc.TextureAtlas = cc.Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
     _mapBuffers: function () {
         var gl = cc._renderContext;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._quadsWebBuffer);
+        cc.glBindArrayBuffer( this._quadsWebBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
