@@ -269,7 +269,7 @@ cc.SHADER_POSITION_TEXTURE_COLOR_ALPHATEST_FRAG =
         + "uniform float CC_alpha_value; \n"
         + "void main() \n"
         + "{  \n"
-        + "    vec4 texColor = texture2D(CC_Texture0, v_texCoord);  \n"
+        + "    vec4 texColor = texture2D(CC_Texture0, v_texCoord, mipmapBias);  \n"
         // mimic: glAlphaFunc(GL_GREATER)
         //pass if ( incoming_pixel >= CC_alpha_value ) => fail if incoming_pixel < CC_alpha_value
         + "    if ( texColor.a <= CC_alpha_value )          \n"

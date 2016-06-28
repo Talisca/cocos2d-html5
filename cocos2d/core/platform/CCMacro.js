@@ -644,6 +644,8 @@ cc.UNIFORM_SAMPLER = 7;
  */
 cc.UNIFORM_MAX = 8;
 
+cc.UNIFORM_MIPMAPBIAS = 9;
+
 //------------Shader Name---------------
 /**
  * @constant
@@ -739,6 +741,8 @@ cc.UNIFORM_SAMPLER_S = "CC_Texture0";
  * @type {String}
  */
 cc.UNIFORM_ALPHA_TEST_VALUE_S = "CC_alpha_value";
+
+cc.UNIFORM_MIPMAPBIAS_S = "mipmapBias";
 
 //------------Attribute names--------------
 /**

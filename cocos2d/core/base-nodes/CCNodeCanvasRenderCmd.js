@@ -58,16 +58,18 @@ cc.Node.RenderCmd = function(renderable){
     this._curLevel = -1;
 };
 
+(function(){
+    var _cc = cc;
 cc.Node.RenderCmd.prototype = {
     constructor: cc.Node.RenderCmd,
 
     getAnchorPointInPoints: function(){
-        return cc.p(this._anchorPointInPoints);
+        return _cc.p(this._anchorPointInPoints);
     },
 
     getDisplayedColor: function(){
         var tmpColor = this._displayedColor;
-        return cc.color(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        return _cc.color(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
     },
 
     getDisplayedOpacity: function(){
@@ -76,17 +78,17 @@ cc.Node.RenderCmd.prototype = {
 
     setCascadeColorEnabledDirty: function(){
         this._cascadeColorEnabledDirty = true;
-        this.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this.setDirtyFlag(_cc.Node._dirtyFlags.colorDirty);
     },
 
     setCascadeOpacityEnabledDirty:function(){
         this._cascadeOpacityEnabledDirty = true;
-        this.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this.setDirtyFlag(_cc.Node._dirtyFlags.opacityDirty);
     },
 
     getParentToNodeTransform: function(){
-        if(this._dirtyFlag & cc.Node._dirtyFlags.transformDirty)
-            this._inverse = cc.affineTransformInvert(this.getNodeToParentTransform());
+        if(this._dirtyFlag & _cc.Node._dirtyFlags.transformDirty)
+            this._inverse = _cc.affineTransformInvert(this.getNodeToParentTransform());
         return this._inverse;
     },
 
@@ -96,12 +98,12 @@ cc.Node.RenderCmd.prototype = {
         var locAPP = this._anchorPointInPoints, locSize = this._node._contentSize, locAnchorPoint = this._node._anchorPoint;
         locAPP.x = locSize.width * locAnchorPoint.x;
         locAPP.y = locSize.height * locAnchorPoint.y;
-        this.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this.setDirtyFlag(_cc.Node._dirtyFlags.transformDirty);
     },
 
     setDirtyFlag: function(dirtyFlag){
         if (this._dirtyFlag === 0 && dirtyFlag !== 0)
-            cc.renderer.pushDirtyNode(this);
+            _cc.renderer.pushDirtyNode(this);
         this._dirtyFlag |= dirtyFlag;
     },
 
@@ -119,7 +121,7 @@ cc.Node.RenderCmd.prototype = {
            locDispColor.r = locRealColor.r;
            locDispColor.g = locRealColor.g;
            locDispColor.b = locRealColor.b;
-           var whiteColor = new cc.Color(255, 255, 255, 255);
+           var whiteColor = new _cc.Color(255, 255, 255, 255);
            selChildren = node._children;
            for (i = 0, len = selChildren.length; i < len; i++) {
                item = selChildren[i];
@@ -133,7 +135,7 @@ cc.Node.RenderCmd.prototype = {
                if (locParent && locParent._cascadeColorEnabled)
                    parentColor = locParent.getDisplayedColor();
                else
-                   parentColor = cc.color.WHITE;
+                   parentColor = _cc.color.WHITE;
            }
            locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
            locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
@@ -149,7 +151,7 @@ cc.Node.RenderCmd.prototype = {
                }
            }
        }
-       this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
+       this._dirtyFlag = this._dirtyFlag & _cc.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
    },
 
     _updateDisplayOpacity: function (parentOpacity) {
@@ -183,7 +185,7 @@ cc.Node.RenderCmd.prototype = {
                 }
             }
         }
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _cc.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
     },
 
     _syncDisplayColor : function (parentColor) {
@@ -193,7 +195,7 @@ cc.Node.RenderCmd.prototype = {
             if (locParent && locParent._cascadeColorEnabled)
                 parentColor = locParent.getDisplayedColor();
             else
-                parentColor = cc.color.WHITE;
+                parentColor = _cc.color.WHITE;
         }
         locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
         locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
@@ -214,7 +216,7 @@ cc.Node.RenderCmd.prototype = {
     _updateColor: function(){},
 
     updateStatus: function () {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
         if(colorDirty)
@@ -238,7 +240,7 @@ cc.Node.RenderCmd.prototype = {
 
     getNodeToParentTransform: function () {
         var node = this._node;
-        if (this._dirtyFlag & cc.Node._dirtyFlags.transformDirty) {
+        if (this._dirtyFlag & _cc.Node._dirtyFlags.transformDirty) {
             var t = this._transform;// quick reference
 
             // base position
@@ -310,7 +312,7 @@ cc.Node.RenderCmd.prototype = {
             }
 
             if (node._additionalTransformDirty)
-                this._transform = cc.affineTransformConcat(t, node._additionalTransform);
+                this._transform = _cc.affineTransformConcat(t, node._additionalTransform);
         }
         return this._transform;
     },
@@ -330,17 +332,16 @@ cc.Node.RenderCmd.prototype = {
             return 0;
         }
     },
-    setRenderZ: function(parentCmd, matrix)
+    setRenderZ: function(z)
     {
-        var node = this._node;
-        var parentCmd = parentCmd || this.getParentRenderCmd();
-
-         matrix.mat[14] = this.getRenderZ(parentCmd);
+        this._stackMatrix.mat[14] = z;
+        return;
     },
     _syncStatus: function (parentCmd) {
+        
         //  In the visit logic does not restore the _dirtyFlag
         //  Because child elements need parent's _dirtyFlag to change himself
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         //  There is a possibility:
@@ -374,9 +375,18 @@ cc.Node.RenderCmd.prototype = {
         if(colorDirty || opacityDirty)
             this._updateColor();
 
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL || locFlag & flags.transformDirty)
-            //update the transform
-            this.transform(parentCmd, true);
+        if (_cc._renderType === _cc.game.RENDER_TYPE_WEBGL && locFlag & flags.transformDirty)
+        {
+            if(parentCmd)
+            {
+                //update the transform
+                this.transform(parentCmd,true);
+            }
+            else
+            {
+                this.transformWithoutParentCmd(true);
+            }
+        }
 
         if (locFlag & flags.orderDirty)
             this._dirtyFlag = this._dirtyFlag & flags.orderDirty ^ this._dirtyFlag;
@@ -396,22 +406,23 @@ cc.Node.RenderCmd.prototype = {
                 else
                     break;
             }
-            cc.renderer.pushRenderCommand(this);
+            _cc.renderer.pushRenderCommand(this);
             for (; i < len; i++)
                 children[i]._renderCmd.visit(this);
         } else {
-            cc.renderer.pushRenderCommand(this);
+            _cc.renderer.pushRenderCommand(this);
         }
         this._dirtyFlag = 0;
     }
-};
+};})();
 
 //-----------------------Canvas ---------------------------
 
 (function() {
+    var _cc = cc;
 //The cc.Node's render command for Canvas
     cc.Node.CanvasRenderCmd = function (renderable) {
-        cc.Node.RenderCmd.call(this, renderable);
+        _cc.Node.RenderCmd.call(this, renderable);
         this._cachedParent = null;
         this._cacheDirty = false;
 
@@ -468,7 +479,7 @@ cc.Node.RenderCmd.prototype = {
     };
 
     proto.setDirtyFlag = function (dirtyFlag, child) {
-        cc.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
+        _cc.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
         this._setCacheDirty(child);                  //TODO it should remove from here.
         if(this._cachedParent)
             this._cachedParent.setDirtyFlag(dirtyFlag, true);
@@ -515,11 +526,11 @@ cc.Node.RenderCmd.prototype = {
         if (!blendFunc)
             return "source-over";
         else {
-            if (( blendFunc.src === cc.SRC_ALPHA && blendFunc.dst === cc.ONE) || (blendFunc.src === cc.ONE && blendFunc.dst === cc.ONE))
+            if (( blendFunc.src === _cc.SRC_ALPHA && blendFunc.dst === _cc.ONE) || (blendFunc.src === _cc.ONE && blendFunc.dst === _cc.ONE))
                 return "lighter";
-            else if (blendFunc.src === cc.ZERO && blendFunc.dst === cc.SRC_ALPHA)
+            else if (blendFunc.src === _cc.ZERO && blendFunc.dst === _cc.SRC_ALPHA)
                 return "destination-in";
-            else if (blendFunc.src === cc.ZERO && blendFunc.dst === cc.ONE_MINUS_SRC_ALPHA)
+            else if (blendFunc.src === _cc.ZERO && blendFunc.dst === _cc.ONE_MINUS_SRC_ALPHA)
                 return "destination-out";
             else
                 return "source-over";

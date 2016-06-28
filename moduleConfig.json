@@ -97,10 +97,12 @@
             "cocos2d/core/layers/CCLayerCanvasRenderCmd.js",
             "cocos2d/core/layers/CCLayerWebGLRenderCmd.js",
 
+
             "cocos2d/core/sprites/SpritesPropertyDefine.js",
             "cocos2d/core/sprites/CCSprite.js",
             "cocos2d/core/sprites/CCSpriteCanvasRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteWebGLRenderCmd.js",
+            "cocos2d/core/sprites/SpriteWebGLBasicRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteBatchNode.js",
             "cocos2d/core/sprites/CCSpriteBatchNodeCanvasRenderCmd.js",
             "cocos2d/core/sprites/CCSpriteBatchNodeWebGLRenderCmd.js",
@@ -158,16 +160,19 @@
             "cocos2d/kazmath/mat4SIMD.js",
             "cocos2d/kazmath/SIMDPolyfill.js"
         ],
-        "labels" : [
-            "core",
+      "labels": [
+        "core",
 
-            "cocos2d/labels/CCLabelAtlas.js",
-            "cocos2d/labels/CCLabelAtlasCanvasRenderCmd.js",
-            "cocos2d/labels/CCLabelAtlasWebGLRenderCmd.js",
-            "cocos2d/labels/CCLabelBMFont.js",
-            "cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
-            "cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js"
-        ],
+        "cocos2d/labels/CCLabelAtlas.js",
+        "cocos2d/labels/CCLabelAtlasCanvasRenderCmd.js",
+        "cocos2d/labels/CCLabelAtlasWebGLRenderCmd.js",
+        "cocos2d/labels/CCLabelBMFont.js",
+        "cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
+        "cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js",
+        "cocos2d/core/utils/QuadBuffer.js",
+        "cocos2d/labels/BatchedLabel.js",
+        "cocos2d/labels/BatchedLabelWebGLRenderCmd.js"
+      ],
         "menus" : [
             "core", "actions",
 

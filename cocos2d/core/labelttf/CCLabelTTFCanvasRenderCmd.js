@@ -281,6 +281,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
             }
 
             strArr[i] = sLine || tmpText;
+            strArr[i] = strArr[i].trim();
             strArr.splice(i, 0, sText);
         }
     };
@@ -308,7 +309,14 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
             this._updateTexture();
 
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL || locFlag & flags.transformDirty)
+        if(parentCmd)
+        {
             this.transform(parentCmd);
+        }
+        else
+        {
+            this.transformWithoutParentCmd(false);
+        }
     };
 
     proto.drawLabels = function (context, xOffset, yOffsetArray) {

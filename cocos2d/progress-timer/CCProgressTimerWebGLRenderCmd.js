@@ -55,7 +55,7 @@
 
         cc.glBindTexture2D(node._sprite.texture);
 
-        context.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
+       cc.glBindArrayBuffer( this._vertexWebGLBuffer);
         if (this._vertexDataDirty) {
             context.bufferData(context.ARRAY_BUFFER, this._vertexArrayBuffer, context.DYNAMIC_DRAW);
             this._vertexDataDirty = false;
@@ -473,6 +473,13 @@
         var quad = locSprite.quad;
         var min = cc.p(quad.bl.vertices.x, quad.bl.vertices.y);
         var max = cc.p(quad.tr.vertices.x, quad.tr.vertices.y);
+		
+		if (locSprite.textureRectRotated) {
+            var temp = alpha.x;
+            alpha.x = alpha.y;
+            alpha.y = temp;
+        }
+		
         return {x: min.x * (1 - alpha.x) + max.x * alpha.x, y: min.y * (1 - alpha.y) + max.y * alpha.y};
     };
 

@@ -203,48 +203,12 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
      */
     convertToUI: null,
     
-    traverseAndSetZ: function(node)
-    {
-        var children = node.children;
-
-        var len = children.length;
-        
-        for(var i=0;i<len;++i)
-        {
-            var child = children[i];
-            if(child._localZOrder < 0)
-            {
-                this.traverseAndSetZ(child);
-            }
-            else
-                break;
-        }
-
-        node.__z = this.assignedZ;
-        this.assignedZ += this.assignedZStep;
-
-        for(i;i<len;++i)
-        {
-            this.traverseAndSetZ(children[i]);
-        }
-
-    },
-    //[pitforest]
-    //traverses the scene from the rootnode and assigns a global 'z' value to each node according to its draw order in the hierarcy that is within the min and max range of the projection matrix
-    //used
-    assignZ: function(rootNode)
-    {
-        this.assignedZ = 0; //first node that is drawn gets this value, it then gets incremented whenever a node assigns its z value
-        this.assignedZStep = 1/2000;
-        this.traverseAndSetZ(rootNode);
-
-    },
     /**
      *  Draw the scene. This method is called every frame. Don't call it manually.
      */
     drawScene: function () {
         var renderer = cc.renderer;
-
+        
         // calculate "global" dt
         this.calculateDeltaTime();
 
@@ -272,11 +236,12 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
                 this._runningScene._renderCmd._curLevel = 0;                          //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
-                this.assignZ(this._runningScene);
+                
             } else if (renderer.transformDirty() === true)
                 renderer.transform();
-        }
 
+        }
+        
         // draw the notifications node
         if (this._notificationNode)
             this._notificationNode.visit();
@@ -286,6 +251,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
 
         if (this._afterVisitScene)
             this._afterVisitScene();
+        
 
         renderer.rendering(cc._renderContext);
         this._totalFrames++;

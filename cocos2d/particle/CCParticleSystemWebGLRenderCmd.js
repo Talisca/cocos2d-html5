@@ -197,7 +197,7 @@
         //
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+        cc.glBindArrayBuffer( this._buffersVBO[0]);
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);               // vertices
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
@@ -328,7 +328,7 @@
 
         //gl.deleteBuffer(this._buffersVBO[0]);
         this._buffersVBO[0] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+        cc.glBindArrayBuffer( this._buffersVBO[0]);
         gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
         this._buffersVBO[1] = gl.createBuffer();
@@ -365,7 +365,7 @@
 
     proto.postStep = function(){
         var gl = cc._renderContext;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
+        cc.glBindArrayBuffer( this._buffersVBO[0]);
         gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
     };
 

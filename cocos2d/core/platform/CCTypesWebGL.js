@@ -694,3 +694,21 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
     _p.c;
     cc.defineGetterSetter(_p, "c", _p._getC, _p._setC);
 });
+
+//these signify what kind of geometry setup the render cmd uses. used for putting stuff together into the same gl buffers.
+cc.geometryTypes = {
+    QUAD: 1,
+    NONE: 0
+};
+
+cc.makeVertexFormat = function(location, components, type, normalize, stride, offset)
+{
+    return {
+        location: location,
+        components: components,
+        type: type,
+        normalize: normalize,
+        stride: stride,
+        offset: offset
+    };
+}

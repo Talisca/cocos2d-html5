@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+cc._stateCacheStats = {
+    vertexFormatSwitches: 0,
+    lastFrameVertexFormatSwitches: 0
+};
+
 cc._currentProjectionMatrix = -1;
 cc._vertexAttribPosition = false;
 cc._vertexAttribColor = false;
@@ -307,6 +312,93 @@ cc.glBindVAO = function (vaoId) {
         //glBindVertexArray(vaoId);
     }
 };
+
+cc.boundArrayBuffer = null;
+cc.glBindArrayBuffer = function(buffer)
+{
+    if (this.boundArrayBuffer !== buffer) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        this.boundArrayBuffer = buffer;
+    }
+
+    cc.boundVertexFormats = null; //we invalidate this here, the vertex format is assumed to change when renderCmds manually bind buffers
+    cc._stateCacheStats.vertexFormatSwitches++;
+}
+
+cc.boundElementBuffer = null;
+cc.glBindElementBuffer = function(buffer)
+{
+    if(this.boundElementBuffer !== buffer)
+    {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+        this.boundElementBuffer = buffer;
+    }
+}
+
+cc.boundVertexFormats = null; //this maps the indices to the vertex formats and their buffers
+
+//binds a buffer to a set of vertex format descriptions (the ones used in vertexAttribPointer). vertexFormats is an array of objects. those objects contain a buffer and associated formats in the form: 
+/*{
+    buffer: buffer,
+    formats: arrayOfFormats
+}*/
+//the objects inside THOSE arrays look like this (values are example based)
+/*{
+    location: 0,
+    components: 2,
+    type: gl.FLOAT,
+    normalize: false,
+    stride: 24,
+    offset: 12
+}*/
+
+cc.glBindVertexFormat = function (vertexFormats)
+{
+    if(cc.boundVertexFormats !== vertexFormats)
+    {
+        for(var i=vertexFormats.length-1;i>=0;--i)
+        {
+            var buf = vertexFormats[i].buffer;
+            var formats = vertexFormats[i].formats;
+            cc.glBindArrayBuffer( buf);
+
+            for (var j = 0; j < formats.length;++j)
+            {
+                var format = formats[j];
+                gl.enableVertexAttribArray(format.location);
+                gl.vertexAttribPointer(format.location, format.components, format.type, format.normalize, format.stride, format.offset);
+            }
+        }
+
+        cc.boundVertexFormats = vertexFormats;
+        cc._stateCacheStats.vertexFormatSwitches++;
+    }
+}
+
+cc.glBuffers = [];
+cc.glBufferIDs = [];
+cc.glCurrentBufferID = 0;
+
+cc.glCreateBuffer = function()
+{
+    var buf = gl.createBuffer();
+    this.glBuffers.push(buf);
+    var id = this.glCurrentBufferID;
+    this.glBufferIDs.push(id);
+    this.glCurrentBufferID++;
+
+    return id;
+}
+
+cc.glDeleteBuffer = function (buffer)
+{
+    var idx = this.glBufferIDs.indexOf(buffer);
+    if(idx >= 0)
+    {
+        this.glBufferIDs.removeByLastSwap(idx);
+        this.glBuffers.removeByLastSwap(idx);
+    }
+}
 
 /**
  * It will enable / disable the server side GL states.<br/>

@@ -111,6 +111,12 @@ cc.IMEDelegate = cc.Class.extend(/** @lends cc.IMEDelegate# */{
     },
 
     /**
+     * Called by CCIMEDispatcher when the cursor position is changed.
+     */
+    cursorChange:function(cursorPosition) {
+    },
+
+    /**
      * Called by CCIMEDispatcher for get text which delegate already has.
      * @return {String}
      */
@@ -172,17 +178,28 @@ cc.IMEDispatcher = cc.Class.extend(/**  @lends cc.imeDispatcher# */{
         //add event listener
         this._domInputControl.addEventListener("input", function () {
             selfPointer._processDomInputString(selfPointer._domInputControl.value);
+            selfPointer.dispatchCursorChange();
         }, false);
         this._domInputControl.addEventListener("keydown", function (e) {
-            // ignore tab key
-            if (e.keyCode === cc.KEY.tab) {
-                e.stopPropagation();
-                e.preventDefault();
-            } else if (e.keyCode === cc.KEY.enter) {
-                selfPointer.dispatchInsertText("\n", 1);
-                e.stopPropagation();
-                e.preventDefault();
+            switch (e.keyCode) {
+                case cc.KEY.enter:
+                    selfPointer.dispatchInsertText("\n", 1);
+                // ignore tab key
+                case cc.KEY.tab:
+                    e.stopPropagation();
+                    e.preventDefault();
+                    break;
+                case cc.KEY.home:
+                    selfPointer._setCursorPosition(0);
+                    break;
+                case cc.KEY.end:
+                    selfPointer._setCursorPosition(selfPointer._domInputControl.value.length);
+                    break;
             }
+            selfPointer.dispatchCursorChange();
+        }, false);
+        this._domInputControl.addEventListener("keyup", function (e) {
+            selfPointer.dispatchCursorChange();
         }, false);
 
         if (/msie/i.test(navigator.userAgent)) {
@@ -200,6 +217,16 @@ cc.IMEDispatcher = cc.Class.extend(/**  @lends cc.imeDispatcher# */{
             selfPointer._lastClickPosition.x = tx;
             selfPointer._lastClickPosition.y = ty;
         }, false);
+    },
+
+    _getCursorPosition: function() {
+        return this._domInputControl.selectionStart;
+    },
+
+    _setCursorPosition: function(cursorPosition) {
+        if (cursorPosition <= this._domInputControl.value.length && cursorPosition >= 0) {
+            this._domInputControl.selectionStart = this._domInputControl.selectionEnd = cursorPosition;
+        }
     },
 
     _processDomInputString:function (text) {
@@ -249,6 +276,21 @@ cc.IMEDispatcher = cc.Class.extend(/**  @lends cc.imeDispatcher# */{
             return;
 
         this.impl._delegateWithIme.deleteBackward();
+    },
+
+    /**
+     * Dispatch the cursor change event
+     */
+    dispatchCursorChange: function () {
+        if (!this.impl) {
+            return;
+        }
+
+        // there is no delegate attach with ime
+        if (!this.impl._delegateWithIme)
+            return;
+
+        this.impl._delegateWithIme.cursorChange(this._getCursorPosition());
     },
 
     /**
@@ -407,6 +449,9 @@ cc.IMEDispatcher = cc.Class.extend(/**  @lends cc.imeDispatcher# */{
             this._domInputControl.value = this._currentInputString;
             this._domInputControlTranslate();
         }
+
+        // set cursor to either the old cursor position or a custom position
+        this._setCursorPosition(delegate.getCursorPosition());
     },
 
     _domInputControlTranslate:function () {

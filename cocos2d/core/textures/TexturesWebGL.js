@@ -313,80 +313,6 @@ cc._tmp.WebGLTexture2D = function () {
         },
 
         /**
-         Drawing extensions to make it easy to draw basic quads using a CCTexture2D object.
-         These functions require gl.TEXTURE_2D and both gl.VERTEX_ARRAY and gl.TEXTURE_COORD_ARRAY client states to be enabled.
-         */
-
-        /**
-         * draws a texture at a given point
-         * @param {cc.Point} point
-         */
-        drawAtPoint: function (point) {
-            var self = this;
-            var coordinates = [
-                0.0, self.maxT,
-                self.maxS, self.maxT,
-                0.0, 0.0,
-                self.maxS, 0.0 ];
-
-            var width = self._pixelsWide * self.maxS,
-                height = self._pixelsHigh * self.maxT;
-
-            var vertices = [
-                point.x, point.y, 0.0,
-                width + point.x, point.y, 0.0,
-                point.x, height + point.y, 0.0,
-                width + point.x, height + point.y, 0.0 ];
-
-            cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS);
-            self._shaderProgram.use();
-            self._shaderProgram.setUniformsForBuiltins();
-
-            cc.glBindTexture2D(self);
-
-            var gl = cc._renderContext;
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, vertices);
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, coordinates);
-
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        },
-
-        /**
-         * draws a texture inside a rect
-         * @param {cc.Rect} rect
-         */
-        drawInRect: function (rect) {
-            var self = this;
-            var coordinates = [
-                0.0, self.maxT,
-                self.maxS, self.maxT,
-                0.0, 0.0,
-                self.maxS, 0.0];
-
-            var vertices = [    rect.x, rect.y, /*0.0,*/
-                rect.x + rect.width, rect.y, /*0.0,*/
-                rect.x, rect.y + rect.height, /*0.0,*/
-                rect.x + rect.width, rect.y + rect.height        /*0.0*/ ];
-
-            cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS);
-            self._shaderProgram.use();
-            self._shaderProgram.setUniformsForBuiltins();
-
-            cc.glBindTexture2D(self);
-
-            var gl = cc._renderContext;
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, vertices);
-            gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, coordinates);
-
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        },
-
-        /**
-         Extensions to make it easy to create a CCTexture2D object from an image file.
-         Note that RGBA type textures will have their alpha premultiplied - use the blending mode (gl.ONE, gl.ONE_MINUS_SRC_ALPHA).
-         */
-
-        /**
          * Initializes a texture from a UIImage object
          * @param uiImage
          * @return {Boolean}
@@ -496,66 +422,6 @@ cc._tmp.WebGLTexture2D = function () {
         },
 
         /**
-         Extensions to make it easy to create a cc.Texture2D object from a string of text.
-         Note that the generated textures are of type A8 - use the blending mode (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA).
-         */
-        /**
-         * Initializes a texture from a string with dimensions, alignment, font name and font size (note: initWithString does not support on HTML5)
-         * @param {String} text
-         * @param {String | cc.FontDefinition} fontName or fontDefinition
-         * @param {Number} fontSize
-         * @param {cc.Size} dimensions
-         * @param {Number} hAlignment
-         * @param {Number} vAlignment
-         * @return {Boolean}
-         */
-        initWithString: function (text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
-            cc.log(cc._LogInfos.Texture2D_initWithString);
-            return null;
-        },
-
-        /**
-         * Initializes a texture from a ETC file  (note: initWithETCFile does not support on HTML5)
-         * @note Compatible to Cocos2d-x
-         * @param {String} file
-         * @return {Boolean}
-         */
-        initWithETCFile: function (file) {
-            cc.log(cc._LogInfos.Texture2D_initWithETCFile_2);
-            return false;
-        },
-
-        /**
-         * Initializes a texture from a PVR file
-         * @param {String} file
-         * @return {Boolean}
-         */
-        initWithPVRFile: function (file) {
-            cc.log(cc._LogInfos.Texture2D_initWithPVRFile_2);
-            return false;
-        },
-
-        /**
-         Extensions to make it easy to create a cc.Texture2D object from a PVRTC file
-         Note that the generated textures don't have their alpha premultiplied - use the blending mode (gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA).
-         */
-        /**
-         * Initializes a texture from a PVRTC buffer
-         * @note compatible to cocos2d-iphone interface.
-         * @param {Array} data
-         * @param {Number} level
-         * @param {Number} bpp
-         * @param {Boolean} hasAlpha
-         * @param {Number} length
-         * @param {Number} pixelFormat
-         * @return {Boolean}
-         */
-        initWithPVRTCData: function (data, level, bpp, hasAlpha, length, pixelFormat) {
-            cc.log(cc._LogInfos.Texture2D_initWithPVRTCData_2);
-            return false;
-        },
-
-        /**
          * sets the min filter, mag filter, wrap s and wrap t texture parameters. <br/>
          * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
          * @param {Object|Number} texParams texParams object or minFilter
@@ -593,7 +459,7 @@ cc._tmp.WebGLTexture2D = function () {
             if (!this._hasMipmaps)
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             else
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         },
 
@@ -601,6 +467,7 @@ cc._tmp.WebGLTexture2D = function () {
          *  sets alias texture parameters:
          *   GL_TEXTURE_MIN_FILTER = GL_NEAREST
          *   GL_TEXTURE_MAG_FILTER = GL_NEAREST
+         *   the trilinear arg is in case you want trilinear filtering with mip maps if the texture has one
          */
         setAliasTexParameters: function () {
             var gl = cc._renderContext;
@@ -609,7 +476,10 @@ cc._tmp.WebGLTexture2D = function () {
             if (!this._hasMipmaps)
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             else
+            {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+            }
+                
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         },
 
@@ -787,7 +657,7 @@ cc._tmp.WebGLTextureAtlas = function () {
         var _t = this;
         var gl = cc._renderContext;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+        cc.glBindArrayBuffer( _t._quadsWebBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
@@ -815,11 +685,11 @@ cc._tmp.WebGLTextureAtlas = function () {
         // Using VBO without VAO
         //
         //vertices
-        //gl.bindBuffer(gl.ARRAY_BUFFER, _t._buffersVBO[0]);
+        //cc.glBindArrayBuffer( _t._buffersVBO[0]);
         // XXX: update is done in draw... perhaps it should be done in a timer
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+        cc.glBindArrayBuffer( _t._quadsWebBuffer);
         if (_t.dirty){
             gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
             _t.dirty = false;

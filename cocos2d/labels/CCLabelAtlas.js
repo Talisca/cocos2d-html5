@@ -67,13 +67,19 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
      * @param {Number} [itemHeight=0]
      * @param {Number} [startCharMap=""]
      */
-    ctor: function (strText, charMapFile, itemWidth, itemHeight, startCharMap) {
+    ctor: function (strText, charMapFile, lineWidth) {
         cc.AtlasNode.prototype.ctor.call(this);
 
         this._renderCmd.setCascade();
-        charMapFile && cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile, itemWidth, itemHeight, startCharMap);
+        this._lineWidth = lineWidth || Number.MAX_VALUE;
+        this._breakWithoutSpace = false;
+        charMapFile && cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile);
     },
-
+    
+    setBreakWithoutSpace: function(value)
+    {
+        this._breakWithoutSpace = value;
+    },
     _createRenderCmd: function(){
             return new cc.LabelAtlas.WebGLRenderCmd(this);
     },
@@ -115,16 +121,32 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
         var label = strText + "", textureFilename, width, height, startChar;
         if (itemWidth === undefined) {
             var dict = cc.loader.getRes(charMapFile);
-            if (parseInt(dict["version"], 10) !== 1) {
-                cc.log("cc.LabelAtlas.initWithString(): Unsupported version. Upgrade cocos2d version");
+            var locScaleFactor = cc.contentScaleFactor();
+
+            if(!dict)
+            {
                 return false;
             }
 
-            textureFilename = cc.path.changeBasename(charMapFile, dict["textureFilename"]);
-            var locScaleFactor = cc.contentScaleFactor();
-            width = parseInt(dict["itemWidth"], 10) / locScaleFactor;
-            height = parseInt(dict["itemHeight"], 10) / locScaleFactor;
-            startChar = String.fromCharCode(parseInt(dict["firstChar"], 10));
+            if (parseInt(dict["version"], 10) === 1) 
+            {
+                textureFilename = cc.path.changeBasename(charMapFile, dict["textureFilename"]);
+                
+                width = parseInt(dict["itemWidth"], 10) / locScaleFactor;
+                height = parseInt(dict["itemHeight"], 10) / locScaleFactor;
+                startChar = String.fromCharCode(parseInt(dict["firstChar"], 10));
+            }
+            else
+            {
+                textureFilename = dict.atlasName;
+                this._charMap = dict.fontDefDictionary;
+                this._lineHeight = dict.commonHeight;
+                width = 20;
+                height = 20;
+                startChar = "a";
+                this._charDictMode = true;
+            }
+
         } else {
             textureFilename = charMapFile;
             width = itemWidth || 0;
@@ -192,6 +214,8 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
      * @param {String} label
      */
     setString: function(label){
+        if(this._string === label)
+            return;
         label = String(label);
         var len = label.length;
         this._string = label;

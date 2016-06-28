@@ -71,6 +71,15 @@ cc.TextFieldDelegate = cc.Class.extend(/** @lends cc.TextFieldDelegate# */{
     },
 
     /**
+     * If the sender doesn't want to change cursor position, return true.
+     * @param {Number} cursorPosition
+     * @return {Boolean}
+     */
+    onCursorChange:function(cursorPosition) {
+        return false;
+    },
+
+    /**
      * If doesn't want draw sender as default, return true.
      * @param {cc.TextFieldTTF} sender
      * @return {Boolean}
@@ -112,6 +121,10 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
     _inputText:"",
     _placeHolder:"",
     _charCount:0,
+    _cursorLabel: null,
+    _dummyLabel: null,
+    _cursorPosition: 0,
+    _cursorChange: false,
     _className:"TextFieldTTF",
 
     /**
@@ -123,7 +136,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      * @param {String} fontName
      * @param {Number} fontSize
      */
-    ctor:function (placeholder, dimensions, alignment, fontName, fontSize) {
+    ctor: function (placeholder, dimensions, alignment, fontName, fontSize) {
         this.colorSpaceHolder = cc.color(127, 127, 127);
         this._colorText = cc.color(255,255,255, 255);
         cc.LabelTTF.prototype.ctor.call(this);
@@ -137,16 +150,47 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
             if(placeholder)
                 this.setPlaceHolder(placeholder);
         }
+
+        this._cursorLabel = new cc.LabelTTF("|", fontName, fontSize);
+        this._dummyLabel = new cc.LabelTTF("", fontName, fontSize);
+        this._cursorLabel.setAnchorPoint(cc.p(0, 0));
+        this._dummyLabel.setVisible(false);
+        this._cursorLabel.setVisible(false);
+
+        this.addChild(this._cursorLabel);
+        this.addChild(this._dummyLabel);
+    },
+
+    setFontName: function (name) {
+        this._super(name);
+        this._cursorLabel.setFontName(name);
+        this._dummyLabel.setFontName(name);
+    },
+
+    setFontSize: function (size) {
+        this._super(size);
+        this._cursorLabel.setFontSize(size);
+        this._dummyLabel.setFontSize(size);
+    },
+
+    setCursorPosition: function(cursorPosition){
+        this._cursorPosition = cursorPosition;
+    },
+
+    getCursorPosition: function(){
+        return this._cursorPosition;
     },
 
     onEnter: function(){
         cc.LabelTTF.prototype.onEnter.call(this);
         cc.imeDispatcher.addDelegate(this);
+        this.scheduleUpdate();
     },
 
     onExit: function(){
         cc.LabelTTF.prototype.onExit.call(this);
         cc.imeDispatcher.removeDelegate(this);
+        this.unscheduleUpdate();
     },
 
     /**
@@ -316,9 +360,33 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
     //////////////////////////////////////////////////////////////////////////
     /**
      * Open keyboard and receive input text.
+     * @param {cc.Touch} touch
      * @return {Boolean}
      */
-    attachWithIME:function () {
+    attachWithIME: function (touch) {
+        this._cursorLabel.runAction(cc.repeatForever(cc.Blink.create(2, 2)));
+        this._cursorLabel.setVisible(true);
+
+        // convert touch location to cursor position
+        if (touch) {
+            var nsp = this.convertToNodeSpace(touch.getLocation());
+            var cursorPosition = this.getCursorPosition();
+            var str = this.getString();
+            var lastWidth = 0;
+            for (var i = 0; i <= str.length && lastWidth < nsp.x; ++i) {
+                this._dummyLabel.setString(str.substring(0, i));
+                var size = this._dummyLabel.getContentSize();
+                lastWidth = size.width;
+                if (lastWidth < nsp.x)
+                    cursorPosition = i;
+            }
+            if (lastWidth < nsp.x)
+                cursorPosition = str.length;
+            if (this.getCursorPosition() !== cursorPosition) {
+                this.cursorChange(cursorPosition);
+            }
+        }
+
         return cc.imeDispatcher.attachDelegateWithIME(this);
     },
 
@@ -326,7 +394,9 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      * End text input  and close keyboard.
      * @return {Boolean}
      */
-    detachWithIME:function () {
+    detachWithIME: function () {
+        this._cursorLabel.stopAllActions();
+        this._cursorLabel.setVisible(false);
         return cc.imeDispatcher.detachDelegateWithIME(this);
     },
 
@@ -385,6 +455,44 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
 
         // set new input text
         this.string = this._inputText.substring(0, strLen - deleteLen);
+    },
+
+    cursorChange:function(cursorPosition) {
+        if (this.delegate && this.delegate.onCursorChange(cursorPosition))
+            return;
+    },
+
+    onCursorChange: function (cursorPosition) {
+        this.setCursorPosition(cursorPosition);
+        this.setCursorChange(true);
+        return false;
+    },
+
+    /**
+     * Returns the cursor change of cc.TextFieldTTF.
+     * @returns {Boolean}
+     */
+    getCursorChange: function () {
+        return this._cursorChange;
+    },
+
+    /**
+     * Sets the cursor change of cc.TextFieldTTF.
+     * @param {Boolean} change
+     */
+    setCursorChange: function (change) {
+        this._cursorChange = change;
+    },
+
+    update: function(dt){
+        if (this.getCursorChange()) {
+            this.setCursorChange(false);
+            var str = this.getString();
+            str = str.substring(0, this.getCursorPosition());
+            this._dummyLabel.setString(str);
+            var size = this._dummyLabel.getContentSize();
+            this._cursorLabel.setPositionX(size.width);
+        }
     },
 
     /**

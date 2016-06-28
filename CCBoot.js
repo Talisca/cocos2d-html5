@@ -2230,6 +2230,11 @@ cc.game = /** @lends cc.game# */{
             config = self.config, 
             CONFIG_KEY = self.CONFIG_KEY;
 
+        if(window["gli"]) //if webinspector is installed, we have to hook iterator
+        {
+            gli.setupContext();
+        }
+        
         this._loadConfig();
 
         // Already prepared
@@ -2520,6 +2525,7 @@ cc.game = /** @lends cc.game# */{
             cc.glExt = {};
             cc.glExt.instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
             cc.glExt.element_uint = gl.getExtension("OES_element_index_uint");
+            cc.renderer.initialize();
         } else {
             cc.renderer = cc.rendererCanvas;
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
