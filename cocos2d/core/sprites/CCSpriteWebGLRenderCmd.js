@@ -234,11 +234,6 @@
         this._quadDirty = true;
     };
 
-    proto.transform = function(parentCmd, recursive){
-        _cc.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
-        this._dirty = true;     //use for batching
-    };
-
     proto._setColorDirty = function () {};
 
     proto._updateColor = function () {
