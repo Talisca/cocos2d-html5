@@ -1292,15 +1292,6 @@
         return node;
     };
 
-    parser.initSkeletonNode = function(json){
-        var node = new ccs.SkeletonNode();
-        parser.generalAttributes(node, json);
-        var color = json["CColor"];
-        if(color && (color["R"] !== undefined || color["G"] !== undefined || color["B"] !== undefined))
-            node.setColor(getColor(color));
-        return node;
-    };
-
     var loadedPlist = {};
     var loadTexture = function(json, resourcePath, cb){
         if(json != null){

@@ -2009,8 +2009,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
             this._componentContainer.removeAll();
     },
 
-    grid: null,
-
     /**
      * Recursive method that visit its children and draw them
      * @function
@@ -2078,28 +2076,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         if (!this._camera)
             this._camera = new cc.Camera();
         return this._camera;
-    },
-
-    /**
-     * <p>Returns a grid object that is used when applying effects.<br/>
-     * This function have been deprecated, please use cc.NodeGrid to run grid actions</p>
-     * @function
-     * @return {cc.GridBase} A CCGrid object that is used when applying effects
-     * @deprecated since v3.0, no alternative function
-     */
-    getGrid: function () {
-        return this.grid;
-    },
-
-    /**
-     * <p>Changes a grid object that is used when applying effects<br/>
-     * This function have been deprecated, please use cc.NodeGrid to run grid actions</p>
-     * @function
-     * @param {cc.GridBase} grid A CCGrid object that is used when applying effects
-     * @deprecated since v3.0, no alternative function
-     */
-    setGrid: function (grid) {
-        this.grid = grid;
     },
 
     /**
