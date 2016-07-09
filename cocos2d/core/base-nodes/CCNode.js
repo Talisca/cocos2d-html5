@@ -2029,17 +2029,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     },
 
     /**
-     * <p>Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
-     * The matrix is in Pixels.</p>
-     * @function
-     * @return {cc.AffineTransform}
-     * @deprecated since v3.0, please use getNodeToParentTransform instead
-     */
-    nodeToParentTransform: function(){
-        return this.getNodeToParentTransform();
-    },
-
-    /**
      * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
      * The matrix is in Pixels.
      * @function

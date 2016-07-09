@@ -275,17 +275,12 @@ cc.Node.RenderCmd.prototype = {
             var lScaleX = node._scaleX, lScaleY = node._scaleY;
             var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
 
-            // Firefox on Vista and XP crashes
-            // GPU thread in case of scale(0.0, 0.0)
-            var sx = (lScaleX < 0.000001 && lScaleX > -0.000001) ? 0.000001 : lScaleX,
-                sy = (lScaleY < 0.000001 && lScaleY > -0.000001) ? 0.000001 : lScaleY;
-
             // scale
             if (lScaleX !== 1 || lScaleY !== 1) {
-                a = t.a *= sx;
-                b = t.b *= sx;
-                c = t.c *= sy;
-                d = t.d *= sy;
+                a = t.a *= lScaleX;
+                b = t.b *= lScaleX;
+                c = t.c *= lScaleY;
+                d = t.d *= lScaleY;
             }
 
             // skew
