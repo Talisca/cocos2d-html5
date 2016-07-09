@@ -345,15 +345,18 @@ cc.Node.RenderCmd.prototype = {
         //    But while the child element does not enter the circulation
         //    Here will be reset state in last
         //    In order the child elements get the parent state
-        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
-            locFlag |= flags.colorDirty;
+        if (parentNode)
+        {
+            if (parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
+                locFlag |= flags.colorDirty;
 
-        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
-            locFlag |= flags.opacityDirty;
+            if (parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
+                locFlag |= flags.opacityDirty;
 
-        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
-            locFlag |= flags.transformDirty;
-
+            if (parentCmd._dirtyFlag & flags.transformDirty)
+                locFlag |= flags.transformDirty;
+        }
+        
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
 
@@ -370,7 +373,7 @@ cc.Node.RenderCmd.prototype = {
         if(colorDirty || opacityDirty)
             this._updateColor();
 
-        if (_cc._renderType === _cc.game.RENDER_TYPE_WEBGL && locFlag & flags.transformDirty)
+        if (locFlag & flags.transformDirty)
         {
             if(parentCmd)
             {
