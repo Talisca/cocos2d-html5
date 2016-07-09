@@ -265,6 +265,9 @@ cc.Node.RenderCmd.prototype = {
                 var rotationRadiansX = node._rotationX * 0.017453292519943295;  //0.017453292519943295 = (Math.PI / 180);   for performance
                 c = Math.sin(rotationRadiansX);
                 d = Math.cos(rotationRadiansX);
+
+                a = d;
+                b = -c;
             }
 
             t.a = a;
