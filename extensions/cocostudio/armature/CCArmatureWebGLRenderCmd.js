@@ -54,24 +54,6 @@
                     continue;
                 selNode.setShaderProgram(this._shaderProgram);
                 switch (selBone.getDisplayRenderNodeType()) {
-                    case ccs.DISPLAY_TYPE_SPRITE:
-                        if (selNode instanceof ccs.Skin) {
-                            this._updateColorAndOpacity(selNode._renderCmd, selBone);   //because skin didn't call visit()
-                            selNode.updateTransform();
-
-                            var func = selBone.getBlendFunc();
-                            if (func.src !== alphaPremultiplied.src || func.dst !== alphaPremultiplied.dst)
-                                selNode.setBlendFunc(selBone.getBlendFunc());
-                            else {
-                                if ((node._blendFunc.src === alphaPremultiplied.src && node._blendFunc.dst === alphaPremultiplied.dst)
-                                    && !selNode.getTexture().hasPremultipliedAlpha())
-                                    selNode.setBlendFunc(alphaNonPremultipled);
-                                else
-                                    selNode.setBlendFunc(node._blendFunc);
-                            }
-                            selNode._renderCmd.rendering(ctx);
-                        }
-                        break;
                     case ccs.DISPLAY_TYPE_ARMATURE:
                         selNode._renderCmd.rendering(ctx, true);
                         break;

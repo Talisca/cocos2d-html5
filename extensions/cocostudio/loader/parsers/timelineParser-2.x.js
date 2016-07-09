@@ -1371,8 +1371,6 @@
         {name: "GameMapObjectData", handle: parser.initGameMap},
         {name: "ProjectNodeObjectData", handle: parser.initProjectNode},
         {name: "ArmatureNodeObjectData", handle: parser.initArmature},
-        {name: "BoneNodeObjectData", handle: parser.initBoneNode},
-        {name: "SkeletonNodeObjectData", handle: parser.initSkeletonNode}
     ];
 
     register.forEach(function(item){
