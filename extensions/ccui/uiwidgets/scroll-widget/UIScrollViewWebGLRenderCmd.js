@@ -5,7 +5,6 @@
     ccui.ScrollView.WebGLRenderCmd = function(renderable){
         ccui.Layout.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
-        this._dirty = false;
     };
 
     var proto = ccui.ScrollView.WebGLRenderCmd.prototype = Object.create(ccui.Layout.WebGLRenderCmd.prototype);

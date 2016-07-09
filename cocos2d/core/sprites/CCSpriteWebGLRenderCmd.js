@@ -32,8 +32,6 @@
         this._quad = new cc.V3F_C4B_T2F_Quad();
         this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
         this._firstQuad = -1;
-        this._dirty = false;
-        this._recursiveDirty = false;
         this._batchedCount = 1;
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
     };
@@ -48,18 +46,6 @@
 
     proto.setDirtyFlag = function(dirtyFlag){
         _cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
-        this._dirty = true;
-    };
-
-    proto.setDirtyRecursively = function (value) {
-        this._recursiveDirty = value;
-        this._dirty = value;
-        // recursively set dirty
-        var locChildren = this._node._children, child, l = locChildren ? locChildren.length : 0;
-        for (var i = 0; i < l; i++) {
-            child = locChildren[i];
-            (child instanceof cc.Sprite) && child._renderCmd.setDirtyRecursively(value);
-        }
     };
 
     proto._setBatchNodeForAddChild = function (child) {
@@ -253,7 +239,7 @@
             } else {
                 // no need to set it recursively
                 // update dirty_, don't update recursiveDirty_
-                this._dirty = true;
+               
             }
         }
         // self render

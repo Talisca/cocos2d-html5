@@ -84,7 +84,6 @@
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
-	dirty:false,
 	atlasIndex:0,
     textureAtlas:null,
 
@@ -148,22 +147,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
      */
     addLoadedEventListener:function(callback, target){
         this.addEventListener("load", callback, target);
-    },
-
-    /**
-     * Returns whether or not the Sprite needs to be updated in the Atlas
-     * @return {Boolean} True if the sprite needs to be updated in the Atlas, false otherwise.
-     */
-    isDirty:function () {
-        return this.dirty;
-    },
-
-    /**
-     * Makes the sprite to be updated in the Atlas.
-     * @param {Boolean} bDirty
-     */
-    setDirty:function (bDirty) {
-        this.dirty = bDirty;
     },
 
     /**
@@ -365,7 +348,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
      */
     setVisible:function (visible) {
         cc.Node.prototype.setVisible.call(this, visible);
-        this._renderCmd.setDirtyRecursively(true);
+        //this._renderCmd.setDirtyRecursively(true);
     },
 
     /**
