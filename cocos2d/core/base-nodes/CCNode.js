@@ -133,7 +133,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _vertexZ: 0.0,
 
     _rotationX: 0,
-    _rotationY: 0.0,
     _scaleX: 1.0,
     _scaleY: 1.0,
     _position: null,
@@ -458,8 +457,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {Number} The rotation of the node in degrees.
      */
     getRotation: function () {
-        if (this._rotationX !== this._rotationY)
-            cc.log(cc._LogInfos.Node_getRotation);
         return this._rotationX;
     },
 
@@ -474,7 +471,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @param {Number} newRotation The rotation of the node in degrees.
      */
     setRotation: function (newRotation) {
-        this._rotationX = this._rotationY = newRotation;
+        this._rotationX = newRotation;
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
 
@@ -500,31 +497,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      */
     setRotationX: function (rotationX) {
         this._rotationX = rotationX;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-    },
-
-    /**
-     * Returns the Y axis rotation (angle) which represent a vertical rotational skew of the node in degrees. <br/>
-     * 0 is the default rotation angle. Positive values rotate node clockwise<br/>
-     * (support only in WebGL rendering mode)
-     * @function
-     * @return {Number} The Y rotation in degrees.
-     */
-    getRotationY: function () {
-        return this._rotationY;
-    },
-
-    /**
-     * <p>
-     *    Sets the Y rotation (angle) of the node in degrees which performs a vertical rotational skew.         <br/>
-     *    (support only in WebGL rendering mode)                                                                <br/>
-     *    0 is the default rotation angle.                                                                      <br/>
-     *    Positive values rotate node clockwise, and negative values for anti-clockwise.
-     * </p>
-     * @param rotationY The Y rotation in degrees.
-     */
-    setRotationY: function (rotationY) {
-        this._rotationY = rotationY;
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
 

@@ -87,10 +87,6 @@
         if (rotationSkewX != null)
             node.setRotationX(rotationSkewX);
 
-        var rotationSkewY = json["RotationSkewY"];
-        if (json["RotationSkewY"] != null)
-            node.setRotationY(rotationSkewY);
-
 
         var anchor = json["AnchorPoint"];
         if(anchor != null){
@@ -280,12 +276,6 @@
         var rotationSkewX = json["RotationSkewX"];
         if (rotationSkewX)
             widget.setRotationX(rotationSkewX);
-
-        var rotationSkewY = json["RotationSkewY"];
-        if (rotationSkewY)
-            widget.setRotationY(rotationSkewY);
-
-        //var rotation = json["Rotation"];
 
         var flipX = json["FlipX"];
         if (flipX)

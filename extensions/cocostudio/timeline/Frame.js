@@ -609,7 +609,6 @@ ccs.RotationSkewFrame = ccs.SkewFrame.extend({
         if(!this._node)
             return;
         this._node.setRotationX(this._skewX);
-        this._node.setRotationY(this._skewY);
 
         if (this._tween){
             this._betweenSkewX = nextFrame._skewX - this._skewX;
@@ -628,7 +627,6 @@ ccs.RotationSkewFrame = ccs.SkewFrame.extend({
             var skewy = this._skewY + percent * this._betweenSkewY;
 
             this._node.setRotationX(skewx);
-            this._node.setRotationY(skewy);
         }
 
     },

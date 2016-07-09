@@ -1491,7 +1491,6 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
         this.setScaleY(widget.getScaleY());
         this.setRotation(widget.getRotation());
         this.setRotationX(widget.getRotationX());
-        this.setRotationY(widget.getRotationY());
         this.setFlippedX(widget.isFlippedX());
         this.setFlippedY(widget.isFlippedY());
         this.setColor(widget.getColor());

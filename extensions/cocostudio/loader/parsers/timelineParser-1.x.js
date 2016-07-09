@@ -88,8 +88,6 @@
             node.setRotation(rotation);
         if(rotationSkewX != 0)
             node.setRotationX(rotationSkewX);
-        if(rotationSkewY != 0)
-            node.setRotationY(rotationSkewY);
         if(skewx != 0)
             node.setSkewX(skewx);
         if(skewy != 0)
@@ -242,8 +240,6 @@
             var skewy         = options["skewY"];
             if(rotationSkewX != 0)
                 node.setRotationX(rotationSkewX);
-            if(rotationSkewY != 0)
-                node.setRotationY(rotationSkewY);
             if(skewx != 0)
                 node.setSkewX(skewx);
             if(skewy != 0)

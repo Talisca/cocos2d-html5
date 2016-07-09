@@ -61,9 +61,6 @@ cc._tmp.PrototypeCCNode = function () {
     _p.rotationX;
     cc.defineGetterSetter(_p, "rotationX", _p.getRotationX, _p.setRotationX);
     /** @expose */
-    _p.rotationY;
-    cc.defineGetterSetter(_p, "rotationY", _p.getRotationY, _p.setRotationY);
-    /** @expose */
     _p.scale;
     cc.defineGetterSetter(_p, "scale", _p.getScale, _p.setScale);
     /** @expose */
