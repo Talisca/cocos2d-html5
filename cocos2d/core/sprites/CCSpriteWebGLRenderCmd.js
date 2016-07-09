@@ -31,7 +31,6 @@
 
         this._quad = new cc.V3F_C4B_T2F_Quad();
         this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
-        this._quadDirty = true;
         this._firstQuad = -1;
         this._dirty = false;
         this._recursiveDirty = false;
@@ -97,7 +96,6 @@
         quad.br.colors = tempColor;
         quad.tl.colors = tempColor;
         quad.tr.colors = tempColor;
-        this._quadDirty = true;
     };
 
     proto._resetForBatchNode = function () {
@@ -111,7 +109,6 @@
         locQuad.br.vertices = {x: x2, y: y1, z: 0};
         locQuad.tl.vertices = {x: x1, y: y2, z: 0};
         locQuad.tr.vertices = {x: x2, y: y2, z: 0};
-        this._quadDirty = true;
     };
 
     proto.getQuad = function () {
@@ -145,7 +142,6 @@
         // by default use "Self Render".
         // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
         this.setBatchNode(this._batchNode);
-        renderCmd._quadDirty = true;
         this.dispatchEvent("load");
     };
 
@@ -231,7 +227,6 @@
             locQuad.tr.texCoords.u = right;
             locQuad.tr.texCoords.v = top;
         }
-        this._quadDirty = true;
     };
 
     proto._setColorDirty = function () {};
@@ -309,95 +304,6 @@
         else
             this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_COLOR);
 
-    };
-
-    proto.updateTransform = function () {                                    //called only at batching.
-        var _t = this, node = this._node;
-
-        // recalculate matrix only if it is dirty
-        if (this._dirty) {
-            var locQuad = _t._quad, locParent = node._parent;
-            // If it is not visible, or one of its ancestors is not visible, then do nothing:
-            if (!node._visible || ( locParent && locParent !== node._batchNode && locParent._shouldBeHidden)) {
-                locQuad.br.vertices = locQuad.tl.vertices = locQuad.tr.vertices = locQuad.bl.vertices = {x: 0, y: 0, z: 0};
-                node._shouldBeHidden = true;
-            } else {
-                node._shouldBeHidden = false;
-                if(this._dirtyFlag !== 0){    //because changing color and opacity uses dirty flag at visit, but visit doesn't call at batching.
-                    this.updateStatus();
-                    this._dirtyFlag = 0;
-                }
-
-                if (!locParent || locParent === node._batchNode) {
-                    node._transformToBatch = _t.getNodeToParentTransform();
-                } else {
-                    node._transformToBatch = cc.affineTransformConcat(_t.getNodeToParentTransform(), locParent._transformToBatch);
-                }
-
-                //
-                // calculate the Quad based on the Affine Matrix
-                //
-                var locTransformToBatch = node._transformToBatch;
-                var rect = node._rect;
-                var x1 = node._offsetPosition.x;
-                var y1 = node._offsetPosition.y;
-
-                var x2 = x1 + rect.width;
-                var y2 = y1 + rect.height;
-                var x = locTransformToBatch.tx;
-                var y = locTransformToBatch.ty;
-
-                var cr = locTransformToBatch.a;
-                var sr = locTransformToBatch.b;
-                var cr2 = locTransformToBatch.d;
-                var sr2 = -locTransformToBatch.c;
-                var ax = x1 * cr - y1 * sr2 + x;
-                var ay = x1 * sr + y1 * cr2 + y;
-
-                var bx = x2 * cr - y1 * sr2 + x;
-                var by = x2 * sr + y1 * cr2 + y;
-
-                var cx = x2 * cr - y2 * sr2 + x;
-                var cy = x2 * sr + y2 * cr2 + y;
-
-                var dx = x1 * cr - y2 * sr2 + x;
-                var dy = x1 * sr + y2 * cr2 + y;
-
-                var locVertexZ = node._vertexZ;
-                if (!cc.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
-                    ax = 0 | ax;
-                    ay = 0 | ay;
-                    bx = 0 | bx;
-                    by = 0 | by;
-                    cx = 0 | cx;
-                    cy = 0 | cy;
-                    dx = 0 | dx;
-                    dy = 0 | dy;
-                }
-                locQuad.bl.vertices = {x: ax, y: ay, z: locVertexZ};
-                locQuad.br.vertices = {x: bx, y: by, z: locVertexZ};
-                locQuad.tl.vertices = {x: dx, y: dy, z: locVertexZ};
-                locQuad.tr.vertices = {x: cx, y: cy, z: locVertexZ};
-            }
-            node.textureAtlas.updateQuad(locQuad, node.atlasIndex);
-            node._recursiveDirty = false;
-            this._dirty = false;
-        }
-
-        // recursively iterate over children
-        if (node._hasChildren)
-            node._arrayMakeObjectsPerformSelector(node._children, cc.Node._stateCallbackType.updateTransform);
-
-        /*if (cc.SPRITE_DEBUG_DRAW) {               //TODO
-            // draw bounding box
-            var vertices = [
-                cc.p(_t._quad.bl.vertices.x, _t._quad.bl.vertices.y),
-                cc.p(_t._quad.br.vertices.x, _t._quad.br.vertices.y),
-                cc.p(_t._quad.tr.vertices.x, _t._quad.tr.vertices.y),
-                cc.p(_t._quad.tl.vertices.x, _t._quad.tl.vertices.y)
-            ];
-            cc._drawingUtil.drawPoly(vertices, 4, true);
-        }*/
     };
 
     proto._checkTextureBoundary = function (texture, rect, rotated) {
