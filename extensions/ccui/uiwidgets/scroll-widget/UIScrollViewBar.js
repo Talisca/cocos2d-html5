@@ -174,7 +174,7 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
     {
         this._autoHideEnabled = autoHideEnabled;
 
-        if(!this._autoHideEnabled && !this._touching && this._autoHideRemainingTime <= 0)
+        if(!this._autoHideEnabled/* && !this._touching && this._autoHideRemainingTime <= 0*/)
             cc.ProtectedNode.prototype.setOpacity.call(this, this.opacity);
         else
             cc.ProtectedNode.prototype.setOpacity.call(this, 0);
