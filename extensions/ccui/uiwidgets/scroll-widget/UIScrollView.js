@@ -132,7 +132,6 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
     },
 
     onExit: function () {
-        cc.renderer._removeCache(this.__instanceId);
         ccui.Layout.prototype.onExit.call(this);
     },
 
