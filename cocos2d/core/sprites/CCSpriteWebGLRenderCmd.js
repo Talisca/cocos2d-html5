@@ -65,6 +65,7 @@
         var parentMatrix = parentCmd._stackMatrix;
 
         var rect = node._rect;
+        var offset = node._offsetPosition;
 
         // Convert 3x3 into 4x4 matrix
         var trans = this.getNodeToParentTransform();
@@ -73,11 +74,11 @@
 
         var t4x4Mat = t4x4.mat;
         t4x4Mat[0] = trans.a * rect.width;
-        t4x4Mat[4] = trans.c;
-        t4x4Mat[12] = trans.tx;
-        t4x4Mat[1] = trans.b;
+        t4x4Mat[4] = trans.c * rect.height;
+        t4x4Mat[12] = trans.a * offset.x + trans.c * offset.y + trans.tx;
+        t4x4Mat[1] = trans.b * rect.width;
         t4x4Mat[5] = trans.d * rect.height;
-        t4x4Mat[13] = trans.ty;
+        t4x4Mat[13] = trans.b * offset.x + trans.d * offset.y + trans.ty;
 
         //optimize performance for Javascript
         _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
