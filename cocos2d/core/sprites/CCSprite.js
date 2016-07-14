@@ -583,7 +583,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             return _t.initWithFile(arguments[0], arguments[1]);
 
         cc.Node.prototype.init.call(_t);
-        _t.dirty = _t._recursiveDirty = false;
 
         _t._blendFunc.src = cc.BLEND_SRC;
         _t._blendFunc.dst = cc.BLEND_DST;
@@ -658,8 +657,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             return false;
 
         _t._batchNode = null;
-        _t._recursiveDirty = false;
-        _t.dirty = false;
         _t._opacityModifyRGB = true;
 
         _t._blendFunc.src = cc.BLEND_SRC;
@@ -703,9 +700,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         _t.setTexture(texture);
         _t.setTextureRect(rect, rotated);
 
-        // by default use "Self Render".
-        // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-        _t.setBatchNode(null);
         return true;
     },
 
@@ -733,16 +727,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         var locRect = _t._rect;
         _t._offsetPosition.x = relativeOffsetX + (_t._contentSize.width - locRect.width) / 2;
         _t._offsetPosition.y = relativeOffsetY + (_t._contentSize.height - locRect.height) / 2;
-
-        // rendering using batch node
-        if (_t._batchNode) {
-            // update dirty, don't update _recursiveDirty
-            _t.dirty = true;
-        } else {
-            // self rendering
-            // Atlas: Vertex
-            this._renderCmd._resetForBatchNode();
-        }
     },
 
     // BatchNode methods
@@ -770,11 +754,9 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         if (tag == null)
             tag = child.tag;
 
-        if(this._renderCmd._setBatchNodeForAddChild(child)){
-            //cc.Node already sets isReorderChildDirty_ so this needs to be after batchNode check
-            cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
-            this._hasChildren = true;
-        }
+        cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
+        this._hasChildren = true;
+        
     },
 
     // Frames
@@ -861,35 +843,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             this._rectRotated,
             cc.pointPointsToPixels(this._unflippedOffsetPositionFromCenter),
             cc.sizePointsToPixels(this._contentSize));
-    },
-
-    /**
-     * Sets the batch node to sprite
-     * @function
-     * @param {cc.SpriteBatchNode|null} spriteBatchNode
-     * @example
-     *  var batch = new cc.SpriteBatchNode("Images/grossini_dance_atlas.png", 15);
-     *  var sprite = new cc.Sprite(batch.texture, cc.rect(0, 0, 57, 57));
-     *  batch.addChild(sprite);
-     *  layer.addChild(batch);
-     */
-    setBatchNode:function (spriteBatchNode) {
-        var _t = this;
-        _t._batchNode = spriteBatchNode; // weak reference
-
-        // self render
-        if (!_t._batchNode) {
-            _t.atlasIndex = cc.Sprite.INDEX_NOT_INITIALIZED;
-            _t.textureAtlas = null;
-            _t._recursiveDirty = false;
-            _t.dirty = false;
-
-            this._renderCmd._resetForBatchNode();
-        } else {
-            // using batch
-            _t._transformToBatch = cc.affineTransformIdentity();
-            _t.textureAtlas = _t._batchNode.getTextureAtlas(); // weak ref
-        }
     },
 
     // CCTextureProtocol

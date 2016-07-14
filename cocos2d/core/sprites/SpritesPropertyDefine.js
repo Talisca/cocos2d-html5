@@ -34,8 +34,6 @@ cc._tmp.PrototypeSprite = function () {
 
     // Extended properties
     /** @expose */
-    _p.dirty;
-    /** @expose */
     _p.flippedX;
     cc.defineGetterSetter(_p, "flippedX", _p.isFlippedX, _p.setFlippedX);
     /** @expose */
@@ -57,9 +55,6 @@ cc._tmp.PrototypeSprite = function () {
     cc.defineGetterSetter(_p, "textureRectRotated", _p.isTextureRectRotated);
     /** @expose */
     _p.textureAtlas;
-    /** @expose */
-    _p.batchNode;
-    cc.defineGetterSetter(_p, "batchNode", _p.getBatchNode, _p.setBatchNode);
     /** @expose */
     _p.quad;
     cc.defineGetterSetter(_p, "quad", _p.getQuad);

@@ -30,6 +30,7 @@
         this._needDraw = true;
 
         this._quad = new cc.V3F_C4B_T2F_Quad();
+        this._setQuadVertices(this._quad);
         this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
         this._firstQuad = -1;
         this._batchedCount = 1;
@@ -48,24 +49,6 @@
         _cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
     };
 
-    proto._setBatchNodeForAddChild = function (child) {
-        var node = this._node;
-        if (node._batchNode) {
-            if (!(child instanceof cc.Sprite)) {
-                cc.log(cc._LogInfos.Sprite_addChild);
-                return false;
-            }
-            if (child.texture._webTextureObj !== node.textureAtlas.texture._webTextureObj)
-                cc.log(cc._LogInfos.Sprite_addChild_2);
-
-            //put it in descendants array of batch node
-            node._batchNode.appendChild(child);
-            if (!node._reorderChildDirty)
-                node._setReorderChildDirtyRecursively();
-        }
-        return true;
-    };
-
     proto._handleTextureForRotatedTexture = function (texture) {
         return texture;
     };
@@ -76,6 +59,39 @@
             && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
     };
 
+    proto.transform = function (parentCmd, recursive) {
+        //if(!this._node.isVisible()) return;
+        var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;
+        var parentMatrix = parentCmd._stackMatrix;
+
+        var rect = node._rect;
+
+        // Convert 3x3 into 4x4 matrix
+        var trans = this.getNodeToParentTransform();
+
+        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+
+        var t4x4Mat = t4x4.mat;
+        t4x4Mat[0] = trans.a * rect.width;
+        t4x4Mat[4] = trans.c;
+        t4x4Mat[12] = trans.tx;
+        t4x4Mat[1] = trans.b;
+        t4x4Mat[5] = trans.d * rect.height;
+        t4x4Mat[13] = trans.ty;
+
+        //optimize performance for Javascript
+        _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
+
+        //this.setRenderZ(parentCmd, stackMatrix);
+
+        if (!recursive || !node._children)
+            return;
+        var i, len, locChildren = node._children;
+        for (i = 0, len = locChildren.length; i < len; i++) {
+            locChildren[i]._renderCmd.transform(this, recursive);
+        }
+    };
+
     proto._init = function () {
         var tempColor = {r: 255, g: 255, b: 255, a: 255}, quad = this._quad;
         quad.bl.colors = tempColor;
@@ -84,17 +100,13 @@
         quad.tr.colors = tempColor;
     };
 
-    proto._resetForBatchNode = function () {
-        var node = this._node;
-        var x1 = node._offsetPosition.x;
-        var y1 = node._offsetPosition.y;
-        var x2 = x1 + node._rect.width;
-        var y2 = y1 + node._rect.height;
-        var locQuad = this._quad;
-        locQuad.bl.vertices = {x: x1, y: y1, z: 0};
-        locQuad.br.vertices = {x: x2, y: y1, z: 0};
-        locQuad.tl.vertices = {x: x1, y: y2, z: 0};
-        locQuad.tr.vertices = {x: x2, y: y2, z: 0};
+    proto._setQuadVertices = function (quad)
+    {
+        var locQuad = quad;
+        locQuad.bl.vertices = { x: 0, y: 0, z: 0 };
+        locQuad.br.vertices = { x: 1, y: 0, z: 0 };
+        locQuad.tl.vertices = { x: 0, y: 1, z: 0 };
+        locQuad.tr.vertices = { x: 1, y: 1, z: 0 };
     };
 
     proto.getQuad = function () {
@@ -125,9 +137,6 @@
         this.texture = sender;
         this.setTextureRect(locRect, this._rectRotated);
 
-        // by default use "Self Render".
-        // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
-        this.setBatchNode(this._batchNode);
         this.dispatchEvent("load");
     };
 
@@ -138,7 +147,7 @@
             rect = cc.rectPointsToPixels(rect);
         var node = this._node;
 
-        var tex = node._batchNode ? node.textureAtlas.texture : node._texture;
+        var tex =node._texture;
         if (!tex)
             return;
 

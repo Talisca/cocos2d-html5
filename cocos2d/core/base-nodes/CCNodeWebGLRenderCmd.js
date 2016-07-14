@@ -68,72 +68,8 @@
         currentStack.top = currentStack.stack.pop();
     };
     
-    proto.batchBufferPool = [];
-   
-    //creates webgl buffers and initializes their size to what is properly required for each sprite
-    proto.createQuadBatchBuffer = function(numQuads)
-    {
-        var arrayBuffer = gl.createBuffer();
-        
-        var buf = {arrayBuffer: arrayBuffer, size: numQuads, uploadBuffer: null };
-        this.initQuadBatchBuffer(buf,numQuads);
-        
-        return buf;
-    }
     
     proto.matrixSize = 4*4*4; //4 bytes per float * 4 floats per row * 4 rows
-    proto.initQuadBatchBuffer = function(buf, numQuads)
-    {
-        var arrayBuffer = buf.arrayBuffer;
-        cc.glBindArrayBuffer( arrayBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * this.matrixSize * numQuads ,gl.DYNAMIC_DRAW);
-        buf.uploadBuffer = new Uint32Array(numQuads * (cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT + this.matrixSize * 4) / 4);
-    }
-
-    //returns an object with {arrayBuffer, elementBuffer, size}, where size denotes how many sprites fit in the buffer (no need for bufferData if it's already big enough, bufferSubData enough)
-    proto.getQuadBatchBuffer = function(numQuads)
-    {
-        var pool = this.batchBufferPool;
-        if(pool.length <=0)
-        {
-            return this.createQuadBatchBuffer(numQuads);
-        }
-        else
-        {
-            var minBuf = null;  //we also track the smallest found buffer because that one will be re-initialized and returned if no fitting buffer can be found
-            var minSize = Number.MAX_VALUE; 
-            var minBufIndex = -1;
-            for(var i=pool.length-1;i>=0;--i)
-            {
-                var buf = pool[i];
-                if(buf.size >= numQuads)
-                {
-                    pool.removeByLastSwap(i);
-                    return buf;
-                }
-
-                if(buf.size < minSize)
-                {
-                    minSize = buf.size;
-                    minBuf = buf;
-                    minBufIndex = i;
-                }
-            }
-
-            //we only get here if no properly sized buffer was found
-            //in that case, take smallest buffer in pool, resize it and return it
-            pool.removeByLastSwap(minBufIndex);
-            this.initQuadBatchBuffer(minBuf, numQuads);
-            minBuf.size = numQuads;
-            return minBuf;
-        }
-    }
-
-    proto.storeQuadBatchBuffer = function(buffer)
-    {
-        var pool = this.batchBufferPool;
-        pool.push(buffer);
-    }
 
     proto.createQuadIndexBuffer = function(glBuffer, numQuads)
     {

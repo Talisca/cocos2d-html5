@@ -2525,6 +2525,8 @@ cc.game = /** @lends cc.game# */{
             cc.glExt = {};
             cc.glExt.instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
             cc.glExt.element_uint = gl.getExtension("OES_element_index_uint");
+            win.glInst = cc.glExt.instanced_arrays;
+
             cc.renderer.initialize();
         } else {
             cc.renderer = cc.rendererCanvas;
