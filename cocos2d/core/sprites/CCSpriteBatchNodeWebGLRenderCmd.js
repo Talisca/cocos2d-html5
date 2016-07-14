@@ -122,7 +122,7 @@
         var locTextureAtlas = this._textureAtlas;
         if (locTextureAtlas.totalQuads >= locTextureAtlas.capacity)
             this.increaseAtlasCapacity();
-        locTextureAtlas.insertQuad(sprite.quad, index);
+        locTextureAtlas.insertQuad(sprite._renderCmd._quad, index);
     };
 
     proto.removeQuadAtIndex = function(index){

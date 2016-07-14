@@ -42,7 +42,7 @@
 
     var proto = cc.BatchedLabel.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.BatchedLabel.WebGLRenderCmd;
-    proto.geometryType = cc.geometryTypes.QUAD;
+    //proto.geometryType = cc.geometryTypes.QUAD;
 
     proto.setString = function(str)
     {
@@ -54,7 +54,7 @@
 
     proto.rendering = function ()
     {
-        //return;
+        return;
         var node = this._node;
         if(node._stringDirty)
         {
@@ -313,6 +313,7 @@
     }
 
     proto.batchedRendering = function (ctx) {
+        return;
         var node = this._node;
         var locTexture = node._atlasTexture;
         var count = this._batchedQuads;

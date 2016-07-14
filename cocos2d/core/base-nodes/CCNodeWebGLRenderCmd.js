@@ -23,8 +23,6 @@
  ****************************************************************************/
 // ------------------------------ The cc.Node's render command for WebGL ----------------------------------
 (function() {
-  
-
     var _cc = cc;
     cc.Node.WebGLRenderCmd = function (renderable) {
         cc.Node.RenderCmd.call(this, renderable);
@@ -70,6 +68,59 @@
     
     
     proto.matrixSize = 4*4*4; //4 bytes per float * 4 floats per row * 4 rows
+
+    proto.createQuadPositionBuffer = function(glBuffer,numQuads)
+    {
+        var vertices = new Uint8Array(numQuads * 4 * 3);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, glBuffer);
+
+        for (var i = 0; i < numQuads * 4; i+= 4)
+        {
+            var offset = i * 3; //each position has 3 vertices
+
+            //top left
+            vertices[offset + 0] = 0;  
+            vertices[offset + 1] = 1;
+            vertices[offset + 2] = 0;
+
+            //bottom left
+            vertices[offset + 3] = 0;
+            vertices[offset + 4] = 0;
+            vertices[offset + 5] = 0;
+
+            //top right
+            vertices[offset + 6] = 1;
+            vertices[offset + 7] = 1;
+            vertices[offset + 8] = 0;
+
+            //bottom right
+            vertices[offset + 9] = 1;
+            vertices[offset + 10] = 0;
+            vertices[offset + 11] = 0;
+        }
+
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    }
+
+    proto._quadPositionBuffer = { buffer: null, maxQuads: -1 };
+
+    //returns a position buffer that contains position data to draw quads in the 'typical' quad setup
+    //i.e. rendering 6 vertices, first index 0 1 2 for the first triangle, then 1 2 3 for the second one.
+    //we provide this here because quads never change. they are only duplicated for batching
+    proto.getQuadPositionBuffer = function (numQuads) {
+        var buf = proto._quadPositionBuffer;
+        if (buf.buffer === null) {
+            buf.buffer = gl.createBuffer();
+        }
+
+        if (buf.maxQuads < numQuads) {
+            this.createQuadPositionBuffer(buf.buffer, numQuads);
+            buf.maxQuads = numQuads;
+        }
+
+        return buf.buffer;
+    }
 
     proto.createQuadIndexBuffer = function(glBuffer, numQuads)
     {

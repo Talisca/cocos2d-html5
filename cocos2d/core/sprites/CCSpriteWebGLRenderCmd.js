@@ -29,9 +29,10 @@
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
-        this._quad = new cc.V3F_C4B_T2F_Quad();
-        this._setQuadVertices(this._quad);
-        this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
+        this._colorU32View = new Uint32Array(4);
+        this._uvFloat32View = new Float32Array(2 * 4);
+        this._colorU8View = new Uint8Array(this._colorU32View.buffer);
+
         this._firstQuad = -1;
         this._batchedCount = 1;
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
@@ -94,20 +95,10 @@
     };
 
     proto._init = function () {
-        var tempColor = {r: 255, g: 255, b: 255, a: 255}, quad = this._quad;
-        quad.bl.colors = tempColor;
-        quad.br.colors = tempColor;
-        quad.tl.colors = tempColor;
-        quad.tr.colors = tempColor;
-    };
-
-    proto._setQuadVertices = function (quad)
-    {
-        var locQuad = quad;
-        locQuad.bl.vertices = { x: 0, y: 0, z: 0 };
-        locQuad.br.vertices = { x: 1, y: 0, z: 0 };
-        locQuad.tl.vertices = { x: 0, y: 1, z: 0 };
-        locQuad.tr.vertices = { x: 1, y: 1, z: 0 };
+        for(var i=0;i<this._colorU32View.length;++i)
+        {
+            this._colorU32View[i] = 0xFFFFFFFF;
+        }
     };
 
     proto.getQuad = function () {
@@ -148,6 +139,7 @@
             rect = cc.rectPointsToPixels(rect);
         var node = this._node;
 
+        var uvBuffer = this._uvFloat32View;
         var tex =node._texture;
         if (!tex)
             return;
@@ -181,14 +173,23 @@
                 right = tempSwap;
             }
 
-            locQuad.bl.texCoords.u = left;
-            locQuad.bl.texCoords.v = top;
-            locQuad.br.texCoords.u = left;
-            locQuad.br.texCoords.v = bottom;
-            locQuad.tl.texCoords.u = right;
-            locQuad.tl.texCoords.v = top;
-            locQuad.tr.texCoords.u = right;
-            locQuad.tr.texCoords.v = bottom;
+            //top left
+            uvBuffer[0] = right;
+            uvBuffer[1] = top;
+
+            //bottom left
+            uvBuffer[2] = left;
+            uvBuffer[3] = top;
+
+            //top right
+            uvBuffer[4] = right;
+            uvBuffer[5] = bottom;
+
+            //bottom right
+            uvBuffer[6] = left;
+            uvBuffer[7] = bottom;
+            
+            
         } else {
             if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
                 left = (2 * rect.x + 1) / (2 * atlasWidth);
@@ -214,14 +215,21 @@
                 bottom = tempSwap;
             }
 
-            locQuad.bl.texCoords.u = left;
-            locQuad.bl.texCoords.v = bottom;
-            locQuad.br.texCoords.u = right;
-            locQuad.br.texCoords.v = bottom;
-            locQuad.tl.texCoords.u = left;
-            locQuad.tl.texCoords.v = top;
-            locQuad.tr.texCoords.u = right;
-            locQuad.tr.texCoords.v = top;
+            //top left
+            uvBuffer[0] = left;
+            uvBuffer[1] = top;
+
+            //bottom left
+            uvBuffer[2] = left;
+            uvBuffer[3] = bottom;
+
+            //top right
+            uvBuffer[4] = right;
+            uvBuffer[5] = top;
+
+            //bottom right
+            uvBuffer[6] = right;
+            uvBuffer[7] = bottom;
         }
     };
 
@@ -229,40 +237,27 @@
 
     proto._updateColor = function () {
         var locDisplayedColor = this._displayedColor, locDisplayedOpacity = this._displayedOpacity, node = this._node;
-        var color4 = {r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: locDisplayedOpacity};
+        var r = locDisplayedColor.r, g = locDisplayedColor.g, b = locDisplayedColor.b;
+
         // special opacity for premultiplied textures
         if (node._opacityModifyRGB) {
-            color4.r *= locDisplayedOpacity / 255.0;
-            color4.g *= locDisplayedOpacity / 255.0;
-            color4.b *= locDisplayedOpacity / 255.0;
+            r *= locDisplayedOpacity / 255.0;
+            g *= locDisplayedOpacity / 255.0;
+            b *= locDisplayedOpacity / 255.0;
         }
-        var locQuad = this._quad;
-        locQuad.bl.colors = color4;
-        locQuad.br.colors = color4;
-        locQuad.tl.colors = color4;
-        locQuad.tr.colors = color4;
+        var colorBuffer = this._colorU8View;
+        for (var i = 0; i < 16; i+=4)
+        {
+            colorBuffer[i] = r;
+            colorBuffer[i + 1] = g;
+            colorBuffer[i + 2] = b;
+            colorBuffer[i + 3] = locDisplayedOpacity;
+        }
 
-        // renders using Sprite Manager
-        if (node._batchNode) {
-            if (node.atlasIndex !== cc.Sprite.INDEX_NOT_INITIALIZED) {
-                node.textureAtlas.updateQuad(locQuad, node.atlasIndex)
-            } else {
-                // no need to set it recursively
-                // update dirty_, don't update recursiveDirty_
-               
-            }
-        }
-        // self render
-        // do nothing
         this._quadDirty = true;
     };
 
     proto._updateBlendFunc = function () {
-        if (this._batchNode) {
-            cc.log(cc._LogInfos.Sprite__updateBlendFunc);
-            return;
-        }
-
         // it's possible to have an untextured sprite
         var node = this._node,
             blendFunc = node._blendFunc;
@@ -281,19 +276,13 @@
 
     proto._setTexture = function (texture) {
         var node = this._node;
-        // If batchnode, then texture id should be the same
-        if (node._batchNode) {
-            if(node._batchNode.texture !== texture){
-                cc.log(cc._LogInfos.Sprite_setTexture);
-                return;
-            }
-        }else{
-            if(node._texture !== texture){
-                node._textureLoaded = texture ? texture._textureLoaded : false;
-                node._texture = texture;
-                this._updateBlendFunc();
-            }
+
+        if(node._texture !== texture){
+            node._textureLoaded = texture ? texture._textureLoaded : false;
+            node._texture = texture;
+            this._updateBlendFunc();
         }
+        
 
         if (texture)
             this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
@@ -349,8 +338,62 @@
             cc.glBindVertexFormat(cc.renderer.vertexFormats[1]);
             
             gl.drawArrays(gl.TRIANGLE_STRIP, this._firstQuad * 4, 4);
-        }
-        
+         }
+
+         proto.configureBatch = function (renderCmds, myIndex) {
+             //return;
+             var node = this._node;
+             var texture = node.getTexture();
+
+             for (var i = myIndex + 1, len = renderCmds.length; i < len; ++i) {
+                 var cmd = renderCmds[i];
+
+                 //only consider other sprites for now
+                 if (!(cmd instanceof cc.Sprite.WebGLRenderCmd)) {
+                     break;
+                 }
+
+                 var otherNode = cmd._node;
+                 if (texture !== otherNode.getTexture()) {
+                     break;
+                 }
+
+                 cmd._batched = true;
+             }
+
+             var count = i - myIndex;
+
+             if (count > 1) {
+                 this._batching = true;
+                 this._batchedCount = count;
+             }
+             else {
+                 return 1;
+             }
+
+             return count;
+         }
+
+         proto.batchedRendering = function (ctx)
+         {
+             var node = this._node;
+             var locTexture = node._texture;
+             var count = this._batchedCount;
+
+             this._batchShader.use();
+             this._batchShader._updateProjectionUniform();
+
+             cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+             cc.glBindTexture2DN(0, locTexture);
+
+             cc.glBindVertexFormat(cc.renderer.vertexFormats[cc.geometryTypes.QUAD]);
+
+             var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
+             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elemBuffer);
+             gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
+
+             cc.g_NumberOfDraws++;
+         }
        
         cc.g_NumberOfDraws++;
     };

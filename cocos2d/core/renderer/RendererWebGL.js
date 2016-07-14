@@ -43,8 +43,10 @@ cc.rendererWebGL = {
     buffers: {
         1: {
             matrixData: null,
-            vertexData: null,
-            vertexUpload: null,
+            colorData: null,
+            uvData: null,
+            colorUpload: null,
+            uvUpload: null,
             matrixUpload: null,
             indexBuffer: null, //everything that draws quads of any kind can share this index buffer
             size: -1 //indicates how many quads have place in these buffers
@@ -57,18 +59,32 @@ cc.rendererWebGL = {
     {
         //QUAD geometry format
         this.buffers[cc.geometryTypes.QUAD].matrixData = gl.createBuffer();
-        this.buffers[cc.geometryTypes.QUAD].vertexData = gl.createBuffer();
+        this.buffers[cc.geometryTypes.QUAD].colorData = gl.createBuffer();
+        this.buffers[cc.geometryTypes.QUAD].uvData = gl.createBuffer();
 
         var formats = this.vertexFormats[cc.geometryTypes.QUAD] = [];
-        var vertexDataFormat = {
-            buffer: this.buffers[cc.geometryTypes.QUAD].vertexData,
+        var positionFormat = {
+            buffer: cc.Node.WebGLRenderCmd.prototype.getQuadPositionBuffer(1),
+            formats: []
+        };
+        positionFormat.formats.push(cc.makeVertexFormat(0, 3, gl.UNSIGNED_BYTE, false, 3, 0));
+        formats.push(positionFormat);
+
+        var colorDataFormat = {
+            buffer: this.buffers[cc.geometryTypes.QUAD].colorData,
             formats: []
         };
 
-        vertexDataFormat.formats.push(cc.makeVertexFormat(0, 3, gl.FLOAT, false, 24, 0));
-        vertexDataFormat.formats.push(cc.makeVertexFormat(1, 4, gl.UNSIGNED_BYTE, true, 24, 12));
-        vertexDataFormat.formats.push(cc.makeVertexFormat(2, 2, gl.FLOAT, false, 24, 16));
-        formats.push(vertexDataFormat);
+        colorDataFormat.formats.push(cc.makeVertexFormat(1, 4, gl.UNSIGNED_BYTE, true, 4, 0));
+
+        var uvDataFormat = {
+            buffer: this.buffers[cc.geometryTypes.QUAD].uvData,
+            formats: []
+        };
+        uvDataFormat.formats.push(cc.makeVertexFormat(2, 2, gl.FLOAT, false, 8, 0));
+
+        formats.push(colorDataFormat);
+        formats.push(uvDataFormat);
 
         var matrixDataFormat = {
             buffer: this.buffers[cc.geometryTypes.QUAD].matrixData,
@@ -98,25 +114,35 @@ cc.rendererWebGL = {
                 numQuads += cmd._numQuads;
             }
 
-            if(buffers.size < numQuads)
+            if(buffers.size < numQuads || buffers.size > numQuads * 4)
             {
-                buffers.vertexUpload = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * numQuads / 4);
+                cc.Node.WebGLRenderCmd.prototype.getQuadPositionBuffer(numQuads); //ensure the position buffer is large enough
+
+                buffers.colorUpload = new Uint32Array(4 * numQuads );
+                buffers.uvUpload = new Float32Array(2 * 4* numQuads);
                 buffers.matrixUpload = new Float32Array(cc.kmMat4.BYTES_PER_ELEMENT * numQuads); //for now we save 4 matrices for each quad (one for each vertex), so it would be cc.kmMat4.BYTES_PER_ELEMENT * 4 / 4 
                 buffers.indexBuffer = cc.Node.WebGLRenderCmd.prototype.getQuadIndexBuffer(numQuads);
                 buffers.size = numQuads;
             }
 
-            var vertexUploadBuffer = buffers.vertexUpload;
+            var colorUploadBuffer = buffers.colorUpload;
+            var uvUploadBuffer = buffers.uvUpload;
             var matrixUploadBuffer = buffers.matrixUpload;
 
-            var vertexOffset = 0;
+            var colorOffset = 0;
+            var uvOffset = 0;
             var matrixOffset = 0;
             for (var i = 0; i < len; ++i)
             {
                 cmd = cmds[i];
-                var source = cmd._quadU32View;
-                vertexUploadBuffer.set(source, vertexOffset);
-                vertexOffset += source.length;
+                var color = cmd._colorU32View;
+                var uv = cmd._uvFloat32View;
+               
+                colorUploadBuffer.set(color, colorOffset);
+                uvUploadBuffer.set(uv, uvOffset);
+
+                colorOffset += color.length;
+                uvOffset += uv.length;
 
                 var mat = cmd._stackMatrix.mat;
                 for(var j=0;j<cmd._numQuads*4;++j)
@@ -128,8 +154,11 @@ cc.rendererWebGL = {
 
             //this looks like we create new buffers each frame, but drivers should recognize this pattern and utilize vertex streaming optimizations
             //we will use a bufferdata, null at the end of the frame to signify that we draw this once then discard it
-            cc.glBindArrayBuffer( buffers.vertexData);
-            gl.bufferData(gl.ARRAY_BUFFER, vertexUploadBuffer, gl.STREAM_DRAW);
+            cc.glBindArrayBuffer(buffers.colorData);
+            gl.bufferData(gl.ARRAY_BUFFER, colorUploadBuffer, gl.STREAM_DRAW);
+
+            cc.glBindArrayBuffer(buffers.uvData);
+            gl.bufferData(gl.ARRAY_BUFFER, uvUploadBuffer, gl.STREAM_DRAW);
 
             cc.glBindArrayBuffer( buffers.matrixData);
             gl.bufferData(gl.ARRAY_BUFFER, matrixUploadBuffer, gl.STREAM_DRAW);
