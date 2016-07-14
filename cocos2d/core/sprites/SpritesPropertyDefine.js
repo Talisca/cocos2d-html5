@@ -55,8 +55,5 @@ cc._tmp.PrototypeSprite = function () {
     cc.defineGetterSetter(_p, "textureRectRotated", _p.isTextureRectRotated);
     /** @expose */
     _p.textureAtlas;
-    /** @expose */
-    _p.quad;
-    cc.defineGetterSetter(_p, "quad", _p.getQuad);
 
 };

@@ -80,7 +80,6 @@
  * @property {cc.Texture2D}         texture             - Texture used to render the sprite.
  * @property {Boolean}              textureRectRotated  - <@readonly> Indicate whether the texture rectangle is rotated.
  * @property {cc.TextureAtlas}      textureAtlas        - The weak reference of the cc.TextureAtlas when the sprite is rendered using via cc.SpriteBatchNode.
- * @property {cc.SpriteBatchNode}   batchNode           - The batch node object if this sprite is rendered by cc.SpriteBatchNode.
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
@@ -544,14 +543,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
 			}
 		}
 	},
-
-    /**
-     * Returns the quad (tex coords, vertex coords and color) information.
-     * @return {cc.V3F_C4B_T2F_Quad|null} Returns a cc.V3F_C4B_T2F_Quad object when render mode is WebGL, returns null when render mode is Canvas.
-     */
-    getQuad:function () {
-        return this._renderCmd.getQuad();
-    },
 
     /**
      * conforms to cc.TextureProtocol protocol

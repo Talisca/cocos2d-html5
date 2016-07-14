@@ -452,7 +452,7 @@
         if (!locSprite) {
             return {u:0, v:0}; //new cc.Tex2F(0, 0);
         }
-        var quad = locSprite.quad;
+        var quad = locSprite._renderCmd._quad;
         var min = cc.p(quad.bl.texCoords.u, quad.bl.texCoords.v);
         var max = cc.p(quad.tr.texCoords.u, quad.tr.texCoords.v);
 
@@ -470,7 +470,7 @@
         if (!locSprite) {
             return {x: 0, y: 0};
         }
-        var quad = locSprite.quad;
+        var quad = locSprite._renderCmd._quad;
         var min = cc.p(quad.bl.vertices.x, quad.bl.vertices.y);
         var max = cc.p(quad.tr.vertices.x, quad.tr.vertices.y);
 		
@@ -488,7 +488,7 @@
         if (!node._sprite || !this._vertexData)
             return;
 
-        var sc = node._sprite.quad.tl.colors;
+        var sc = node._sprite._renderCmd._quad.tl.colors;
         var locVertexData = this._vertexData;
         for (var i = 0, len = this._vertexDataCount; i < len; ++i)
             locVertexData[i].colors = sc;
