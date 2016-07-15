@@ -26,12 +26,16 @@
     cc.BatchedLabel.WebGLRenderCmd = function (renderable) {
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
-        this._quadBuffer = new QuadBuffer();
-        this._quadU32View = this._quadBuffer.getU32Memory();
+
         this._numQuads = -1;
         this._firstQuad = -1;
         this._drawnQuads = 0; //we track drawnquads and numQuads separately because the quads stored in the memory of this string might be larger than the actual drawn amount of quads
         this._batchedCount = 1;
+        this._prevStrLen = -1;
+        this._colorU32View = new Uint32Array(4);
+        this._uvFloat32View = new Float32Array(2 * 4);
+        this._colorU8View = new Uint8Array(this._colorU32View.buffer);
+
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
         this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
         this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
@@ -46,15 +50,23 @@
 
     proto.setString = function(str)
     {
-        this._quadBuffer.allocateForSize(str.length);
-        this._numQuads = this._quadBuffer.getCapacity();
-        this._quadU32View = this._quadBuffer.getU32Memory();
-        this._quadU32View.fill(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * str.length);
+        var len = str.length;
+        var prevLen = this._prevStrLen;
+        if (len > prevLen || prevLen - len > 10) //wanna keep buffers around the size of the string, but not resize every time 1 char changes
+        {
+            this._colorU32View = new Uint32Array(len * 4);
+            this._uvFloat32View = new Float32Array(len * 2 * 4);
+            this._colorU8View = new Uint8Array(this._colorU32View.buffer);
+            this._prevStrLen = len;
+        }
+
+        this._numQuads = this._prevStrLen;
+        this._uvFloat32View.fill(0);
+        this._colorU32View.fill(0);
     }
 
     proto.rendering = function ()
     {
-        return;
         var node = this._node;
         if(node._stringDirty)
         {
@@ -158,7 +170,6 @@
         var textureWide = texture.pixelsWidth;
         var textureHigh = texture.pixelsHeight;
 
-        var quads = this._quadBuffer.getQuads();
         var curColor = node._displayedColor;
 
         var map = node._charMap;
@@ -192,6 +203,9 @@
                     break;
             }
         }
+
+        var colorOffset = 0;
+        var uvOffset = 0;
         var sizeFactor = node._fontSizeFactor;
         for (var line = 0; line < lines.length; ++line) {
             var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
