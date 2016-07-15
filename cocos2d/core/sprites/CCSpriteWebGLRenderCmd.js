@@ -28,10 +28,8 @@
     cc.Sprite.WebGLRenderCmd = function (renderable) {
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
-
-        this._quad = new cc.V3F_C4B_T2F_Quad();
-        this._setQuadVertices(this._quad);
-        this._quadU32View = new Uint32Array(this._quad.arrayBuffer);
+        this._quadU32View = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT / 4);
+        this._setQuadVertices(this._quadU32View);
         this._firstQuad = -1;
         this._batchedCount = 1;
         this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
@@ -94,20 +92,19 @@
     };
 
     proto._init = function () {
-        var tempColor = {r: 255, g: 255, b: 255, a: 255}, quad = this._quad;
-        quad.bl.colors = tempColor;
-        quad.br.colors = tempColor;
-        quad.tl.colors = tempColor;
-        quad.tr.colors = tempColor;
+        cc.flatQuadSetColor(this._quadU32View, 255, 255, 255, 255);
     };
 
-    proto._setQuadVertices = function (quad)
+    proto._setQuadVertices = function (u32View)
     {
-        var locQuad = quad;
-        locQuad.bl.vertices = { x: 0, y: 0, z: 0 };
-        locQuad.br.vertices = { x: 1, y: 0, z: 0 };
-        locQuad.tl.vertices = { x: 0, y: 1, z: 0 };
-        locQuad.tr.vertices = { x: 1, y: 1, z: 0 };
+        var f32View = new Float32Array(u32View.buffer);
+        
+        var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT / 4;
+        //it's a 1x1  quad so we just set appropriate indices to 1
+        f32View[0] = 0; f32View[1] = 1;
+        f32View[stride] = 0; f32View[stride + 1] = 0;
+        f32View[stride*2] = 1; f32View[stride*2 + 1] = 1;
+        f32View[stride*3] = 1; f32View[stride*3 + 1] = 0;
     };
 
     proto.getQuad = function () {
@@ -155,7 +152,8 @@
         var atlasWidth = tex.pixelsWidth;
         var atlasHeight = tex.pixelsHeight;
 
-        var left, right, top, bottom, tempSwap, locQuad = this._quad;
+        var left, right, top, bottom, tempSwap;
+
         if (node._rectRotated) {
             if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
                 left = (2 * rect.x + 1) / (2 * atlasWidth);
@@ -181,14 +179,7 @@
                 right = tempSwap;
             }
 
-            locQuad.bl.texCoords.u = left;
-            locQuad.bl.texCoords.v = top;
-            locQuad.br.texCoords.u = left;
-            locQuad.br.texCoords.v = bottom;
-            locQuad.tl.texCoords.u = right;
-            locQuad.tl.texCoords.v = top;
-            locQuad.tr.texCoords.u = right;
-            locQuad.tr.texCoords.v = bottom;
+            cc.flatQuadSetTexCoords(this._quadU32View, right, top, left,top,right,bottom,left,bottom);
         } else {
             if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
                 left = (2 * rect.x + 1) / (2 * atlasWidth);
@@ -214,14 +205,7 @@
                 bottom = tempSwap;
             }
 
-            locQuad.bl.texCoords.u = left;
-            locQuad.bl.texCoords.v = bottom;
-            locQuad.br.texCoords.u = right;
-            locQuad.br.texCoords.v = bottom;
-            locQuad.tl.texCoords.u = left;
-            locQuad.tl.texCoords.v = top;
-            locQuad.tr.texCoords.u = right;
-            locQuad.tr.texCoords.v = top;
+            cc.flatQuadSetTexCoords(this._quadU32View, left,top,left,bottom,right,top,right,bottom );
         }
     };
 
@@ -229,31 +213,16 @@
 
     proto._updateColor = function () {
         var locDisplayedColor = this._displayedColor, locDisplayedOpacity = this._displayedOpacity, node = this._node;
-        var color4 = {r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: locDisplayedOpacity};
+        var r = locDisplayedColor.r, g = locDisplayedColor.g, b = locDisplayedColor.b;
         // special opacity for premultiplied textures
         if (node._opacityModifyRGB) {
-            color4.r *= locDisplayedOpacity / 255.0;
-            color4.g *= locDisplayedOpacity / 255.0;
-            color4.b *= locDisplayedOpacity / 255.0;
+            r *= locDisplayedOpacity / 255.0;
+            g *= locDisplayedOpacity / 255.0;
+            b *= locDisplayedOpacity / 255.0;
         }
-        var locQuad = this._quad;
-        locQuad.bl.colors = color4;
-        locQuad.br.colors = color4;
-        locQuad.tl.colors = color4;
-        locQuad.tr.colors = color4;
 
-        // renders using Sprite Manager
-        if (node._batchNode) {
-            if (node.atlasIndex !== cc.Sprite.INDEX_NOT_INITIALIZED) {
-                node.textureAtlas.updateQuad(locQuad, node.atlasIndex)
-            } else {
-                // no need to set it recursively
-                // update dirty_, don't update recursiveDirty_
-               
-            }
-        }
-        // self render
-        // do nothing
+        cc.flatQuadSetColor(this._quadU32View, r, g, b, locDisplayedOpacity);
+
         this._quadDirty = true;
     };
 

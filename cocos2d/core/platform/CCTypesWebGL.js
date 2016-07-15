@@ -712,3 +712,66 @@ cc.makeVertexFormat = function(location, components, type, normalize, stride, of
         offset: offset
     };
 }
+
+cc.flatQuadSetColor = function(u32View, r,g,b,a)
+{
+    var u8View = new Uint8Array(u32View.buffer)
+    /*
+    var offset = 3; //first 3 4byte sets are positions
+    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT/4;
+
+    var value = (r << 24) | (g << 16) | (b << 8) | a;
+    u32View[offset] = value;
+    u32View[offset + stride] = value;
+    u32View[offset + stride * 2] = value;
+    u32View[offset + stride * 3] = value;*/
+
+    var offset = 12; //first 3 4byte sets are positions
+    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
+
+    u8View[offset] = r;
+    u8View[offset+1] = g;
+    u8View[offset+2] = b;
+    u8View[offset+3] = a;
+    offset+= stride;
+    u8View[offset] = r;
+    u8View[offset+1] = g;
+    u8View[offset+2] = b;
+    u8View[offset+3] = a;
+    offset+=stride;
+    u8View[offset] = r;
+    u8View[offset+1] = g;
+    u8View[offset+2] = b;
+    u8View[offset+3] = a;
+    offset+=stride;
+    u8View[offset] = r;
+    u8View[offset+1] = g;
+    u8View[offset+2] = b;
+    u8View[offset+3] = a;
+}
+
+cc.flatQuadSetTexCoords = function(u32View, tlu,tlv,blu,blv, tru,trv,bru,brv)
+{
+    var view = new Float32Array(u32View.buffer);
+    var offset = 4; //first 16 bytes are position + color
+    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT/4;
+
+    view[offset] = tlu;
+    offset += 1;
+    view[offset] = tlv;
+    
+    offset += stride-1;
+    view[offset] = blu;
+    offset += 1;
+    view[offset] = blv;
+
+    offset += stride-1;
+    view[offset] = tru;
+    offset += 1;
+    view[offset] = trv;
+
+    offset += stride-1;
+    view[offset] = bru;
+    offset += 1;
+    view[offset] = brv;
+}
