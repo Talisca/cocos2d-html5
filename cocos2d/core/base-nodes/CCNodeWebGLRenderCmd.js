@@ -35,8 +35,6 @@
         this._transform4x4 = mat4;
         this._stackMatrix = new cc.math.Matrix4();
         this._shaderProgram = null;
-
-        this._camera = null;
     };
 
     var proto = cc.Node.WebGLRenderCmd.prototype = Object.create(cc.Node.RenderCmd.prototype);

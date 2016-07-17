@@ -34,7 +34,7 @@
  *        - MUCH faster rendering, specially if the cc.SpriteBatchNode has many children. All the children will be drawn in a single batch.  <br/>
  *
  *    - Limitations   <br/>
- *        - Camera is not supported yet (eg: CCOrbitCamera action doesn't work)  <br/>
+ *        
  *        - GridBase actions are not supported (eg: CCLens, CCRipple, CCTwirl) <br/>
  *        - The Alias/Antialias property belongs to CCSpriteBatchNode, so you can't individually set the aliased property.  <br/>
  *        - The Blending function property belongs to CCSpriteBatchNode, so you can't individually set the blending function property. <br/>

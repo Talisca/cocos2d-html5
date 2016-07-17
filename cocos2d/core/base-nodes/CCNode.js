@@ -176,8 +176,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
 
     _renderCmd:null,
 
-    _camera: null,
-
     /**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      * @function
@@ -1948,22 +1946,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      */
     getNodeToParentTransform: function(){
         return this._renderCmd.getNodeToParentTransform();
-    },
-
-    /**
-     * Returns a camera object that lets you move the node using a gluLookAt
-     * @function
-     * @return {cc.Camera} A CCCamera object that lets you move the node using a gluLookAt
-     * @deprecated since v3.0, no alternative function
-     * @example
-     * var camera = node.getCamera();
-     * camera.setEye(0, 0, 415/2);
-     * camera.setCenter(0, 0, 0);
-     */
-    getCamera: function () {
-        if (!this._camera)
-            this._camera = new cc.Camera();
-        return this._camera;
     },
 
     /**

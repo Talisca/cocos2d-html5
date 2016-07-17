@@ -466,7 +466,7 @@ cc.Speed.create = cc.speed;
  *
  * @example
  * //example
- * //Instead of using cc.Camera as a "follower", use this action instead.
+ * 
  * layer.runAction(cc.follow(hero));
  *
  * @property {Number}  leftBoundary - world leftBoundary.
