@@ -22,7 +22,6 @@ Benchmarks.prototype.add = function (benchmark) {
 }
 
 Benchmarks.prototype.runOne = function (benchmark) {
-
   function timeKernel(kernel, iterations) {
     var start, stop;
     start = Date.now();

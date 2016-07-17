@@ -452,9 +452,9 @@
         if (!locSprite) {
             return {u:0, v:0}; //new cc.Tex2F(0, 0);
         }
-        var quad = locSprite.quad;
-        var min = cc.p(quad.bl.texCoords.u, quad.bl.texCoords.v);
-        var max = cc.p(quad.tr.texCoords.u, quad.tr.texCoords.v);
+        var quad = new Float32Array(locSprite._renderCmd._quadU32View.buffer);
+        var min = cc.p(cc.flatQuadGetU(quad, 1), cc.flatQuadGetV(quad, 1));
+        var max = cc.p(cc.flatQuadGetU(quad, 2), cc.flatQuadGetV(quad, 2));
 
         //  Fix bug #1303 so that progress timer handles sprite frame texture rotation
         if (locSprite.textureRectRotated) {
@@ -470,9 +470,8 @@
         if (!locSprite) {
             return {x: 0, y: 0};
         }
-        var quad = locSprite.quad;
-        var min = cc.p(quad.bl.vertices.x, quad.bl.vertices.y);
-        var max = cc.p(quad.tr.vertices.x, quad.tr.vertices.y);
+        var min = cc.p(0,0);
+        var max = cc.p(locSprite._rect.width,locSprite._rect.height);
 		
 		if (locSprite.textureRectRotated) {
             var temp = alpha.x;
@@ -488,7 +487,7 @@
         if (!node._sprite || !this._vertexData)
             return;
 
-        var sc = node._sprite.quad.tl.colors;
+        var sc = node._sprite.getColor();
         var locVertexData = this._vertexData;
         for (var i = 0, len = this._vertexDataCount; i < len; ++i)
             locVertexData[i].colors = sc;

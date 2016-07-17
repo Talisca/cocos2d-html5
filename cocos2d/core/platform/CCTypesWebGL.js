@@ -775,3 +775,18 @@ cc.flatQuadSetTexCoords = function(u32View, tlu,tlv,blu,blv, tru,trv,bru,brv)
     offset += 1;
     view[offset] = brv;
 }
+
+
+cc.flatQuadGetU = function(quadF32View, quadIndex)
+{
+    var offset = 4;
+    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT/4;
+    return quadF32View[offset + stride * quadIndex];
+}
+
+cc.flatQuadGetV = function (quadF32View, quadIndex)
+{
+    var offset = 4;
+    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT / 4;
+    return quadF32View[offset + stride * quadIndex + 1];
+}

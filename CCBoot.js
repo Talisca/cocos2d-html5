@@ -1801,7 +1801,7 @@ var _initSys = function () {
     var tmpCanvas = document.createElement("CANVAS");
     if (win.WebGLRenderingContext) {
         try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': true });
+            var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': false, alpha: true , antialias: false});
             if(context) {
                 _supportWebGL = true;
             }
