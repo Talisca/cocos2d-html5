@@ -32,7 +32,7 @@
         this._setQuadVertices(this._quadU32View);
         this._firstQuad = -1;
         this._batchedCount = 1;
-        this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
+        //this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
     };
 
     var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
@@ -265,7 +265,7 @@
         }
 
         if (texture)
-            this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
+            this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
         else
             this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_COLOR);
 
@@ -298,7 +298,6 @@
         var program = this._shaderProgram;
          if (locTexture) {
                 program.use();
-                program._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
                 cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
 

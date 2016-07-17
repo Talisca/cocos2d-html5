@@ -47,6 +47,7 @@ cc.rendererWebGL = {
             vertexUpload: null,
             matrixUpload: null,
             indexBuffer: null, //everything that draws quads of any kind can share this index buffer
+            glBufferSize: -1,
             size: -1 //indicates how many quads have place in these buffers
         }
     },
@@ -98,12 +99,22 @@ cc.rendererWebGL = {
                 numQuads += cmd._numQuads;
             }
 
-            if(buffers.size < numQuads)
+            if(buffers.size < numQuads || buffers.size > numQuads * 2)
             {
                 buffers.vertexUpload = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * numQuads / 4);
                 buffers.matrixUpload = new Float32Array(cc.kmMat4.BYTES_PER_ELEMENT * numQuads); //for now we save 4 matrices for each quad (one for each vertex), so it would be cc.kmMat4.BYTES_PER_ELEMENT * 4 / 4 
                 buffers.indexBuffer = cc.Node.WebGLRenderCmd.prototype.getQuadIndexBuffer(numQuads);
                 buffers.size = numQuads;
+
+                if(buffers.glBufferSize < numQuads)
+                {
+                    cc.glBindArrayBuffer(buffers.vertexData);
+                    gl.bufferData(gl.ARRAY_BUFFER, buffers.vertexUpload.length * 4, gl.DYNAMIC_DRAW);
+
+                    cc.glBindArrayBuffer(buffers.matrixData);
+                    gl.bufferData(gl.ARRAY_BUFFER, buffers.matrixUpload.length * 4, gl.DYNAMIC_DRAW);
+                    buffers.glBufferSize = numQuads;
+                }
             }
 
             var vertexUploadBuffer = buffers.vertexUpload;
@@ -129,10 +140,10 @@ cc.rendererWebGL = {
             //this looks like we create new buffers each frame, but drivers should recognize this pattern and utilize vertex streaming optimizations
             //we will use a bufferdata, null at the end of the frame to signify that we draw this once then discard it
             cc.glBindArrayBuffer( buffers.vertexData);
-            gl.bufferData(gl.ARRAY_BUFFER, vertexUploadBuffer, gl.STREAM_DRAW);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexUploadBuffer);
 
             cc.glBindArrayBuffer( buffers.matrixData);
-            gl.bufferData(gl.ARRAY_BUFFER, matrixUploadBuffer, gl.STREAM_DRAW);
+              gl.bufferSubData(gl.ARRAY_BUFFER, 0,  matrixUploadBuffer);
         }
     },
     //these are just 'pooled' arrays for the updateBuffers loop, so we don't throw garbage around. theres nothing for the geometryTypes.NONE renderCmds

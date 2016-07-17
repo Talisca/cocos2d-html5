@@ -55,8 +55,8 @@
         var locTexture = node._texture;
         var count = this._batchedCount;
 
-        this._batchShader.use();
-        this._batchShader._updateProjectionUniform();
+        this._shaderProgram.use();
+        this._shaderProgram._updateProjectionUniform();
         
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         cc.glBindTexture2DN(0, locTexture);
