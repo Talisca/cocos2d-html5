@@ -315,8 +315,6 @@ cc.Node.RenderCmd.prototype = {
                 t.ty += appY;
             }
 
-            if (node._additionalTransformDirty)
-                this._transform = _cc.affineTransformConcat(t, node._additionalTransform);
         }
         return this._transform;
     },
