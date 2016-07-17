@@ -101,7 +101,6 @@ cc.s_globalOrderOfArrival = 1;
  * @property {Number}               skewX               - Skew x
  * @property {Number}               skewY               - Skew y
  * @property {Number}               zIndex              - Z order in depth which stands for the drawing order
- * @property {Number}               vertexZ             - WebGL Z vertex of this node, z order works OK if all the nodes uses the same openGL Z vertex
  * @property {Number}               rotation            - Rotation of node
  * @property {Number}               rotationX           - Rotation on x axis
  * @property {Number}               rotationY           - Rotation on y axis
@@ -130,7 +129,6 @@ cc.s_globalOrderOfArrival = 1;
  */
 cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _localZOrder: 0,                                     ///< Local order (relative to its siblings) used to sort the node
-    _vertexZ: 0.0,
 
     _rotationX: 0,
     _scaleX: 1.0,
@@ -419,33 +417,6 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     setZOrder: function (z) {
         cc.log(cc._LogInfos.Node_setZOrder);
         this.setLocalZOrder(z);
-    },
-
-    /**
-     * Returns WebGL Z vertex of this node.
-     * @function
-     * @return {Number} WebGL Z vertex of this node
-     */
-    getVertexZ: function () {
-        return this._vertexZ;
-    },
-
-    /**
-     * <p>
-     *     Sets the real WebGL Z vertex.                                                                          <br/>
-     *                                                                                                            <br/>
-     *      Differences between openGL Z vertex and cocos2d Z order:                                              <br/>
-     *      - WebGL Z modifies the Z vertex, and not the Z order in the relation between parent-children         <br/>
-     *      - WebGL Z might require to set 2D projection                                                         <br/>
-     *      - cocos2d Z order works OK if all the nodes uses the same WebGL Z vertex. eg: vertexZ = 0            <br/>
-     *                                                                                                            <br/>
-     *      @warning Use it at your own risk since it might break the cocos2d parent-children z order
-     * </p>
-     * @function
-     * @param {Number} Var
-     */
-    setVertexZ: function (Var) {
-        this._vertexZ = Var;
     },
 
     /**

@@ -52,9 +52,6 @@ cc._tmp.PrototypeCCNode = function () {
     _p.zIndex;
     cc.defineGetterSetter(_p, "zIndex", _p.getLocalZOrder, _p.setLocalZOrder);
     /** @expose */
-    _p.vertexZ;
-    cc.defineGetterSetter(_p, "vertexZ", _p.getVertexZ, _p.setVertexZ);
-    /** @expose */
     _p.rotation;
     cc.defineGetterSetter(_p, "rotation", _p.getRotation, _p.setRotation);
     /** @expose */
