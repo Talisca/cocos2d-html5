@@ -29,7 +29,7 @@
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._quadU32View = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT / 4);
-        this._setQuadVertices(this._quadU32View);
+        // this._setQuadVertices(this._quadU32View);
         this._firstQuad = -1;
         this._batchedCount = 1;
         //this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
@@ -57,54 +57,29 @@
             && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
     };
 
-    proto.transform = function (parentCmd, recursive) {
-        //if(!this._node.isVisible()) return;
-        var t4x4 = this._transform4x4, stackMatrix = this._stackMatrix, node = this._node;
-        var parentMatrix = parentCmd._stackMatrix;
-
-        var rect = node._rect;
-        var offset = node._offsetPosition;
-
-        // Convert 3x3 into 4x4 matrix
-        var trans = this.getNodeToParentTransform();
-
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
-
-        var t4x4Mat = t4x4.mat;
-        t4x4Mat[0] = trans.a * rect.width;
-        t4x4Mat[4] = trans.c * rect.height;
-        t4x4Mat[12] = trans.a * offset.x + trans.c * offset.y + trans.tx;
-        t4x4Mat[1] = trans.b * rect.width;
-        t4x4Mat[5] = trans.d * rect.height;
-        t4x4Mat[13] = trans.b * offset.x + trans.d * offset.y + trans.ty;
-
-        //optimize performance for Javascript
-        _cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
-
-        //this.setRenderZ(parentCmd, stackMatrix);
-
-        if (!recursive || !node._children)
-            return;
-        var i, len, locChildren = node._children;
-        for (i = 0, len = locChildren.length; i < len; i++) {
-            locChildren[i]._renderCmd.transform(this, recursive);
-        }
-    };
-
     proto._init = function () {
         cc.flatQuadSetColor(this._quadU32View, 255, 255, 255, 255);
     };
 
+    proto._updateQuadVertices = function()
+    {
+        this._setQuadVertices(this._quadU32View);
+    }
+
     proto._setQuadVertices = function (u32View)
     {
         var f32View = new Float32Array(u32View.buffer);
-        
+        var offset = this._node._offsetPosition;
+        var x1 = offset.x;
+        var y1 = offset.y;
+        var x2 = x1 + this._node._rect.width;
+        var y2 = y1 + this._node._rect.height;
         var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT / 4;
         //it's a 1x1  quad so we just set appropriate indices to 1
-        f32View[0] = 0; f32View[1] = 1;
-        f32View[stride] = 0; f32View[stride + 1] = 0;
-        f32View[stride*2] = 1; f32View[stride*2 + 1] = 1;
-        f32View[stride*3] = 1; f32View[stride*3 + 1] = 0;
+        f32View[0] = x1; f32View[1] = y2;
+        f32View[stride] = x1; f32View[stride + 1] = y1;
+        f32View[stride*2] = x2; f32View[stride*2 + 1] = y2;
+        f32View[stride*3] = x2; f32View[stride*3 + 1] = y1;
     };
 
     proto.getQuad = function () {

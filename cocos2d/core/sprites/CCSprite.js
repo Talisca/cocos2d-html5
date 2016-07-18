@@ -107,7 +107,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     _rectRotated:false, //Whether the texture is rotated
 
     // Offset Position (used by Zwoptex)
-    _offsetPosition:null, // absolute
+    _offsetPosition:cc.p(0,0), // absolute
     _unflippedOffsetPositionFromCenter:null,
 
     _opacityModifyRGB:false,
@@ -727,6 +727,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         var locRect = _t._rect;
         _t._offsetPosition.x = relativeOffsetX + (_t._contentSize.width - locRect.width) / 2;
         _t._offsetPosition.y = relativeOffsetY + (_t._contentSize.height - locRect.height) / 2;
+
+        _t._renderCmd._updateQuadVertices();
     },
 
     // BatchNode methods
