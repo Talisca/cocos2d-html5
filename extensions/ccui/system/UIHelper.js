@@ -162,12 +162,16 @@ ccui.helper = {
         return cc.rect(x, y, width, height);
     },
 
-    _createSpriteFromBase64: function(base64String, key) {
+    _createSpriteFromBase64: function(base64String, key, onLoad) {
         var texture2D = cc.textureCache.getTextureForKey(key);
 
         if(!texture2D) {
             var image = new Image();
             image.src = base64String;
+			image.addEventListener("load", function(){
+				cc.textureCache.cacheImage(key, image);
+				onLoad && onLoad(key);
+			});
             cc.textureCache.cacheImage(key, image);
             texture2D = cc.textureCache.getTextureForKey(key);
         }
