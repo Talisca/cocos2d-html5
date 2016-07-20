@@ -107,6 +107,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
         this._initScrollBar();
 
         this.setTouchEnabled(true);
+		this._scrollBarEnabled && this.setSwallowTouches(false);
     },
 
     /**
@@ -116,6 +117,8 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
     init: function () {
         if (ccui.Layout.prototype.init.call(this)) {
             
+			if(this._scrollBarEnabled)
+				this.setSwallowTouches(false);
             
             return true;
         }
@@ -1099,11 +1102,11 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
 
         if(this._verticalScrollBar)
         {
-           this._verticalScrollBar.onTouchBegan();
+           //this._verticalScrollBar.onTouchBegan();
         }
         if(this._horizontalScrollBar)
         {
-            this._horizontalScrollBar.onTouchBegan();
+            //this._horizontalScrollBar.onTouchBegan();
         }
     },
 
@@ -1138,11 +1141,11 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
 
         if(this._verticalScrollBar)
         {
-            this._verticalScrollBar.onTouchEnded();
+            //this._verticalScrollBar.onTouchEnded();
         }
         if(this._horizontalScrollBar)
         {
-            this._horizontalScrollBar.onTouchEnded();
+            //this._horizontalScrollBar.onTouchEnded();
         }
     },
 
@@ -1376,11 +1379,13 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
 
         if(this._scrollBarEnabled)
         {
+			this.setSwallowTouches(true);
             this._removeScrollBar();
         }
         this._scrollBarEnabled = enabled;
         if(this._scrollBarEnabled)
         {
+			this.setSwallowTouches(false);
             this._initScrollBar();
         }
     },

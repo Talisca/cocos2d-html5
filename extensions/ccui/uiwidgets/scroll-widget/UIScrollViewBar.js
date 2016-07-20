@@ -45,6 +45,8 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
 
     _marginFromBoundary : 0,
     _marginForLength: 0,
+	
+	_touchBeganPosition: null,
 
     _touching: false,
 
@@ -99,10 +101,64 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
         this.onScrolled(cc.p(0, 0));
         cc.ProtectedNode.prototype.setOpacity.call(this, 0);
         this._autoHideRemainingTime = 0;
+		
+		this._touchBeganPosition = cc.p(0, 0);
 
         if(this._direction === ccui.ScrollView.DIR_HORIZONTAL)
         {
             this.setRotation(90);
+        }
+		
+		this.setTouchEnabled(true);
+    },
+	
+	removeFromParent: function()
+	{
+		ccui.ProtectedNode.prototype.removeFromParent.call(this);
+		this.setTouchEnabled(false);
+	},
+	
+	setParent: function(node)
+	{
+		ccui.ProtectedNode.prototype.setParent.apply(this, arguments);
+		if(node)
+			this.setTouchEnabled(true);
+		else
+			this.setTouchEnabled(false);
+	},
+	
+	_isAncestorsVisible: function(node){
+        if (null == node)
+            return true;
+
+        var parent = node.getParent();
+
+        if (parent && !parent.isVisible())
+            return false;
+        return this._isAncestorsVisible(parent);
+    },
+	
+	/**
+     * Sets whether the widget is touch enabled. The default value is false, a widget is default to touch disabled
+     * @param {Boolean} enable  true if the widget is touch enabled, false if the widget is touch disabled.
+     */
+    setTouchEnabled: function (enable) {
+        if (this._touchEnabled === enable)
+            return;
+
+        this._touchEnabled = enable;                                  //TODO need consider remove and re-add.
+        if (this._touchEnabled) {
+            if(!this._touchListener)
+                this._touchListener = cc.EventListener.create({
+                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                    swallowTouches: true,
+                    onTouchBegan: this.onTouchBegan.bind(this),
+                    onTouchMoved: this.onTouchMoved.bind(this),
+                    onTouchEnded: this.onTouchEnded.bind(this)
+                });
+            cc.eventManager.addListener(this._touchListener, this);
+        } else {
+            cc.eventManager.removeListener(this._touchListener);
         }
     },
 
@@ -151,6 +207,7 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
      */
     setWidth: function(width)
     {
+		this._contentSize.width = width;
         var scale = width / this._body.width;
         this._body.setScaleX(scale);
         this._upperHalfCircle.setScale(scale);
@@ -211,6 +268,7 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
         var ratio = length / this._body.getTextureRect().height;
         this._body.setScaleY(ratio);
         this._upperHalfCircle.setPositionY(this._body.getPositionY() + length);
+		this._contentSize.height = length;
     },
 
     _processAutoHide: function(dt)
@@ -240,34 +298,86 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
     },
 
     /**
-     * This is called by parent ScrollView when a touch is began. Don't call this directly.
+     * The touch began event callback handler of ccui.ScrollViewBar.
+     * @param {cc.Touch} touch
+     * @param {cc.Event} event
+	 * @returns {boolean}
      */
-    onTouchBegan: function()
+    onTouchBegan: function(touch, event)
     {
+		this._hit = false;
+        if (this.isVisible() && ccui.Widget.prototype._isAncestorsVisible.call(this, this)){
+            var touchPoint = touch.getLocation();
+            this._touchBeganPosition.x = touchPoint.x;
+            this._touchBeganPosition.y = touchPoint.y;
+
+			var bb = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+			
+			var p = ccui.Widget.prototype.convertToNodeSpace.call(this, this._touchBeganPosition);
+
+			p.x += this._contentSize.width / 2;
+			
+			if(cc.rectContainsPoint(bb, p))
+				this._hit = true;
+        }
+        if (!this._hit)
+        {
+			return false;
+		}
+		
+		ccui.ScrollView.prototype.onTouchEnded.apply(this.getParent(), arguments); // just in case its already triggered
+		
+		this.getParent()._isInterceptTouch = true;
+
         if(!this._autoHideEnabled)
         {
-            return;
+            return true;
         }
         this._touching = true;
+		
+		return true;
     },
 
     /**
-     * This is called by parent ScrollView when a touch is ended. Don't call this directly.
+     * The touch ended event callback handler of ccui.ScrollViewBar.
+     * @param {cc.Touch} touch
+     * @param {cc.Event} event
+	 * @returns {boolean}
      */
-    onTouchEnded: function()
+    onTouchEnded: function(touch, event)
     {
+		this.getParent()._isInterceptTouch = false;
         if(!this._autoHideEnabled)
         {
-            return;
+            return true;
         }
         this._touching = false;
 
         if(this._autoHideRemainingTime <= 0)
         {
             // If the remaining time is 0, it means that it didn't moved after touch started so scroll bar is not showing.
-            return;
+            return true;
         }
         this._autoHideRemainingTime = this.autoHideTime;
+		return true;
+    },
+	
+	/**
+     * The touch moved event callback handler of ccui.ScrollViewBar.
+     * @param {cc.Touch} touch
+     * @param {cc.Event} event
+     */
+    onTouchMoved: function (touch, event) {
+		var location = touch.getLocation();
+		var prevLocation = touch.getPreviousLocation();
+		
+		// swap the points: we want to follow the direction of the touch
+		touch._point.y = prevLocation.y;
+		touch._prevPoint.y = location.y;
+		
+		touch._point.y += touch.getDelta().y; // scrolling with the bar should be somewhat faster
+
+		ccui.ScrollView.prototype._handleMoveLogic.call(this.getParent(), touch);
     },
 
     /**
