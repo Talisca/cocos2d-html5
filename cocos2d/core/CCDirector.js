@@ -111,9 +111,9 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
 
     ctor: function () {
         var self = this;
-        self._lastUpdate = Date.now();
+        self._lastUpdate = performance.now();
         cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
-            self._lastUpdate = Date.now();
+            self._lastUpdate = performance.now();
         });
     },
 
@@ -128,7 +128,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
 
         // FPS
         this._totalFrames = 0;
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
 
         //Paused?
         this._paused = false;
@@ -167,7 +167,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
      * calculates delta time since last time it was called
      */
     calculateDeltaTime: function () {
-        var now = Date.now();
+        var now = performance.now();
 
         // new delta time.
         if (this._nextDeltaTimeZero) {
@@ -466,7 +466,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
         }
 
         this.setAnimationInterval(this._oldAnimationInterval);
-        this._lastUpdate = Date.now();
+        this._lastUpdate = performance.now();
         if (!this._lastUpdate) {
             cc.log(cc._LogInfos.Director_resume);
         }
@@ -795,7 +795,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
     },
 
     _calculateMPF: function () {
-        var now = Date.now();
+        var now = performance.now();
         this._secondsPerFrame = (now - this._lastUpdate) / 1000;
     }
 });
