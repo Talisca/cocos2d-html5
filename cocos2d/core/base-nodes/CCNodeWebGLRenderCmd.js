@@ -64,6 +64,8 @@
         this.visitChildren();
         //optimize performance for javascript
         currentStack.top = currentStack.stack.pop();
+        
+        
     };
     
     
