@@ -371,12 +371,22 @@ ccui.ScrollViewBar = ccui.ProtectedNode.extend(/** @lends ccui.ScrollViewBar# */
 		var location = touch.getLocation();
 		var prevLocation = touch.getPreviousLocation();
 		
+		var innerContainerSize = ccui.ScrollView.prototype.getInnerContainerSize.call(this.getParent());
+		var size = ccui.ScrollView.prototype.getContentSize.call(this.getParent());
+		
+		var ratio = cc.size(size.width, size.height);
+		ratio.width /= innerContainerSize.width;
+		ratio.height /= innerContainerSize.height;
+		
 		// swap the points: we want to follow the direction of the touch
 		touch._point.y = prevLocation.y;
+		touch._point.x = prevLocation.x;
 		touch._prevPoint.y = location.y;
+		touch._prevPoint.x = location.x;
 		
-		touch._point.y += touch.getDelta().y; // scrolling with the bar should be somewhat faster
-
+		touch._point.y += (touch.getDelta().y / ratio.height); // scroll bar should follow the touch location
+		touch._point.x += (touch.getDelta().x / ratio.width);
+		
 		ccui.ScrollView.prototype._handleMoveLogic.call(this.getParent(), touch);
     },
 
