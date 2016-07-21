@@ -27,7 +27,7 @@ cc.CustomRenderCmd = function (target, func) {
     this._needDraw = true;
     this._target = target;
     this._callback = func;
-
+    this._frame = -1;
     this.rendering = function (scaleX, scaleY) {
         if (!this._callback)
             return;
@@ -72,6 +72,7 @@ cc.Node.RenderCmd = function(renderable){
     this._displayedColor = cc.color(255, 255, 255, 255);
     this._cascadeColorEnabledDirty = false;
     this._cascadeOpacityEnabledDirty = false;
+    this._frame = -1;
 
     this._curLevel = -1;
 };

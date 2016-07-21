@@ -32,7 +32,7 @@ cc.rendererWebGL = {
     _cacheInstanceIds: [],
     _currentID: 0,
     _clearColor: cc.color(),                            //background color,default BLACK
-
+    _currentFrame: 0,
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
         return renderableObject._createRenderCmd();
@@ -183,6 +183,7 @@ cc.rendererWebGL = {
             i,
             len;
         var context = ctx || gl;
+        this._currentFrame++;
         
         for(i=locCmds.length-1; i>=0;--i)
         {
@@ -302,14 +303,21 @@ cc.rendererWebGL = {
     pushRenderCommand: function (cmd) {
         if(!cmd._needDraw)
             return;
+
+        var curFrame = this._currentFrame;
         if (this._isCacheToBufferOn) {
             var currentId = this._currentID, locCmdBuffer = this._cacheToBufferCmds;
             var cmdList = locCmdBuffer[currentId];
-            if (cmdList.indexOf(cmd) === -1)
+            if (cmd._frame !== curFrame) {
+                cmd._frame = curFrame;
                 cmdList.push(cmd);
+            }
         } else {
-            if (this._renderCmds.indexOf(cmd) === -1)
+            if (cmd._frame !== curFrame)
+            {
+                cmd._frame = curFrame;
                 this._renderCmds.push(cmd);
+            } 
         }
     }
 };
