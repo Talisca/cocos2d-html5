@@ -118,6 +118,7 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
         cc.eventManager.dispatchEvent(_t._eventProjectionChanged);
         cc.setProjectionMatrixDirty();
         cc.renderer.childrenOrderDirty = true;
+        cc.shaderCache.updateProjectionUniforms();
     };
 
     _p.setDepthTest = function (on) {

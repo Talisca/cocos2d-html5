@@ -244,7 +244,19 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
         this._programs[cc.SHADER_POSITION_LENGTHTEXTURECOLOR] = program;
         this._programs["ShaderPositionLengthTextureColor"] = program;
     },
-
+	
+	updateProjectionUniforms: function(){
+	    var programs = this._programs;
+	    var keys = Object.keys(programs);
+	    for(var i=0;i<keys.length;++i)
+	    {
+	    	var program = programs[keys[i]];
+	    	if(program)
+	    	{
+	    		program._updateProjectionUniform();
+	    	}
+	    }
+	},
     /**
      * reload the default shaders
      */
