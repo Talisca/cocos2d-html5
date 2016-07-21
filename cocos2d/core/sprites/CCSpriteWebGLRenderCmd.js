@@ -277,7 +277,7 @@
                 cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
 
                 cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-                cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+                //cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
                 cc.glBindVertexFormat(cc.renderer.vertexFormats[1]);
                 
