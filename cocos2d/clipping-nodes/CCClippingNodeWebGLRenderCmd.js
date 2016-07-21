@@ -55,7 +55,7 @@
         // get (only once) the number of bits of the stencil buffer
         cc.ClippingNode.WebGLRenderCmd._init_once = true;
         if (cc.ClippingNode.WebGLRenderCmd._init_once) {
-            cc.stencilBits = cc._renderContext.getParameter(cc._renderContext.STENCIL_BITS);
+            cc.stencilBits = gl.getParameter(gl.STENCIL_BITS);
             if (cc.stencilBits <= 0)
                 cc.log("Stencil buffer is not enabled.");
             cc.ClippingNode.WebGLRenderCmd._init_once = false;
@@ -169,8 +169,8 @@
         modelViewStack.pop();
     };
 
-    proto._onBeforeVisit = function(ctx){
-        var gl = ctx || cc._renderContext, node = this._node;
+    proto._onBeforeVisit = function(){
+        node = this._node;
         cc.ClippingNode.WebGLRenderCmd._layer++;
 
 
@@ -212,17 +212,14 @@
         }
     };
 
-    proto._onAfterDrawStencil = function(ctx){
-        var gl = ctx || cc._renderContext;
+    proto._onAfterDrawStencil = function(){
         gl.depthMask(this._currentDepthWriteMask);
 
         gl.stencilFunc(gl.EQUAL, this._mask_layer_le, this._mask_layer_le);
         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
     };
 
-    proto._onAfterVisit = function(ctx){
-        var gl = ctx || cc._renderContext;
-
+    proto._onAfterVisit = function(){
         gl.stencilFunc(this._currentStencilFunc, this._currentStencilRef, this._currentStencilValueMask);
         gl.stencilOp(this._currentStencilFail, this._currentStencilPassDepthFail, this._currentStencilPassDepthPass);
         gl.stencilMask(this._currentStencilWriteMask);

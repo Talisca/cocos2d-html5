@@ -67,7 +67,7 @@
         cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
 
         var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elemBuffer);
+        cc.glBindElementBuffer( elemBuffer);
 
         cc.glBindVertexFormat(cc.renderer.vertexFormats[1]); //bind the QUAD vertexe format
 
@@ -325,7 +325,7 @@
         cc.glBindVertexFormat(cc.renderer.vertexFormats[cc.geometryTypes.QUAD]);
 
         var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elemBuffer);
+        cc.glBindElementBuffer( elemBuffer);
         gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
 
         cc.g_NumberOfDraws++;

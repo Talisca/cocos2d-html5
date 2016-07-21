@@ -27,19 +27,20 @@
         cc.renderer._turnToNormalMode();
     };
 
-    proto.rendering = function(ctx){
+    proto.rendering = function()
+    {
         var currentID = this._node.__instanceId;
         var locCmds = cc.renderer._cacheToBufferCmds[currentID],
             i,
             len;
-        var context = ctx || cc._renderContext;
+        var context = gl;
         for (i = 0, len = locCmds.length; i < len; i++) {
             var checkNode = locCmds[i]._node;
             if(checkNode instanceof ccui.ScrollView)
                 continue;
             if(checkNode && checkNode._parent && checkNode._parent._inViewRect === false)
                 continue;
-            locCmds[i].rendering(context);
+            locCmds[i].rendering();
         }
     }
 })();

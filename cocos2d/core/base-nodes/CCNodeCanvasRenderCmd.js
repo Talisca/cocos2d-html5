@@ -28,10 +28,10 @@ cc.CustomRenderCmd = function (target, func) {
     this._target = target;
     this._callback = func;
 
-    this.rendering = function (ctx, scaleX, scaleY) {
+    this.rendering = function (scaleX, scaleY) {
         if (!this._callback)
             return;
-        this._callback.call(this._target, ctx, scaleX, scaleY);
+        this._callback.call(this._target, scaleX, scaleY);
     }
 };
 

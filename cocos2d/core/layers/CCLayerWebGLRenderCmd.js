@@ -69,14 +69,14 @@
             cc.color(0, 0, 0, 255, locSquareColorsAB, locColorLen),
             cc.color(0, 0, 0, 255, locSquareColorsAB, locColorLen * 2),
             cc.color(0, 0, 0, 255, locSquareColorsAB, locColorLen * 3)];
-        _t._verticesFloat32Buffer = cc._renderContext.createBuffer();
-        _t._colorsUint8Buffer = cc._renderContext.createBuffer();
+        _t._verticesFloat32Buffer = gl.createBuffer();
+        _t._colorsUint8Buffer = gl.createBuffer();
     };
     var proto = cc.LayerColor.WebGLRenderCmd.prototype = Object.create(cc.Layer.WebGLRenderCmd.prototype);
     proto.constructor = cc.LayerColor.WebGLRenderCmd;
 
-    proto.rendering = function (ctx) {
-        var context = ctx || cc._renderContext;
+    proto.rendering = function () {
+        var context = gl;
         var node = this._node;
 
         this._shaderProgram.use();
@@ -139,13 +139,13 @@
     };
 
     proto._bindLayerVerticesBufferData = function(){
-        var glContext = cc._renderContext;
+        var glContext = gl;
        cc.glBindArrayBuffer( this._verticesFloat32Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareVerticesAB, glContext.STATIC_DRAW);
     };
 
     proto._bindLayerColorsBufferData = function(){
-        var glContext = cc._renderContext;
+        var glContext = gl;
        cc.glBindArrayBuffer( this._colorsUint8Buffer);
         glContext.bufferData(glContext.ARRAY_BUFFER, this._squareColorsAB, glContext.STATIC_DRAW);
     };
@@ -273,8 +273,8 @@
         this._bindLayerColorsBufferData();
     };
 
-    proto.rendering = function (ctx) {
-        var context = ctx || cc._renderContext, node = this._node;
+    proto.rendering = function () {
+        var context = gl, node = this._node;
 
         //it is too expensive to use stencil to clip, so it use Scissor,
         //but it has a bug when layer rotated and layer's content size less than canvas's size.

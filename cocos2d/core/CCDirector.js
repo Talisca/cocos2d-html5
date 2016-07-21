@@ -253,7 +253,7 @@ cc.Director = cc.Class.extend(/** @lends cc.Director# */{
             this._afterVisitScene();
         
 
-        renderer.rendering(cc._renderContext);
+        renderer.rendering();
         this._totalFrames++;
 
         cc.eventManager.dispatchEvent(this._eventAfterDraw);

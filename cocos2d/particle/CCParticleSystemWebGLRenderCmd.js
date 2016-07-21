@@ -68,7 +68,7 @@
                 node._batchNode.textureAtlas._copyQuadsToTextureAtlas(this._quads, node.atlasIndex);
 
                 //delete buffer
-                cc._renderContext.deleteBuffer(this._buffersVBO[1]);     //where is re-bindBuffer code?
+                gl.deleteBuffer(this._buffersVBO[1]);     //where is re-bindBuffer code?
             }
         }
     };
@@ -179,12 +179,10 @@
         }
     };
 
-    proto.rendering = function (ctx) {
+    proto.rendering = function () {
         var node = this._node;
         if (!node._texture)
             return;
-
-        var gl = ctx || cc._renderContext;
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);     //;
@@ -202,7 +200,7 @@
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
+        cc.glBindElementBuffer( this._buffersVBO[1]);
         gl.drawElements(gl.TRIANGLES, node._particleIdx * 6, gl.UNSIGNED_SHORT, 0);
     };
 
@@ -324,7 +322,7 @@
 
     proto._setupVBO = function(){
         var node = this;
-        var gl = cc._renderContext;
+        
 
         //gl.deleteBuffer(this._buffersVBO[0]);
         this._buffersVBO[0] = gl.createBuffer();
@@ -332,7 +330,7 @@
         gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
         this._buffersVBO[1] = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
+        cc.glBindElementBuffer( this._buffersVBO[1]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._indices, gl.STATIC_DRAW);
 
         //cc.checkGLErrorDebug();
@@ -364,7 +362,7 @@
     };
 
     proto.postStep = function(){
-        var gl = cc._renderContext;
+        
         cc.glBindArrayBuffer( this._buffersVBO[0]);
         gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
     };

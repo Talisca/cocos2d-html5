@@ -82,7 +82,7 @@ cc._tmp.WebGLTexture2D = function () {
          */
         releaseTexture: function () {
             if (this._webTextureObj)
-                cc._renderContext.deleteTexture(this._webTextureObj);
+                gl.deleteTexture(this._webTextureObj);
             cc.loader.release(this.url);
         },
 
@@ -239,7 +239,7 @@ cc._tmp.WebGLTexture2D = function () {
          */
         initWithData: function (data, pixelFormat, pixelsWide, pixelsHigh, contentSize) {
             var self = this, tex2d = cc.Texture2D;
-            var gl = cc._renderContext;
+            
             var format = gl.RGBA, type = gl.UNSIGNED_BYTE;
 
             var bitsPerPixel = cc.Texture2D._B[pixelFormat];
@@ -344,7 +344,7 @@ cc._tmp.WebGLTexture2D = function () {
         initWithElement: function (element) {
             if (!element)
                 return;
-            this._webTextureObj = cc._renderContext.createTexture();
+            this._webTextureObj = gl.createTexture();
             this._htmlElementObj = element;
             this._textureLoaded = true;
         },
@@ -384,7 +384,7 @@ cc._tmp.WebGLTexture2D = function () {
                 return;
 
             //upload image to buffer
-            var gl = cc._renderContext;
+            
 
             cc.glBindTexture2D(self);
 
@@ -431,7 +431,7 @@ cc._tmp.WebGLTexture2D = function () {
          */
         setTexParameters: function (texParams, magFilter, wrapS, wrapT) {
             var _t = this;
-            var gl = cc._renderContext;
+            
 
             if(magFilter !== undefined)
                 texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
@@ -453,7 +453,7 @@ cc._tmp.WebGLTexture2D = function () {
          *  - GL_TEXTURE_MAG_FILTER = GL_NEAREST
          */
         setAntiAliasTexParameters: function () {
-            var gl = cc._renderContext;
+            
 
             cc.glBindTexture2D(this);
             if (!this._hasMipmaps)
@@ -470,7 +470,7 @@ cc._tmp.WebGLTexture2D = function () {
          *   the trilinear arg is in case you want trilinear filtering with mip maps if the texture has one
          */
         setAliasTexParameters: function () {
-            var gl = cc._renderContext;
+            
 
             cc.glBindTexture2D(this);
             if (!this._hasMipmaps)
@@ -492,7 +492,7 @@ cc._tmp.WebGLTexture2D = function () {
             cc.assert(_t._pixelsWide === cc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === cc.NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
 
             cc.glBindTexture2D(_t);
-            cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);
+            gl.generateMipmap(gl.TEXTURE_2D);
             _t._hasMipmaps = true;
         },
 
@@ -644,7 +644,7 @@ cc._tmp.WebGLTextureAtlas = function () {
     var _p = cc.TextureAtlas.prototype;
     _p._setupVBO = function () {
         var _t = this;
-        var gl = cc._renderContext;
+        
         //create WebGLBuffer
         _t._buffersVBO[0] = gl.createBuffer();
         _t._buffersVBO[1] = gl.createBuffer();
@@ -655,12 +655,12 @@ cc._tmp.WebGLTextureAtlas = function () {
 
     _p._mapBuffers = function () {
         var _t = this;
-        var gl = cc._renderContext;
+        
 
         cc.glBindArrayBuffer( _t._quadsWebBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+        cc.glBindElementBuffer( _t._buffersVBO[1]);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _t._indices, gl.STATIC_DRAW);
 
         //cc.checkGLErrorDebug();
@@ -678,7 +678,7 @@ cc._tmp.WebGLTextureAtlas = function () {
         if (0 === n || !_t.texture || !_t.texture.isLoaded())
             return;
 
-        var gl = cc._renderContext;
+        
         cc.glBindTexture2D(_t.texture);
 
         //
@@ -699,7 +699,7 @@ cc._tmp.WebGLTextureAtlas = function () {
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
         gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _t._buffersVBO[1]);
+        cc.glBindElementBuffer( _t._buffersVBO[1]);
 
         if (cc.TEXTURE_ATLAS_USE_TRIANGLE_STRIP)
             gl.drawElements(gl.TRIANGLE_STRIP, n * 6, gl.UNSIGNED_SHORT, start * 6 * _t._indices.BYTES_PER_ELEMENT);

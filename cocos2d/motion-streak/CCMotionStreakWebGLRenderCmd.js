@@ -31,13 +31,13 @@ cc.MotionStreak.WebGLRenderCmd = function(renderableObject){
 cc.MotionStreak.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
 cc.MotionStreak.WebGLRenderCmd.prototype.constructor = cc.Sprite.WebGLRenderCmd;
 
-cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
+cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(){
     var node = this._node;
     if (node._nuPoints <= 1)
         return;
 
     if (node.texture && node.texture.isLoaded()) {
-        ctx = ctx || cc._renderContext;
+        var ctx = gl;
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
         cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);

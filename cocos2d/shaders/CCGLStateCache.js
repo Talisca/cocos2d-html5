@@ -79,13 +79,13 @@ cc.glInvalidateStateCache = function () {
 cc.glUseProgram = function (program) {
     if (program !== cc._currentShaderProgram) {
         cc._currentShaderProgram = program;
-        cc._renderContext.useProgram(program);
+        gl.useProgram(program);
     }
 };
 
 if(!cc.ENABLE_GL_STATE_CACHE){
     cc.glUseProgram = function (program) {
-        cc._renderContext.useProgram(program);
+        gl.useProgram(program);
     }
 }
 
@@ -124,12 +124,12 @@ cc.glBlendFunc = function (sfactor, dfactor) {
  * @param {Number} dfactor
  */
 cc.setBlending = function (sfactor, dfactor) {
-    var ctx = cc._renderContext;
+    var ctx = gl;
     if ((sfactor === ctx.ONE) && (dfactor === ctx.ZERO)) {
         ctx.disable(ctx.BLEND);
     } else {
         ctx.enable(ctx.BLEND);
-        cc._renderContext.blendFunc(sfactor,dfactor);
+        gl.blendFunc(sfactor,dfactor);
         //TODO need fix for WebGL
         //ctx.blendFuncSeparate(ctx.SRC_ALPHA, dfactor, sfactor, dfactor);
     }
@@ -144,7 +144,7 @@ cc.glBlendFuncForParticle = function(sfactor, dfactor) {
     if ((sfactor !== cc._blendingSource) || (dfactor !== cc._blendingDest)) {
         cc._blendingSource = sfactor;
         cc._blendingDest = dfactor;
-        var ctx = cc._renderContext;
+        var ctx = gl;
         if ((sfactor === ctx.ONE) && (dfactor === ctx.ZERO)) {
             ctx.disable(ctx.BLEND);
         } else {
@@ -165,7 +165,7 @@ if(!cc.ENABLE_GL_STATE_CACHE){
  * @function
  */
 cc.glBlendResetToCache = function () {
-    var ctx = cc._renderContext;
+    var ctx = gl;
     ctx.blendEquation(ctx.FUNC_ADD);
     if (cc.ENABLE_GL_STATE_CACHE)
         cc.setBlending(cc._blendingSource, cc._blendingDest);
@@ -196,7 +196,7 @@ cc.setProjectionMatrixDirty = function () {
  */
 cc.glEnableVertexAttribs = function (flags) {
     /* Position */
-    var ctx = cc._renderContext;
+    var ctx = gl;
     var enablePosition = ( flags & cc.VERTEX_ATTRIB_FLAG_POSITION );
     if (enablePosition !== cc._vertexAttribPosition) {
         if (enablePosition)
@@ -249,8 +249,8 @@ cc.glBindTexture2DN = function (textureUnit, textureId) {
         return;
     cc._currentBoundTexture[textureUnit] = textureId;
 
-    var ctx = cc._renderContext;
-    ctx.activeTexture(ctx.TEXTURE0 + textureUnit);
+    var ctx = gl;
+    cc.glActiveTexture(ctx.TEXTURE0 + textureUnit);
     if(textureId)
         ctx.bindTexture(ctx.TEXTURE_2D, textureId._webTextureObj);
     else
@@ -258,8 +258,8 @@ cc.glBindTexture2DN = function (textureUnit, textureId) {
 };
 if (!cc.ENABLE_GL_STATE_CACHE){
     cc.glBindTexture2DN = function (textureUnit, textureId) {
-        var ctx = cc._renderContext;
-        ctx.activeTexture(ctx.TEXTURE0 + textureUnit);
+        var ctx = gl;
+        cc.glActiveTexture(ctx.TEXTURE0 + textureUnit);
         if(textureId)
             ctx.bindTexture(ctx.TEXTURE_2D, textureId._webTextureObj);
         else
@@ -289,7 +289,7 @@ cc.glDeleteTextureN = function (textureUnit, textureId) {
         if (textureId === cc._currentBoundTexture[ textureUnit ])
             cc._currentBoundTexture[ textureUnit ] = -1;
     }
-    cc._renderContext.deleteTexture(textureId);
+    gl.deleteTexture(textureId);
 };
 
 /**
@@ -400,33 +400,12 @@ cc.glDeleteBuffer = function (buffer)
     }
 }
 
-/**
- * It will enable / disable the server side GL states.<br/>
- * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glEnable() directly.
- * @function
- * @param {Number} flags
- */
-cc.glEnable = function (flags) {
-    if (cc.ENABLE_GL_STATE_CACHE) {
-        /*var enabled;
-
-         */
-        /* GL_BLEND */
-        /*
-         if ((enabled = (flags & cc.GL_BLEND)) != (cc._GLServerState & cc.GL_BLEND)) {
-         if (enabled) {
-         cc._renderContext.enable(cc._renderContext.BLEND);
-         cc._GLServerState |= cc.GL_BLEND;
-         } else {
-         cc._renderContext.disable(cc._renderContext.BLEND);
-         cc._GLServerState &= ~cc.GL_BLEND;
-         }
-         }*/
-    } else {
-        /*if ((flags & cc.GL_BLEND))
-         cc._renderContext.enable(cc._renderContext.BLEND);
-         else
-         cc._renderContext.disable(cc._renderContext.BLEND);*/
+var activeTextureSlot = -1;
+cc.glActiveTexture =function(slot)
+{
+    if(activeTextureSlot !== slot)
+    {
+        activeTextureSlot = slot;
+        gl.activeTexture(slot);
     }
-};
-
+}

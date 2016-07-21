@@ -35,9 +35,9 @@
     cc.inject(ccs.Armature.RenderCmd, proto);
     proto.constructor = ccs.Armature.WebGLRenderCmd;
 
-    proto.rendering = function (ctx, dontChangeMatrix) {
+    proto.rendering = function (dontChangeMatrix) {
         var node = this._node;
-
+        var ctx = gl;
         if(!dontChangeMatrix){
             cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
             cc.kmGLPushMatrix();
@@ -55,18 +55,18 @@
                 selNode.setShaderProgram(this._shaderProgram);
                 switch (selBone.getDisplayRenderNodeType()) {
                     case ccs.DISPLAY_TYPE_ARMATURE:
-                        selNode._renderCmd.rendering(ctx, true);
+                        selNode._renderCmd.rendering(true);
                         break;
                     default:
                         selNode._renderCmd.transform();
-                        selNode._renderCmd.rendering(ctx);
+                        selNode._renderCmd.rendering();
                         break;
                 }
             } else if (selBone instanceof cc.Node) {
                 selBone.setShaderProgram(this._shaderProgram);
                 selBone._renderCmd.transform();
                 if(selBone._renderCmd.rendering)
-                    selBone._renderCmd.rendering(ctx);
+                    selBone._renderCmd.rendering();
             }
         }
         if(!dontChangeMatrix)
@@ -95,7 +95,7 @@
             skinRenderCmd._updateColor();
     };
 
-    proto.updateChildPosition = function(ctx, dis, selBone, alphaPremultiplied, alphaNonPremultipled){
+    proto.updateChildPosition = function(dis, selBone, alphaPremultiplied, alphaNonPremultipled){
         var node = this._node;
         dis.updateTransform();
 
@@ -109,7 +109,7 @@
             else
                 dis.setBlendFunc(node._blendFunc);
         }
-        dis.rendering(ctx);
+        dis.rendering();
     };
 
     proto.updateStatus = function () {

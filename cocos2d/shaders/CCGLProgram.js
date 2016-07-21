@@ -96,13 +96,13 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
             + "uniform float mipmapBias;"
             + "//CC INCLUDES END                \n" + source;
 
-        this._glContext.shaderSource(shader, source);
-        this._glContext.compileShader(shader);
-        var status = this._glContext.getShaderParameter(shader, this._glContext.COMPILE_STATUS);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        var status = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
 
         if (!status) {
-            cc.log("cocos2d: ERROR: Failed to compile shader:\n" + this._glContext.getShaderSource(shader));
-            if (type === this._glContext.VERTEX_SHADER)
+            cc.log("cocos2d: ERROR: Failed to compile shader:\n" + gl.getShaderSource(shader));
+            if (type === gl.VERTEX_SHADER)
                 cc.log("cocos2d: \n" + this.vertexShaderLog());
             else
                 cc.log("cocos2d: \n" + this.fragmentShaderLog());
@@ -119,7 +119,6 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     ctor: function (vShaderFileName, fShaderFileName, glContext) {
         this._uniforms = [];
         this._hashForUniforms = [];
-        this._glContext = glContext || cc._renderContext;
 
 		vShaderFileName && fShaderFileName && this.init(vShaderFileName, fShaderFileName);
     },
@@ -133,7 +132,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         this._uniforms = null;
         this._hashForUniforms = null;
 
-        this._glContext.deleteProgram(this._programObj);
+        gl.deleteProgram(this._programObj);
     },
 
     /**
@@ -143,7 +142,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @return {Boolean}
      */
     initWithVertexShaderByteArray: function (vertShaderStr, fragShaderStr) {
-        var locGL = this._glContext;
+        var locGL = gl;
         this._programObj = locGL.createProgram();
         //cc.checkGLErrorDebug();
 
@@ -217,7 +216,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} index
      */
     addAttribute: function (attributeName, index) {
-        this._glContext.bindAttribLocation(this._programObj, index, attributeName);
+        gl.bindAttribLocation(this._programObj, index, attributeName);
     },
 
     /**
@@ -230,20 +229,20 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
             return false;
         }
 
-        this._glContext.linkProgram(this._programObj);
+        gl.linkProgram(this._programObj);
 
         if (this._vertShader)
-            this._glContext.deleteShader(this._vertShader);
+            gl.deleteShader(this._vertShader);
         if (this._fragShader)
-            this._glContext.deleteShader(this._fragShader);
+            gl.deleteShader(this._fragShader);
 
         this._vertShader = null;
         this._fragShader = null;
 
         if (cc.game.config[cc.game.CONFIG_KEY.debugMode]) {
-            var status = this._glContext.getProgramParameter(this._programObj, this._glContext.LINK_STATUS);
+            var status = gl.getProgramParameter(this._programObj, gl.LINK_STATUS);
             if (!status) {
-                cc.log("cocos2d: ERROR: Failed to link program: " + this._glContext.getProgramInfoLog(this._programObj));
+                cc.log("cocos2d: ERROR: Failed to link program: " + gl.getProgramInfoLog(this._programObj));
                 cc.glDeleteProgram(this._programObj);
                 this._programObj = null;
                 return false;
@@ -268,18 +267,18 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      *  cc.UNIFORM_SAMPLER
      */
     updateUniforms: function () {
-        this._uniforms[cc.UNIFORM_PMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_PMATRIX_S);
-        this._uniforms[cc.UNIFORM_MVMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MVMATRIX_S);
-        this._uniforms[cc.UNIFORM_MVPMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MVPMATRIX_S);
-        this._uniforms[cc.UNIFORM_TIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_TIME_S);
-        this._uniforms[cc.UNIFORM_SINTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_SINTIME_S);
-        this._uniforms[cc.UNIFORM_COSTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_COSTIME_S);
-        this._uniforms[cc.UNIFORM_MIPMAPBIAS] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MIPMAPBIAS_S);
+        this._uniforms[cc.UNIFORM_PMATRIX] = gl.getUniformLocation(this._programObj, cc.UNIFORM_PMATRIX_S);
+        this._uniforms[cc.UNIFORM_MVMATRIX] = gl.getUniformLocation(this._programObj, cc.UNIFORM_MVMATRIX_S);
+        this._uniforms[cc.UNIFORM_MVPMATRIX] = gl.getUniformLocation(this._programObj, cc.UNIFORM_MVPMATRIX_S);
+        this._uniforms[cc.UNIFORM_TIME] = gl.getUniformLocation(this._programObj, cc.UNIFORM_TIME_S);
+        this._uniforms[cc.UNIFORM_SINTIME] = gl.getUniformLocation(this._programObj, cc.UNIFORM_SINTIME_S);
+        this._uniforms[cc.UNIFORM_COSTIME] = gl.getUniformLocation(this._programObj, cc.UNIFORM_COSTIME_S);
+        this._uniforms[cc.UNIFORM_MIPMAPBIAS] = gl.getUniformLocation(this._programObj, cc.UNIFORM_MIPMAPBIAS_S);
 
         this._usesTime = (this._uniforms[cc.UNIFORM_TIME] != null || this._uniforms[cc.UNIFORM_SINTIME] != null || this._uniforms[cc.UNIFORM_COSTIME] != null);
 
-        this._uniforms[cc.UNIFORM_RANDOM01] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_RANDOM01_S);
-        this._uniforms[cc.UNIFORM_SAMPLER] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_SAMPLER_S);
+        this._uniforms[cc.UNIFORM_RANDOM01] = gl.getUniformLocation(this._programObj, cc.UNIFORM_RANDOM01_S);
+        this._uniforms[cc.UNIFORM_SAMPLER] = gl.getUniformLocation(this._programObj, cc.UNIFORM_SAMPLER_S);
 
         this.use();
         // Since sample most probably won't change, set it to 0 now.
@@ -299,7 +298,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         if(!this._programObj)
             throw new Error("cc.GLProgram.getUniformLocationForName(): Invalid operation. Cannot get uniform location when program is not initialized");
 
-        return this._glContext.getUniformLocation(this._programObj, name);
+        return gl.getUniformLocation(this._programObj, name);
     },
 
     /**
@@ -326,7 +325,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWith1i: function (location, i1) {
         var updated = this._updateUniformLocation(location, i1);
         if (updated)
-            this._glContext.uniform1i(location, i1);
+            gl.uniform1i(location, i1);
     },
 
     /**
@@ -340,7 +339,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform2i(location, i1, i2);
+            gl.uniform2i(location, i1, i2);
     },
 
     /**
@@ -355,7 +354,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform3i(location, i1, i2, i3);
+            gl.uniform3i(location, i1, i2, i3);
     },
 
     /**
@@ -371,7 +370,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform4i(location, i1, i2, i3, i4);
+            gl.uniform4i(location, i1, i2, i3, i4);
     },
 
     /**
@@ -384,7 +383,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform2iv(location, intArray);
+            gl.uniform2iv(location, intArray);
     },
 
     /**
@@ -397,7 +396,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform3iv(location, intArray);
+            gl.uniform3iv(location, intArray);
     },
 
     /**
@@ -410,7 +409,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var updated =  this._updateUniformLocation(location, intArray);
 
         if( updated )
-            this._glContext.uniform4iv(location, intArray);
+            gl.uniform4iv(location, intArray);
     },
 
     /**
@@ -430,7 +429,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWith1f: function (location, f1) {
         var updated = this._updateUniformLocation(location, f1);
         if (updated)
-            this._glContext.uniform1f(location, f1);
+            gl.uniform1f(location, f1);
     },
 
     /**
@@ -443,7 +442,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var floats = [f1, f2];
         var updated = this._updateUniformLocation(location, floats);
         if (updated)
-            this._glContext.uniform2f(location, f1, f2);
+            gl.uniform2f(location, f1, f2);
     },
 
     /**
@@ -457,7 +456,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var floats = [f1, f2, f3];
         var updated = this._updateUniformLocation(location, floats);
         if (updated)
-            this._glContext.uniform3f(location, f1, f2, f3);
+            gl.uniform3f(location, f1, f2, f3);
     },
 
     /**
@@ -472,7 +471,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         var floats = [f1, f2, f3, f4];
         var updated = this._updateUniformLocation(location, floats);
         if (updated)
-            this._glContext.uniform4f(location, f1, f2, f3, f4);
+            gl.uniform4f(location, f1, f2, f3, f4);
     },
 
     /**
@@ -484,7 +483,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWith2fv: function (location, floatArray, numberOfArrays) {
         var updated = this._updateUniformLocation(location, floatArray);
         if (updated)
-            this._glContext.uniform2fv(location, floatArray);
+            gl.uniform2fv(location, floatArray);
     },
 
     /**
@@ -496,7 +495,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWith3fv: function (location, floatArray, numberOfArrays) {
         var updated = this._updateUniformLocation(location, floatArray);
         if (updated)
-            this._glContext.uniform3fv(location, floatArray);
+            gl.uniform3fv(location, floatArray);
     },
 
     /**
@@ -508,7 +507,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWith4fv: function (location, floatArray, numberOfArrays) {
         var updated = this._updateUniformLocation(location, floatArray);
         if (updated)
-            this._glContext.uniform4fv(location, floatArray);
+            gl.uniform4fv(location, floatArray);
     },
 
     /**
@@ -520,7 +519,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
     setUniformLocationWithMatrix4fv: function (location, matrixArray, numberOfMatrices) {
         var updated = this._updateUniformLocation(location, matrixArray);
         if (updated)
-            this._glContext.uniformMatrix4fv(location, false, matrixArray);
+            gl.uniformMatrix4fv(location, false, matrixArray);
     },
 
     setUniformLocationF32: function () {
@@ -613,36 +612,36 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * will update the MVP matrix on the MVP uniform if it is different than the previous call for this same shader program.
      */
     setUniformForModelViewProjectionMatrix: function () {
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false,
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false,
             cc.getMat4MultiplyValue(cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top));
     },
 
     setUniformForModelViewProjectionMatrixWithMat4: function (swapMat4) {
         cc.kmMat4Multiply(swapMat4, cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false, swapMat4.mat);
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false, swapMat4.mat);
     },
 
     setUniformForModelViewAndProjectionMatrixWithMat4: function () {
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, cc.modelview_matrix_stack.top.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, cc.modelview_matrix_stack.top.mat);
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
     },
 
     _setUniformForMVPMatrixWithMat4: function(modelViewMatrix){
         if(!modelViewMatrix)
             throw new Error("modelView matrix is undefined.");
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
+        gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
     },
 
     _updateProjectionUniform: function(){
-      this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);  
+      gl.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);  
     },
     /**
      * returns the vertexShader error log
      * @return {String}
      */
     vertexShaderLog: function () {
-        return this._glContext.getShaderInfoLog(this._vertShader);
+        return gl.getShaderInfoLog(this._vertShader);
     },
 
     /**
@@ -650,7 +649,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @return {String}
      */
     getVertexShaderLog: function () {
-        return this._glContext.getShaderInfoLog(this._vertShader);
+        return gl.getShaderInfoLog(this._vertShader);
     },
 
     /**
@@ -658,7 +657,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @returns {String}
      */
     getFragmentShaderLog: function () {
-        return this._glContext.getShaderInfoLog(this._vertShader);
+        return gl.getShaderInfoLog(this._vertShader);
     },
 
     /**
@@ -666,7 +665,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @return {String}
      */
     fragmentShaderLog: function () {
-        return this._glContext.getShaderInfoLog(this._fragShader);
+        return gl.getShaderInfoLog(this._fragShader);
     },
 
     /**
@@ -674,7 +673,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @return {String}
      */
     programLog: function () {
-        return this._glContext.getProgramInfoLog(this._programObj);
+        return gl.getProgramInfoLog(this._programObj);
     },
 
     /**
@@ -682,7 +681,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
      * @return {String}
      */
     getProgramLog: function () {
-        return this._glContext.getProgramInfoLog(this._programObj);
+        return gl.getProgramInfoLog(this._programObj);
     },
 
     /**
@@ -696,7 +695,7 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
 
         // it is already deallocated by android
         //ccGLDeleteProgram(m_uProgram);
-        this._glContext.deleteProgram(this._programObj);
+        gl.deleteProgram(this._programObj);
         this._programObj = null;
 
         // Purge uniform hash
@@ -742,8 +741,7 @@ cc.GLProgram._highpSupported = null;
 
 cc.GLProgram._isHighpSupported = function(){
     if(cc.GLProgram._highpSupported == null){
-        var ctx = cc._renderContext;
-        var highp = ctx.getShaderPrecisionFormat(ctx.FRAGMENT_SHADER, ctx.HIGH_FLOAT);
+        var highp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
         cc.GLProgram._highpSupported = highp.precision !== 0;
     }
     return cc.GLProgram._highpSupported;

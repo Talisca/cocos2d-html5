@@ -37,8 +37,8 @@
         node._cascadeColorEnabled = true;
     };
 
-    proto.rendering = function(ctx){
-        cc.AtlasNode.WebGLRenderCmd.prototype.rendering.call(this, ctx);
+    proto.rendering = function(){
+        cc.AtlasNode.WebGLRenderCmd.prototype.rendering.call(this);
         if (cc.LABELATLAS_DEBUG_DRAW) {
             var node = this._node;
             var s = node.getContentSize();

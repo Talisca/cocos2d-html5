@@ -143,7 +143,7 @@ cc.rendererWebGL = {
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexUploadBuffer);
 
             cc.glBindArrayBuffer( buffers.matrixData);
-              gl.bufferSubData(gl.ARRAY_BUFFER, 0,  matrixUploadBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0,  matrixUploadBuffer);
         }
     },
     //these are just 'pooled' arrays for the updateBuffers loop, so we don't throw garbage around. theres nothing for the geometryTypes.NONE renderCmds
@@ -175,14 +175,14 @@ cc.rendererWebGL = {
     },
 
     /**
-     * drawing all renderer command to context (default is cc._renderContext)
-     * @param {WebGLRenderingContext} [ctx=cc._renderContext]
+     * drawing all renderer command to context (default is gl)
+     * @param {WebGLRenderingContext} [ctx=gl]
      */
     rendering: function (ctx) {
         var locCmds = this._renderCmds,
             i,
             len;
-        var context = ctx || cc._renderContext;
+        var context = ctx || gl;
         
         for(i=locCmds.length-1; i>=0;--i)
         {
@@ -212,11 +212,11 @@ cc.rendererWebGL = {
             var cmd = locCmds[i];
             if(cmd._batching)
             {
-                cmd.batchedRendering(context);
+                cmd.batchedRendering();
             }
             else if(!cmd._batched)
             {
-                cmd.rendering(context);
+                cmd.rendering();
             }
         }
 
@@ -250,9 +250,9 @@ cc.rendererWebGL = {
     _renderingToBuffer: function (renderTextureId) {
         renderTextureId = renderTextureId || this._currentID;
         var locCmds = this._cacheToBufferCmds[renderTextureId], i, len;
-        var ctx = cc._renderContext, locIDs = this._cacheInstanceIds;
+        var ctx = gl, locIDs = this._cacheInstanceIds;
         for (i = 0, len = locCmds.length; i < len; i++) {
-            locCmds[i].rendering(ctx);
+            locCmds[i].rendering();
         }
         locCmds.length = 0;
         delete this._cacheToBufferCmds[renderTextureId];
@@ -300,13 +300,11 @@ cc.rendererWebGL = {
     },
 
     clear: function () {
-        var gl = cc._renderContext;
         gl.clearColor(this._clearColor.r, this._clearColor.g, this._clearColor.b, this._clearColor.a);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     },
 
     setDepthTest: function (enable){
-        var gl = cc._renderContext;
         if(enable){
             gl.clearDepth(1.0);
             gl.enable(gl.DEPTH_TEST);

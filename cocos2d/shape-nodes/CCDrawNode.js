@@ -195,7 +195,7 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
                 if (cc.Node.prototype.init.call(this)) {
                     this.shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_LENGTHTEXTURECOLOR);
                     this._ensureCapacity(64);
-                    this._trianglesWebBuffer = cc._renderContext.createBuffer();
+                    this._trianglesWebBuffer = gl.createBuffer();
                     this._dirty = true;
                     return true;
                 }
@@ -305,7 +305,7 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
             },
 
             _render:function () {
-                var gl = cc._renderContext;
+                
 
                 cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
                 cc.glBindArrayBuffer( this._trianglesWebBuffer);

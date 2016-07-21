@@ -30,7 +30,7 @@
         cc.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
-        this._vertexWebGLBuffer = cc._renderContext.createBuffer();
+        this._vertexWebGLBuffer = gl.createBuffer();
         this._vertexDataCount = 0;
         this._vertexData = null;
         this._vertexArrayBuffer = null;
@@ -40,9 +40,9 @@
     var proto = cc.ProgressTimer.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ProgressTimer.WebGLRenderCmd;
 
-    proto.rendering = function (ctx) {
+    proto.rendering = function () {
         var node = this._node;
-        var context = ctx || cc._renderContext;
+        var context = gl;
         if (!this._vertexData || !node._sprite)
             return;
 

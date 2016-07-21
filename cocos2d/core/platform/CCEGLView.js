@@ -196,7 +196,7 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
         _t._hDC = cc._canvas;
-        _t._hRC = cc._renderContext;
+        _t._hRC = gl;
         _t._targetDensityDPI = cc.DENSITYDPI_HIGH;
     },
 
@@ -644,7 +644,6 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
             vb.y = -vp.y / this._scaleY;
             vb.width = cc._canvas.width / this._scaleX;
             vb.height = cc._canvas.height / this._scaleY;
-            cc._renderContext.setOffset && cc._renderContext.setOffset(vp.x, -vp.y)
         }
 
         // reset director's member variables to fit visible rect
@@ -710,7 +709,7 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
      */
     setViewPortInPoints: function (x, y, w, h) {
         var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc._renderContext.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
+        gl.viewport((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
             (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
             (w * locScaleX * locFrameZoomFactor),
             (h * locScaleY * locFrameZoomFactor));
@@ -725,7 +724,7 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
      */
     setScissorInPoints: function (x, y, w, h) {
         var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc._renderContext.scissor((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
+        gl.scissor((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
             (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
             (w * locScaleX * locFrameZoomFactor),
             (h * locScaleY * locFrameZoomFactor));
@@ -736,7 +735,6 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
      * @return {Boolean}
      */
     isScissorEnabled: function () {
-        var gl = cc._renderContext;
         return gl.isEnabled(gl.SCISSOR_TEST);
     },
 
@@ -745,7 +743,7 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
      * @return {cc.Rect}
      */
     getScissorRect: function () {
-        var gl = cc._renderContext, scaleX = this._scaleX, scaleY = this._scaleY;
+        var scaleX = this._scaleX, scaleY = this._scaleY;
         var boxArr = gl.getParameter(gl.SCISSOR_BOX);
         return cc.rect((boxArr[0] - this._viewPortRect.x) / scaleX, (boxArr[1] - this._viewPortRect.y) / scaleY,
             boxArr[2] / scaleX, boxArr[3] / scaleY);
@@ -894,7 +892,7 @@ cc.ContainerStrategy = cc.Class.extend(/** @lends cc.ContainerStrategy# */{
         // Setup canvas
         locCanvasElement.width = w * devicePixelRatio;
         locCanvasElement.height = h * devicePixelRatio;
-        cc._renderContext.resetCache && cc._renderContext.resetCache();
+        gl.resetCache && gl.resetCache();
 
         var body = document.body, style;
         if (body && (style = body.style)) {

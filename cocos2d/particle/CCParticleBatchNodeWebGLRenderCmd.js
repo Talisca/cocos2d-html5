@@ -34,7 +34,7 @@
     var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ParticleBatchNode.WebGLRenderCmd;
 
-    proto.rendering = function (ctx) {
+    proto.rendering = function () {
         var _t = this._node;
         if (_t.textureAtlas.totalQuads === 0)
             return;

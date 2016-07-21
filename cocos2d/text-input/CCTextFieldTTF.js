@@ -340,7 +340,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
      */
     draw:function (ctx) {
         //console.log("size",this._contentSize);
-        var context = ctx || cc._renderContext;
+        var context = ctx || gl;
         if (this.delegate && this.delegate.onDraw(this))
             return;
 

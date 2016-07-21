@@ -29,10 +29,8 @@
         cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._quadU32View = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT / 4);
-        // this._setQuadVertices(this._quadU32View);
         this._firstQuad = -1;
         this._batchedCount = 1;
-        //this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
     };
 
     var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
@@ -265,11 +263,9 @@
         }
     };
 
-    proto.rendering = function (ctx) {
+    proto.rendering = function () {
         var node = this._node, locTexture = node._texture;
 
-        var gl = ctx;
-        
         var program = this._shaderProgram;
          if (locTexture) {
                 program.use();
@@ -297,4 +293,59 @@
        
         cc.g_NumberOfDraws++;
     };
+
+    proto.batchedRendering = function (ctx) {
+        var node = this._node;
+        var locTexture = node._texture;
+        var count = this._batchedCount;
+
+        this._shaderProgram.use();
+
+        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.glBindTexture2DN(0, locTexture);
+
+        cc.glBindVertexFormat(cc.renderer.vertexFormats[cc.geometryTypes.QUAD]);
+
+        var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
+        cc.glBindElementBuffer( elemBuffer);
+        gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
+
+        cc.g_NumberOfDraws++;
+    }
+
+    proto.configureBatch = function (renderCmds, myIndex) {
+        //return;
+        var node = this._node;
+        var texture = node.getTexture();
+
+        for (var i = myIndex + 1, len = renderCmds.length; i < len; ++i) {
+            var cmd = renderCmds[i];
+
+            //only consider other sprites for now
+            if (!(cmd instanceof cc.Sprite.WebGLRenderCmd)) {
+                break;
+            }
+
+            var otherNode = cmd._node;
+            if (texture !== otherNode.getTexture()) {
+                break;
+            }
+
+            cmd._batched = true;
+        }
+
+        var count = i - myIndex;
+
+        if (count > 1) {
+            this._batching = true;
+            this._batchedCount = count;
+        }
+        else {
+            return 1;
+        }
+
+        return count;
+    }
+
+    
 })();

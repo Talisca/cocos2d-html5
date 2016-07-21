@@ -41,7 +41,7 @@ cc.Grabber = cc.Class.extend({
      */
     ctor:function () {
         cc.sys._checkWebGLRenderMode();
-        this._gl = cc._renderContext;
+        this._;
         this._oldClearColor = [0, 0, 0, 0];
         this._oldFBO = null;
         // generate FBO

@@ -74,7 +74,7 @@
     proto.createQuadIndexBuffer = function(glBuffer, numQuads)
     {
          //create element buffer
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, glBuffer);
+        cc.glBindElementBuffer( glBuffer);
 
         var indices = new Uint16Array(numQuads * 6);
 
@@ -184,4 +184,8 @@
     proto.getShaderProgram = function () {
         return this._shaderProgram;
     };
+
+    proto.configureBatch = function () {
+        return 1;
+    }
 })();

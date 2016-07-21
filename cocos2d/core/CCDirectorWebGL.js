@@ -161,7 +161,6 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
     };
 
     _p._clear = function () {
-        var gl = cc._renderContext;
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     };
 
@@ -239,7 +238,7 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
         if (on)
             cc.glBlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
         else
-            cc.glBlendFunc(cc._renderContext.ONE, cc._renderContext.ZERO);
+            cc.glBlendFunc(gl.ONE, gl.ZERO);
         //cc.checkGLErrorDebug();
     };
 
@@ -252,6 +251,6 @@ cc.game.addEventListener(cc.game.EVENT_RENDERER_INITED, function () {
         _t.setProjection(_t._projection);
 
         // set other opengl default values
-        cc._renderContext.clearColor(0.0, 0.0, 0.0, 0.0);
+        gl.clearColor(0.0, 0.0, 0.0, 0.0);
     };
 });

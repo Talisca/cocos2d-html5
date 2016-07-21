@@ -31,7 +31,7 @@
     cc.DrawNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     cc.DrawNode.WebGLRenderCmd.prototype.constructor = cc.DrawNode.WebGLRenderCmd;
 
-    cc.DrawNode.WebGLRenderCmd.prototype.rendering = function (ctx) {
+    cc.DrawNode.WebGLRenderCmd.prototype.rendering = function () {
         var node = this._node;
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         this._shaderProgram.use();

@@ -236,7 +236,6 @@ cc.configuration = /** @lends cc.configuration# */{
 
 	    if(!this._inited)
 		    this._init();
-        var gl = cc._renderContext;
         var locValueDict = this._valueDict;
         locValueDict["gl.vendor"] = gl.getParameter(gl.VENDOR);
         locValueDict["gl.renderer"] = gl.getParameter(gl.RENDERER);

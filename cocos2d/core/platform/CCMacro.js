@@ -174,7 +174,7 @@ cc.REPEAT_FOREVER = Number.MAX_VALUE - 1;
 cc.nodeDrawSetup = function (node) {
     //cc.glEnable(node._glServerState);
     if (node._shaderProgram) {
-        //cc._renderContext.useProgram(node._shaderProgram._programObj);
+        //gl.useProgram(node._shaderProgram._programObj);
         node._shaderProgram.use();
         node._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
     }
@@ -468,7 +468,7 @@ cc.BLEND_DST = cc.ONE_MINUS_SRC_ALPHA;
  */
 cc.checkGLErrorDebug = function () {
     if (cc.renderMode === cc.game.RENDER_TYPE_WEBGL) {
-        var _error = cc._renderContext.getError();
+        var _error = gl.getError();
         if (_error) {
             cc.log(cc._LogInfos.checkGLErrorDebug, _error);
         }

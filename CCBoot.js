@@ -123,11 +123,6 @@ cc.ORIENTATION_LANDSCAPE_RIGHT = 3;
  */
 cc._drawingUtil = null;
 
-/**
- * main Canvas 2D/3D Context of game engine
- * @type {CanvasRenderingContext2D|WebGLRenderingContext}
- */
-cc._renderContext = null;
 cc._supportRender = false;
 
 /**
@@ -2507,7 +2502,7 @@ cc.game = /** @lends cc.game# */{
         localContainer.top = '100%';
 
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
-            this._renderContext = cc._renderContext = cc.webglContext
+            this._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'preserveDrawingBuffer': true,
@@ -2528,10 +2523,6 @@ cc.game = /** @lends cc.game# */{
             win.glInst = cc.glExt.instanced_arrays;
 
             cc.renderer.initialize();
-        } else {
-            cc.renderer = cc.rendererCanvas;
-            this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
-            cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;
         }
 
         cc._gameDiv = localContainer;
