@@ -40,6 +40,8 @@ cc.CustomRenderCmd.prototype.configureBatch = function()
     return 1;
 }
 
+cc.CustomRenderCmd.prototype._batchedCount = 1;
+
 cc.Node._dirtyFlags =
     {
         transformDirty: 1 << 0,

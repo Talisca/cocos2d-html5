@@ -32,10 +32,9 @@
         this._firstQuad = -1;
         this._drawnQuads = 0; //we track drawnquads and numQuads separately because the quads stored in the memory of this string might be larger than the actual drawn amount of quads
         this._batchedCount = 1;
-        this._batchShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
         this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
-        this._batchShader.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
+        this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
 
         this._contentSize = { width: 0, height: 0 };
     };
@@ -54,15 +53,13 @@
 
     proto.rendering = function ()
     {
-        return;
-        var node = this._node;
+        var node = this._node, program = this._shaderProgram, count = this._batchedQuads;
         if(node._stringDirty)
         {
             this.updateAtlasValues();
         }
-        this._shaderProgram.use();
-        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-
+        program.use();
+        
         //optimize performance for javascript
         cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
 
@@ -71,11 +68,11 @@
 
         cc.glBindVertexFormat(cc.renderer.vertexFormats[1]); //bind the QUAD vertexe format
 
-        gl.drawElements(gl.TRIANGLES, 6 * this._drawnQuads, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
+        gl.drawElements(gl.TRIANGLES, 6 * count, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
 
         cc.g_NumberOfDraws++;
     };
-    
+
     //parses and prepares various string like splitting up the string into multiple lines based on the maximum line size
     //returns the maximum measured line length
     proto.prepareStringData = function(string, outLines, outLineWidths)
@@ -295,33 +292,9 @@
 
         this._batchedCount = count;
         
-        if(node._stringDirty)
-        {
-            this.updateAtlasValues();
-        }
-        
         this._batchedQuads = drawnQuads + this._numQuads;
         
         return count;
-    }
-
-    proto.batchedRendering = function (ctx) {
-        var node = this._node;
-        var locTexture = node._atlasTexture;
-        var count = this._batchedQuads;
-
-        this._batchShader.use();
-        this._batchShader._updateProjectionUniform();
-        
-        cc.glBindTexture2DN(0, locTexture);              
-
-        cc.glBindVertexFormat(cc.renderer.vertexFormats[cc.geometryTypes.QUAD]);
-
-        var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
-        cc.glBindElementBuffer( elemBuffer);
-        gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
-
-        cc.g_NumberOfDraws++;
     }
 
     proto._addChild = function () { };

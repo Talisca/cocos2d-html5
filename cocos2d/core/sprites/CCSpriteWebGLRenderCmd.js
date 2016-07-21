@@ -292,25 +292,6 @@
         cc.g_NumberOfDraws++;
     };
 
-    proto.batchedRendering = function (ctx) {
-        var node = this._node;
-        var locTexture = node._texture;
-        var count = this._batchedCount;
-
-        this._shaderProgram.use();
-
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
-        cc.glBindTexture2DN(0, locTexture);
-
-        cc.glBindVertexFormat(cc.renderer.vertexFormats[cc.geometryTypes.QUAD]);
-
-        var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
-        cc.glBindElementBuffer( elemBuffer);
-        gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, this._firstQuad * 6 * 2);
-
-        cc.g_NumberOfDraws++;
-    }
-
     proto.configureBatch = function (renderCmds, myIndex) {
         //return;
         var node = this._node;
