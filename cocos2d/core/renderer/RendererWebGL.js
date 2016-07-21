@@ -195,38 +195,22 @@ cc.rendererWebGL = {
         
         this.updateBuffers();
 
-        
-
         //prepare batching
-        for (i = 0, len = locCmds.length; i< len; ++i) 
+        for (i = 0, len = locCmds.length; i< len; ) 
         {
             var cmd = locCmds[i];
 
-            if(!cmd._batched && cmd.configureBatch) //may be set to true by processed cmds during this loop 
-            {
-                 cmd.configureBatch(locCmds, i);
-            }
+            var batchedCount = cmd.configureBatch(locCmds, i);
+            i += batchedCount;
         }
 
-        for (i = 0, len = locCmds.length; i< len; ++i) {
+        for (i = 0, len = locCmds.length; i< len;) {
             var cmd = locCmds[i];
-            if(cmd._batching)
-            {
-                cmd.batchedRendering();
-            }
-            else if(!cmd._batched)
-            {
-                cmd.rendering();
-            }
+
+            cmd.rendering();
+            i += cmd._batchedCount;
         }
 
-        //prepare batching
-        for (i = 0, len = locCmds.length; i< len; ++i) 
-        {
-            locCmds[i]._batching = false;
-            locCmds[i]._batched = false;
-        }
-        
         cc._stateCacheStats.lastFrameVertexFormatSwitches = cc._stateCacheStats.vertexFormatSwitches;
         cc._stateCacheStats.vertexFormatSwitches = 0;
     },

@@ -54,7 +54,7 @@
 
     proto.rendering = function ()
     {
-        //return;
+        return;
         var node = this._node;
         if(node._stringDirty)
         {
@@ -288,19 +288,12 @@
                 //also, when batching we have to 0 out the vertex data buffer to make sure those quads aren't drawn (they are uploaded to gpu anyways)
             }
 
-            cmd._batched = true;
             drawnQuads += cmd._numQuads;
         }
 
         var count  = i - myIndex;
 
-        if (count > 1) {
-            this._batching = true;
-            this._batchedCount = count;
-        }
-        else {
-            return 1;
-        }
+        this._batchedCount = count;
         
         if(node._stringDirty)
         {

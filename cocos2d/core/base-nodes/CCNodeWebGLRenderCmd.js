@@ -42,7 +42,6 @@
     proto.geometryType = cc.geometryTypes.NONE;
 
     proto._updateColor = function(){};
-    proto._batching = false;
     proto._batchedCount = 1;
 
     proto.visit = function (parentCmd) {
