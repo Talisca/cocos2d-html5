@@ -60,8 +60,7 @@
         }
         program.use();
         
-        //optimize performance for javascript
-        cc.glBindTexture2DN(0, node._atlasTexture);                   // = cc.glBindTexture2D(locTexture);
+        cc.glBindTexture2DN(0, node._atlasTexture);
 
         var elemBuffer = cc.renderer.buffers[cc.geometryTypes.QUAD].indexBuffer;
         cc.glBindElementBuffer( elemBuffer);

@@ -183,7 +183,6 @@ cc.rendererWebGL = {
             i,
             len;
         var context = ctx || gl;
-        this._currentFrame++;
         
         for(i=locCmds.length-1; i>=0;--i)
         {
@@ -282,6 +281,7 @@ cc.rendererWebGL = {
 
     clearRenderCommands: function () {
         this._renderCmds.length = 0;
+        this._currentFrame++;
     },
 
     clear: function () {
