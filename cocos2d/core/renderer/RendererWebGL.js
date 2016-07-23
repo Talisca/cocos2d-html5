@@ -184,14 +184,14 @@ cc.rendererWebGL = {
             len;
         var context = ctx || gl;
         
-        for(i=locCmds.length-1; i>=0;--i)
+        /*for(i=locCmds.length-1; i>=0;--i)
         {
             var cmd = locCmds[i];
             if(cmd.setRenderZ)
             {
                 cmd.setRenderZ(i/10000);
             }     
-        }
+        }*/
         
         this.updateBuffers();
 
