@@ -179,28 +179,28 @@
         this._mask_layer_le = mask_layer | mask_layer_l;
 
         this._currentStencilEnabled = gl.isEnabled(gl.STENCIL_TEST);
-        this._currentStencilWriteMask = gl.getParameter(gl.STENCIL_WRITEMASK);
-        this._currentStencilFunc = gl.getParameter(gl.STENCIL_FUNC);
-        this._currentStencilRef = gl.getParameter(gl.STENCIL_REF);
-        this._currentStencilValueMask = gl.getParameter(gl.STENCIL_VALUE_MASK);
-        this._currentStencilFail = gl.getParameter(gl.STENCIL_FAIL);
-        this._currentStencilPassDepthFail = gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL);
-        this._currentStencilPassDepthPass = gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS);
+        this._currentStencilWriteMask = cc.glGetParameter(gl.STENCIL_WRITEMASK);
+        this._currentStencilFunc = cc.glGetParameter(gl.STENCIL_FUNC);
+        this._currentStencilRef = cc.glGetParameter(gl.STENCIL_REF);
+        this._currentStencilValueMask = cc.glGetParameter(gl.STENCIL_VALUE_MASK);
+        this._currentStencilFail = cc.glGetParameter(gl.STENCIL_FAIL);
+        this._currentStencilPassDepthFail = cc.glGetParameter(gl.STENCIL_PASS_DEPTH_FAIL);
+        this._currentStencilPassDepthPass = cc.glGetParameter(gl.STENCIL_PASS_DEPTH_PASS);
 
         // enable stencil use
         gl.enable(gl.STENCIL_TEST);
-        gl.stencilMask(mask_layer);
-        this._currentDepthWriteMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+        cc.glStencilMask(mask_layer);
+        this._currentDepthWriteMask = cc.glGetParameter(gl.DEPTH_WRITEMASK);
 
-        gl.depthMask(false);
+        cc.glDepthMask(false);
 
-        gl.stencilFunc(gl.NEVER, mask_layer, mask_layer);
-        gl.stencilOp(!node.inverted ? gl.ZERO : gl.REPLACE, gl.KEEP, gl.KEEP);
+        cc.glStencilFunc(gl.NEVER, mask_layer, mask_layer);
+        cc.glStencilOp(!node.inverted ? gl.ZERO : gl.REPLACE, gl.KEEP, gl.KEEP);
 
         this._drawFullScreenQuadClearStencil();
 
-        gl.stencilFunc(gl.NEVER, mask_layer, mask_layer);
-        gl.stencilOp(!node.inverted ? gl.REPLACE : gl.ZERO, gl.KEEP, gl.KEEP);
+        cc.glStencilFunc(gl.NEVER, mask_layer, mask_layer);
+        cc.glStencilOp(!node.inverted ? gl.REPLACE : gl.ZERO, gl.KEEP, gl.KEEP);
 
         if (node.alphaThreshold < 1) {            //TODO desktop
             var program = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
@@ -213,16 +213,16 @@
     };
 
     proto._onAfterDrawStencil = function(){
-        gl.depthMask(this._currentDepthWriteMask);
+        cc.glDepthMask(this._currentDepthWriteMask);
 
-        gl.stencilFunc(gl.EQUAL, this._mask_layer_le, this._mask_layer_le);
-        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        cc.glStencilFunc(gl.EQUAL, this._mask_layer_le, this._mask_layer_le);
+        cc.glStencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
     };
 
     proto._onAfterVisit = function(){
-        gl.stencilFunc(this._currentStencilFunc, this._currentStencilRef, this._currentStencilValueMask);
-        gl.stencilOp(this._currentStencilFail, this._currentStencilPassDepthFail, this._currentStencilPassDepthPass);
-        gl.stencilMask(this._currentStencilWriteMask);
+        cc.glStencilFunc(this._currentStencilFunc, this._currentStencilRef, this._currentStencilValueMask);
+        cc.glStencilOp(this._currentStencilFail, this._currentStencilPassDepthFail, this._currentStencilPassDepthPass);
+        cc.glStencilMask(this._currentStencilWriteMask);
         if (!this._currentStencilEnabled)
             gl.disable(gl.STENCIL_TEST);
 

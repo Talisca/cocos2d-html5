@@ -409,3 +409,64 @@ cc.glActiveTexture =function(slot)
         gl.activeTexture(slot);
     }
 }
+
+cc._paramCache = {
+
+};
+
+cc.initGLParameterCache = function()
+{
+    function cacheParam(param)
+    {
+        cc._paramCache[param] = gl.getParameter(param);
+    }
+
+    var params = [gl.DEPTH_WRITEMASK, gl.STENCIL_WRITEMASK, gl.STENCIL_FUNC, gl.STENCIL_REF, gl.STENCIL_VALUE_MASK, gl.STENCIL_FAIL, gl.STENCIL_PASS_DEPTH_FAIL, gl.STENCIL_PASS_DEPTH_PASS];
+    
+    params.forEach(cacheParam);
+}
+
+cc.glGetParameter = function(val)
+{
+    return this._paramCache[val];
+}
+
+cc.glStencilMask = function(val)
+{
+    if (cc._paramCache[gl.STENCIL_WRITEMASK] !== val)
+    {
+        cc._paramCache[gl.STENCIL_WRITEMASK] = val;
+        gl.stencilMask(val);
+    }
+}
+
+cc.glStencilFunc = function(func,ref,valueMask)
+{
+    if(cc._paramCache[gl.STENCIL_FUNC] !== func || cc._paramCache[gl.STENCIL_REF] !== ref || cc._paramCache[gl.STENCIL_VALUE_MASK] !== valueMask)
+    {
+        cc._paramCache[gl.STENCIL_FUNC] = func;
+        cc._paramCache[gl.STENCIL_REF] = ref;
+        cc._paramCache[gl.STENCIL_VALUE_MASK] = valueMask;
+        gl.stencilFunc(func, ref, valueMask);
+    }
+}
+
+cc.glStencilOp = function(stencilFail, depthFail, depthPass)
+{
+    if(cc._paramCache[gl.STENCIL_FAIL] !== stencilFail || cc._paramCache[gl.STENCIL_PASS_DEPTH_FAIL] !== depthFail || cc._paramCache[gl.STENCIL_PASS_DEPTH_PASS] !== depthPass)
+    {
+        cc._paramCache[gl.STENCIL_FAIL] = stencilFail;
+        cc._paramCache[gl.STENCIL_PASS_DEPTH_FAIL] = depthFail;
+        cc._paramCache[gl.STENCIL_PASS_DEPTH_PASS] = depthPass;
+        gl.stencilOp(stencilFail, depthFail, depthPass);
+    }
+}
+
+cc.glDepthMask = function(mask)
+{
+    if (cc._paramCache[gl.DEPTH_WRITEMASK] !== mask)
+    {
+        cc._paramCache[gl.DEPTH_WRITEMASK] = mask;
+        gl.depthMask(mask);
+    }
+}

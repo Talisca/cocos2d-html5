@@ -2523,6 +2523,7 @@ cc.game = /** @lends cc.game# */{
             win.glInst = cc.glExt.instanced_arrays;
 
             cc.renderer.initialize();
+            cc.initGLParameterCache();
         }
 
         cc._gameDiv = localContainer;
