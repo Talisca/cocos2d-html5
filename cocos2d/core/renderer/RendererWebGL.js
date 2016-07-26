@@ -85,12 +85,53 @@ cc.rendererWebGL = {
     },
     bufferHandlers: {
         //QUAD handler
-        1: function (cmds)
+        1: (function(){ 
+        
+        function uploadMatrix(matrixUploadBuffer, mat, matLen, numVertices, matrixOffset)
+        {
+            for(var j=0;j<numVertices;++j)
+            {
+                for(var k=0;k<matLen; ++k)
+                {
+                    matrixUploadBuffer[matrixOffset + k] = mat[k];
+                }
+                matrixOffset += matLen;
+            }
+
+            return matrixOffset;
+        }
+
+        function buildUploadBuffers(cmds, len, vertexUploadBuffer, matrixUploadBuffer)
+        {
+            var vertexOffset = 0;
+            var matrixOffset = 0;
+
+            var quadLen = 24; //96/4 since we're stepping 4 bytes at a time
+            var matLen = 16; //64/4
+
+            for (var i = 0; i < len; ++i)
+            {
+                var cmd = cmds[i];
+                var cmdQuads = cmd._numQuads;
+                var source = cmd._quadU32View;
+                var slen = cmdQuads * quadLen;
+
+                for(var j=0;j<slen; ++j)
+                {
+                    vertexUploadBuffer[vertexOffset + j] = source[j];
+                }
+                vertexOffset += slen;
+
+                var mat = cmd._stackMatrixMat;
+                matrixOffset = uploadMatrix(matrixUploadBuffer,mat, matLen, cmdQuads *4, matrixOffset);
+            }
+        }
+
+        return function (cmds)
         {
             var cmd;
             var len = cmds.length;
             var buffers = this.buffers[1];
-
             var numQuads = 0;
             for(var i = 0; i<len;++i)
             {
@@ -120,22 +161,7 @@ cc.rendererWebGL = {
             var vertexUploadBuffer = buffers.vertexUpload;
             var matrixUploadBuffer = buffers.matrixUpload;
 
-            var vertexOffset = 0;
-            var matrixOffset = 0;
-            for (var i = 0; i < len; ++i)
-            {
-                cmd = cmds[i];
-                var source = cmd._quadU32View;
-                vertexUploadBuffer.set(source, vertexOffset);
-                vertexOffset += source.length;
-
-                var mat = cmd._stackMatrix.mat;
-                for(var j=0;j<cmd._numQuads*4;++j)
-                {
-                    matrixUploadBuffer.set(mat, matrixOffset);
-                    matrixOffset += mat.length;
-                }
-            }
+            buildUploadBuffers(cmds,len, vertexUploadBuffer, matrixUploadBuffer);
 
             //this looks like we create new buffers each frame, but drivers should recognize this pattern and utilize vertex streaming optimizations
             //we will use a bufferdata, null at the end of the frame to signify that we draw this once then discard it
@@ -145,6 +171,7 @@ cc.rendererWebGL = {
             cc.glBindArrayBuffer( buffers.matrixData);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0,  matrixUploadBuffer);
         }
+        })()
     },
     //these are just 'pooled' arrays for the updateBuffers loop, so we don't throw garbage around. theres nothing for the geometryTypes.NONE renderCmds
     renderCmdArrays: [null, []],

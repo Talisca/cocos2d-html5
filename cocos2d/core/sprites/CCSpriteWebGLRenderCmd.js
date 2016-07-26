@@ -26,19 +26,18 @@
 (function() {
     var _cc = cc;
     cc.Sprite.WebGLRenderCmd = function (renderable) {
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        cc.QuadRenderCmdBase.call(this, renderable);
         this._needDraw = true;
         this._quadU32View = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT / 4);
         this._firstQuad = -1;
         this._batchedCount = 1;
     };
 
-    var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.QuadRenderCmdBase.prototype);
 
     proto.constructor = cc.Sprite.WebGLRenderCmd;
 
     proto.updateBlendFunc = function (blendFunc) {};
-    proto.geometryType = cc.geometryTypes.QUAD;
     proto._numQuads = 1; //this stays static, one sprite is always one quad
 
     proto.setDirtyFlag = function(dirtyFlag){
