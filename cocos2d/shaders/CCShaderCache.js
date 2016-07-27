@@ -253,6 +253,7 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
 	    	var program = programs[keys[i]];
 	    	if(program)
 	    	{
+                program.use();
 	    		program._updateProjectionUniform();
 	    	}
 	    }
