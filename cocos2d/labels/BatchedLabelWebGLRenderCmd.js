@@ -24,13 +24,14 @@
 
 (function () {
     cc.BatchedLabel.WebGLRenderCmd = function (renderable) {
-        cc.QuadRenderCmdBase.call(this, renderable);
+        cc.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._quadBuffer = new QuadBuffer();
         this._quadU32View = this._quadBuffer.getU32Memory();
         this._numQuads = -1;
         this._firstQuad = -1;
         this._drawnQuads = 0; //we track drawnquads and numQuads separately because the quads stored in the memory of this string might be larger than the actual drawn amount of quads
+        this._batchedCount = 1;
         this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED);
         this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
         this._shaderProgram.setUniformLocationWith1f(this._shaderProgram._uniforms[cc.UNIFORM_MIPMAPBIAS], -0.65);
@@ -38,16 +39,21 @@
         this._contentSize = { width: 0, height: 0 };
     };
 
-    var proto = cc.BatchedLabel.WebGLRenderCmd.prototype = Object.create(cc.QuadRenderCmdBase.prototype);
+    var proto = cc.BatchedLabel.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.BatchedLabel.WebGLRenderCmd;
-    //proto.geometryType = cc.geometryTypes.QUAD;
+    proto.geometryType = cc.geometryTypes.QUAD;
 
     proto.setString = function(str)
     {
         this._quadBuffer.allocateForSize(str.length);
         this._numQuads = this._quadBuffer.getCapacity();
         this._quadU32View = this._quadBuffer.getU32Memory();
-        this._quadU32View.fill(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT * str.length);
+        var len = this._quadU32View.length;
+        var v = this._quadU32View;
+        for(var i =0;i<len;++i)
+        {
+            v[i] = 0;
+        }
     }
 
     proto.rendering = function ()
