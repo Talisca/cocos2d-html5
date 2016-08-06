@@ -60,7 +60,7 @@
 
         //optimize performance for javascript
         currentStack.stack.push(currentStack.top);
-        this._syncStatus(parentCmd);
+        if(this._dirtyFlag !==0 ) this._syncStatus(parentCmd);
         currentStack.top = this._stackMatrix;
         this.visitChildren();
         //optimize performance for javascript
