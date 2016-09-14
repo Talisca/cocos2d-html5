@@ -2463,6 +2463,7 @@ cc.game = /** @lends cc.game# */{
             element = cc.$(el) || cc.$('#' + el),
             localCanvas, localContainer, localConStyle;
 
+        var innerContainer = document.getElementById("canvasContainer");
         if (element.tagName === "CANVAS") {
             width = width || element.width;
             height = height || element.height;
@@ -2484,7 +2485,9 @@ cc.game = /** @lends cc.game# */{
             element.appendChild(localContainer);
         }
         localContainer.setAttribute('id', 'Cocos2dGameContainer');
-        localContainer.appendChild(localCanvas);
+        localContainer.appendChild(innerContainer);
+        innerContainer.appendChild(localCanvas);
+        
         this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
         localCanvas.addClass("gameCanvas");
