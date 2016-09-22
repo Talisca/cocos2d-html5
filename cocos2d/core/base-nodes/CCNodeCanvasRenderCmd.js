@@ -70,6 +70,7 @@ cc.Node.RenderCmd = function(renderable){
 
     this._displayedOpacity = 255;
     this._displayedColor = cc.color(255, 255, 255, 255);
+    this._displayedColorBoost = 0;
     this._cascadeColorEnabledDirty = false;
     this._cascadeOpacityEnabledDirty = false;
     this._frame = -1;
@@ -132,20 +133,23 @@ cc.Node.RenderCmd.prototype = {
         return null;
     },
 
-    _updateDisplayColor: function (parentColor) {
+    _updateDisplayColor: function (parentColor, parentBoost) {
        var node = this._node;
        var locDispColor = this._displayedColor, locRealColor = node._realColor;
+       parentBoost = parentBoost || 0;
        var i, len, selChildren, item;
        if (this._cascadeColorEnabledDirty && !node._cascadeColorEnabled) {
            locDispColor.r = locRealColor.r;
            locDispColor.g = locRealColor.g;
            locDispColor.b = locRealColor.b;
+           this._displayedColorBoost = node._colorBoost;
+
            var whiteColor = new _cc.Color(255, 255, 255, 255);
            selChildren = node._children;
            for (i = 0, len = selChildren.length; i < len; i++) {
                item = selChildren[i];
                if (item && item._renderCmd)
-                   item._renderCmd._updateDisplayColor(whiteColor);
+                   item._renderCmd._updateDisplayColor(whiteColor, 0);
            }
            this._cascadeColorEnabledDirty = false;
        } else {
@@ -159,12 +163,14 @@ cc.Node.RenderCmd.prototype = {
            locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
            locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
            locDispColor.b = 0 | (locRealColor.b * parentColor.b / 255.0);
+           this._displayedColorBoost = node._colorBoost + parentBoost;
+
            if (node._cascadeColorEnabled) {
                selChildren = node._children;
                for (i = 0, len = selChildren.length; i < len; i++) {
                    item = selChildren[i];
                    if (item && item._renderCmd){
-                       item._renderCmd._updateDisplayColor(locDispColor);
+                       item._renderCmd._updateDisplayColor(locDispColor, this._displayedColorBoost);
                        item._renderCmd._updateColor();
                    }
                }
@@ -207,8 +213,9 @@ cc.Node.RenderCmd.prototype = {
         this._dirtyFlag = this._dirtyFlag & _cc.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
     },
 
-    _syncDisplayColor : function (parentColor) {
+    _syncDisplayColor : function (parentColor, parentBoost) {
         var node = this._node, locDispColor = this._displayedColor, locRealColor = node._realColor;
+        parentBoost = parentBoost || 0;
         if (parentColor === undefined) {
             var locParent = node._parent;
             if (locParent && locParent._cascadeColorEnabled)
@@ -219,6 +226,7 @@ cc.Node.RenderCmd.prototype = {
         locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
         locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
         locDispColor.b = 0 | (locRealColor.b * parentColor.b / 255.0);
+        this._displayedColorBoost = node._colorBoost + parentBoost;
     },
 
     _syncDisplayOpacity : function (parentOpacity) {

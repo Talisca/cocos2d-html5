@@ -217,9 +217,11 @@ cc.SHADER_POSITION_TEXTURE_COLOR_FRAG =
         "precision lowp float;\n"
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord; \n"
+        + "varying float v_colorScale; \n"
         + "void main() \n"
         + "{ \n"
-        + "    gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, v_texCoord); \n"
+        + "  vec4 colorBoost = vec4(v_colorScale,v_colorScale,v_colorScale,0); \n"
+        + "    gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, v_texCoord) + colorBoost; \n"
         + "}";
 
 /* PITFOREST 
@@ -231,12 +233,14 @@ cc.SHADER_POSITION_TEXTURE_COLOR_VERT_BATCHED =
         + "attribute mat4 a_mvMatrix;"
         + "varying lowp vec4 v_fragmentColor; \n"
         + "varying mediump vec2 v_texCoord; \n"
+        + "varying float v_colorScale; \n"
         + "void main() \n"
         + "{ \n"
         //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
-        + "    gl_Position = (CC_PMatrix * a_mvMatrix) * a_position;  \n"
+        + "    gl_Position = (CC_PMatrix * a_mvMatrix) * vec4(a_position.xy,1.0,1.0);  \n"
         + "    v_fragmentColor = a_color; \n"
         + "    v_texCoord = a_texCoord; \n"
+        +"    v_colorScale = a_position.z; \n"
         + "}";
 
 /**
@@ -249,12 +253,14 @@ cc.SHADER_POSITION_TEXTURE_COLOR_VERT =
         + "attribute vec4 a_color;  \n"
         + "varying lowp vec4 v_fragmentColor; \n"
         + "varying mediump vec2 v_texCoord; \n"
+         + "varying float v_colorScale; \n"
         + "void main() \n"
         + "{ \n"
         //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
-        + "    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;  \n"
+        + "    gl_Position = (CC_PMatrix * CC_MVMatrix) * vec4(a_position.xy,1.0,1.0);  \n"
         + "    v_fragmentColor = a_color; \n"
         + "    v_texCoord = a_texCoord; \n"
+         +"    v_colorScale = a_position.z; \n"
         + "}";
 
 //-----------------------Shader_PositionTextureColorAlphaTest_frag Shader Source----------------------------
@@ -266,10 +272,12 @@ cc.SHADER_POSITION_TEXTURE_COLOR_ALPHATEST_FRAG =
         "precision lowp float;   \n"
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord;   \n"
+        + "varying float v_colorScale; \n"
         + "uniform float CC_alpha_value; \n"
         + "void main() \n"
         + "{  \n"
-        + "    vec4 texColor = texture2D(CC_Texture0, v_texCoord, mipmapBias);  \n"
+        + "  vec4 colorBoost = vec4(v_colorScale,v_colorScale,v_colorScale,0); \n"
+        + "    vec4 texColor = texture2D(CC_Texture0, v_texCoord, mipmapBias)  + colorBoost;  \n"
         // mimic: glAlphaFunc(GL_GREATER)
         //pass if ( incoming_pixel >= CC_alpha_value ) => fail if incoming_pixel < CC_alpha_value
         + "    if ( texColor.a <= CC_alpha_value )          \n"

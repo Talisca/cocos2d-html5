@@ -171,6 +171,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
 
     _realOpacity: 255,
     _realColor: null,
+    _colorBoost: 0,
     _cascadeColorEnabled: false,
     _cascadeOpacityEnabled: false,
 
@@ -306,7 +307,17 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     getSkewX: function () {
         return this._skewX;
     },
-
+    //adds a constant to every component of the displayed color of the entity
+    setColorBoost: function(value)
+    {
+        this._colorBoost = value;
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this._renderCmd._updateDisplayColor();
+    },
+    getColorBoost: function()
+    {
+        return this._colorBoost;
+    },
     /**
      * <p>
      * Changes the X skew angle of the node in degrees.                                                    <br/>

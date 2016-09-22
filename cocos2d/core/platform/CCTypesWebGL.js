@@ -713,22 +713,21 @@ cc.makeVertexFormat = function(location, components, type, normalize, stride, of
     };
 }
 
-cc.flatQuadSetColor = function(u32View, r,g,b,a)
+cc.flatQuadSetColor = function(u32View, float32View, r,g,b, colorScale, a)
 {
+    
     var u8View = new Uint8Array(u32View.buffer)
-    /*
-    var offset = 3; //first 3 4byte sets are positions
-    var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT/4;
-
-    var value = (r << 24) | (g << 16) | (b << 8) | a;
-    u32View[offset] = value;
-    u32View[offset + stride] = value;
-    u32View[offset + stride * 2] = value;
-    u32View[offset + stride * 3] = value;*/
 
     var offset = 12; //first 3 4byte sets are positions
     var stride = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
-
+    var stride4 = stride/4; 
+    //we squeeze the color scale into the z position of the u32 view!
+    float32View[2] = colorScale;
+    float32View[2 + stride4] = colorScale;
+    float32View[2 + stride4 * 2] = colorScale;
+    float32View[2 + stride4 * 3] = colorScale;
+    
+    //now the color data
     u8View[offset] = r;
     u8View[offset+1] = g;
     u8View[offset+2] = b;

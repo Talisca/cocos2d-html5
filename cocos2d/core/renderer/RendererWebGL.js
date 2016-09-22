@@ -66,9 +66,10 @@ cc.rendererWebGL = {
             formats: []
         };
 
-        vertexDataFormat.formats.push(cc.makeVertexFormat(0, 3, gl.FLOAT, false, 24, 0));
-        vertexDataFormat.formats.push(cc.makeVertexFormat(1, 4, gl.UNSIGNED_BYTE, true, 24, 12));
-        vertexDataFormat.formats.push(cc.makeVertexFormat(2, 2, gl.FLOAT, false, 24, 16));
+        var bytesPerVertex = 24;
+        vertexDataFormat.formats.push(cc.makeVertexFormat(0, 3, gl.FLOAT, false, bytesPerVertex, 0));
+        vertexDataFormat.formats.push(cc.makeVertexFormat(1, 4, gl.UNSIGNED_BYTE, true, bytesPerVertex, 12));
+        vertexDataFormat.formats.push(cc.makeVertexFormat(2, 2, gl.FLOAT, false, bytesPerVertex, 16));
         formats.push(vertexDataFormat);
 
         var matrixDataFormat = {

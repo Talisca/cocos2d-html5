@@ -29,6 +29,7 @@
         cc.QuadRenderCmdBase.call(this, renderable);
         this._needDraw = true;
         this._quadU32View = new Uint32Array(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT / 4);
+        this._float32View = new Float32Array(this._quadU32View.buffer);
         this._firstQuad = -1;
         this._batchedCount = 1;
     };
@@ -55,7 +56,7 @@
     };
 
     proto._init = function () {
-        cc.flatQuadSetColor(this._quadU32View, 255, 255, 255, 255);
+        cc.flatQuadSetColor(this._quadU32View,this._float32View, 255, 255, 255, 0, 255);
     };
 
     proto._updateQuadVertices = function()
@@ -193,7 +194,7 @@
             b *= locDisplayedOpacity / 255.0;
         }
 
-        cc.flatQuadSetColor(this._quadU32View, r, g, b, locDisplayedOpacity);
+        cc.flatQuadSetColor(this._quadU32View,this._float32View, r, g, b,this._displayedColorBoost, locDisplayedOpacity);
 
         this._quadDirty = true;
     };
