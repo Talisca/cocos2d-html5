@@ -176,6 +176,11 @@ cc.Node.RenderCmd.prototype = {
                }
            }
        }
+       if(node && this._dirtyFlag & cc.Node._dirtyFlags.colorDirty)
+       {
+             node._renderCmd._updateColor();
+       }
+       
        this._dirtyFlag = this._dirtyFlag & _cc.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
    },
 
