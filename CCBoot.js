@@ -2372,7 +2372,7 @@ cc.game = /** @lends cc.game# */{
 
         director.setDisplayStats(config[CONFIG_KEY.showFPS]);
 
-        callback = function () {
+        /*callback = function () {
             if (!self._paused) {
                 director.mainLoop();
                 if(self._intervalId)
@@ -2381,7 +2381,7 @@ cc.game = /** @lends cc.game# */{
             }
         };
 
-        window.requestAnimFrame(callback);
+        window.requestAnimFrame(callback);*/
         self._paused = false;
     },
 
@@ -2593,12 +2593,12 @@ cc.game = /** @lends cc.game# */{
             win.addEventListener("pageshow", onShow, false);
         }
 
-        cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+        /*cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
             cc.game.pause();
         });
         cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
             cc.game.resume();
-        });
+        });*/
     }
 };
 //+++++++++++++++++++++++++something about CCGame end+++++++++++++++++++++++++++++
