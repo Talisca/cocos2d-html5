@@ -2286,6 +2286,7 @@ cc.game = /** @lends cc.game# */{
                 });
             }
             else {
+				this._prepared = true;
                 if (cb) cb();
             }
 
