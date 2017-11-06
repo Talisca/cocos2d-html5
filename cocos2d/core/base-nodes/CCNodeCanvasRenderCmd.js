@@ -89,7 +89,8 @@ cc.Node.RenderCmd.prototype = {
 
     getDisplayedColor: function(){
         var tmpColor = this._displayedColor;
-        return _cc.color(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        //return _cc.color(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+		return tmpColor;
     },
 
     getDisplayedOpacity: function(){
@@ -144,7 +145,7 @@ cc.Node.RenderCmd.prototype = {
            locDispColor.b = locRealColor.b;
            this._displayedColorBoost = node._colorBoost;
 
-           var whiteColor = new _cc.Color(255, 255, 255, 255);
+           var whiteColor = _cc.color.CONST_WHITE; //new _cc.Color(255, 255, 255, 255);
            selChildren = node._children;
            for (i = 0, len = selChildren.length; i < len; i++) {
                item = selChildren[i];
@@ -158,7 +159,7 @@ cc.Node.RenderCmd.prototype = {
                if (locParent && locParent._cascadeColorEnabled)
                    parentColor = locParent.getDisplayedColor();
                else
-                   parentColor = _cc.color.WHITE;
+                   parentColor = _cc.color.CONST_WHITE;
            }
            locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
            locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);
@@ -226,7 +227,7 @@ cc.Node.RenderCmd.prototype = {
             if (locParent && locParent._cascadeColorEnabled)
                 parentColor = locParent.getDisplayedColor();
             else
-                parentColor = _cc.color.WHITE;
+                parentColor = _cc.color.CONST_WHITE;
         }
         locDispColor.r = 0 | (locRealColor.r * parentColor.r / 255.0);
         locDispColor.g = 0 | (locRealColor.g * parentColor.g / 255.0);

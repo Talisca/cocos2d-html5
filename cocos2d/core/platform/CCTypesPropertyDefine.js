@@ -26,6 +26,40 @@
 
 cc._tmp.PrototypeColor = function () {
     var _p = cc.color;
+	
+	/**
+	 * Define some const colors
+	 * Readonly! Never modify them!
+	 */
+	_p._getConstWhite = _p(255, 255, 255);
+	_p._getConstYellow = _p(255, 255, 0);
+	_p._getConstBlue = _p(0, 0, 255);
+	_p._getConstGreen = _p(0, 255, 0);
+	_p._getConstRed = _p(255, 0, 0);
+	_p._getConstMagenta = _p(255, 0, 255);
+	_p._getConstBlack = _p(0, 0, 0);
+	_p._getConstOrange = _p(255, 127, 0);
+	_p._getConstGray = _p(166, 166, 166);
+	
+	/** @expose */
+    _p.CONST_WHITE = _p._getConstWhite;
+    /** @expose */
+    _p.CONST_YELLOW = _p._getConstYellow;
+    /** @expose */
+    _p.CONST_BLUE = _p._getConstBlue;
+    /** @expose */
+    _p.CONST_GREEN = _p._getConstGreen;
+    /** @expose */
+    _p.CONST_RED = _p._getConstRed;
+    /** @expose */
+    _p.CONST_MAGENTA = _p._getConstMagenta;
+    /** @expose */
+    _p.CONST_BLACK = _p._getConstBlack;
+    /** @expose */
+    _p.CONST_ORANGE = _p._getConstOrange;
+    /** @expose */
+    _p.CONST_GRAY = _p._getConstGray;
+	
     /**
      * White color (255, 255, 255, 255)
      * @returns {cc.Color}
