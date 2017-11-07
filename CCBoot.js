@@ -2178,11 +2178,11 @@ cc.game = /** @lends cc.game# */{
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        cc.audioEngine && cc.audioEngine._pausePlaying();
+        /*cc.audioEngine && cc.audioEngine._pausePlaying();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimationFrame(this._intervalId);
-        this._intervalId = 0;
+        this._intervalId = 0;*/
     },
 
     /**
@@ -2192,9 +2192,9 @@ cc.game = /** @lends cc.game# */{
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        cc.audioEngine && cc.audioEngine._resumePlaying();
+        //cc.audioEngine && cc.audioEngine._resumePlaying();
         // Resume main loop
-        this._runMainLoop();
+        //this._runMainLoop();
     },
 
     /**
@@ -2594,12 +2594,12 @@ cc.game = /** @lends cc.game# */{
             win.addEventListener("pageshow", onShow, false);
         }
 
-        /*cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+        cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
             cc.game.pause();
         });
         cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
             cc.game.resume();
-        });*/
+        });
     }
 };
 //+++++++++++++++++++++++++something about CCGame end+++++++++++++++++++++++++++++
