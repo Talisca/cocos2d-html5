@@ -523,13 +523,74 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this._internalInit(null, resourcePath);
         return this.parseXMLString(tmxString);
     },
+    //removes things such as redundant "../" in "a/b/../c" -> "a/c"
+	simplifyPath: function(str)
+    {
+    	function tokenizePath(str)
+    	{
+    		let tokens = [];
+    		for(let i=0;i<str.length;++i)
+    		{
+				let nextSlash = str.indexOf("/",i);
+				
+				if(nextSlash > -1)
+				{
+					let token = str.substr(i,nextSlash+1 - i);
+					tokens.push(token);
+					i = nextSlash;
+				}
+				else
+				{
+					//there are no more / in the string. either there was none to begin with, or we reached the end. in this case, just get the rest of the string as a token
+					let token = str.substr(i,str.length - i);
+					tokens.push(token);
+					break;
+				}
+				
+    		}
+    		return tokens;
+    	}
+    	
+    	var tokens = tokenizePath(str);
+		
+		//algorithm works like this: if a "../" is found, the "../" and the token coming before it (if there is one) can just be deleted
+    	for(let i=0;i<tokens.length;++i)
+    	{
+    		var currentToken = tokens[i];
+    		if(currentToken == "../" || currentToken == "..")
+    		{
+				if(i > 0)
+				{
+					tokens.splice(i,1);
+					tokens.splice(i-1,1);
+					i = 0; //restart from the front
+				}
+    		}
+    	}
 
+    	let result = "";
+    	for(let i=0;i<tokens.length;++i)
+    	{
+    		var token = tokens[i];
+    		if(token !== "/")
+    		{
+    			result += token;
+    			if(!token.endsWith("/") && i != tokens.length-1)
+    			{
+    				result += "/";
+    			}
+    		}
+    	}
+    	
+    	return result;
+    },
     /** Initalises parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file
      * @param {String} tmxFile
      * @param {boolean} [isXmlString=false]
      * @return {Element}
      */
-    parseXMLFile:function (tmxFile, isXmlString) {
+   
+    parseXMLFile:function (tmxFile, isXmlString,tilesetFirstGID) {
         isXmlString = isXmlString || false;
 	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
         if(!xmlStr) throw new Error("Please load the resource first : " + tmxFile);
@@ -589,19 +650,14 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             // If this is an external tileset then start parsing that
             var tsxName = selTileset.getAttribute('source');
             if (tsxName) {
-                //this._currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
                 var tsxPath = isXmlString ? cc.path.join(this._resources, tsxName) : cc.path.changeBasename(tmxFile, tsxName);
-                this.parseXMLFile(tsxPath);
+                this.parseXMLFile(tsxPath,undefined, parseInt(selTileset.getAttribute('firstgid')) || 0);
             } else {
                 var tileset = new cc.TMXTilesetInfo();
                 tileset.name = selTileset.getAttribute('name') || "";
-                //TODO need fix
-                //if(this._currentFirstGID === 0){
-                tileset.firstGid = parseInt(selTileset.getAttribute('firstgid')) || 0;
-                //}else{
-                //    tileset.firstGid = this._currentFirstGID;
-                //    this._currentFirstGID = 0;
-                //}
+                
+                tileset.firstGid = tilesetFirstGID || parseInt(selTileset.getAttribute('firstgid')) || 0;
+
 
                 tileset.spacing = parseInt(selTileset.getAttribute('spacing')) || 0;
                 tileset.margin = parseInt(selTileset.getAttribute('margin')) || 0;
@@ -614,13 +670,13 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 var image = selTileset.getElementsByTagName('image')[0];
                 var imagename = image.getAttribute('source');
                 var num = -1;
-                if(this.tmxFileName)
-                    num  = this.tmxFileName.lastIndexOf("/");
+                if(tmxFile)
+                    num  = tmxFile.lastIndexOf("/");
                 if (num !== -1) {
-                    var dir = this.tmxFileName.substr(0, num + 1);
-                    tileset.sourceImage = dir + imagename;
+                    var dir = tmxFile.substr(0, num + 1);
+                    tileset.sourceImage = this.simplifyPath(dir + imagename);
                 } else {
-                    tileset.sourceImage = this._resources + (this._resources ? "/" : "") + imagename;
+                    tileset.sourceImage = this.simplifyPath(this._resources + (this._resources ? "/" : "") + imagename);
                 }
                 this.setTilesets(tileset);
 
