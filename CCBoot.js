@@ -723,6 +723,13 @@ cc.loader = (function () {
             }else{
                 s.src = jsPath;
             }
+            if (cc.game.config["customQuery"] && typeof s.src === "string") {
+                if (/\?/.test(s.src))
+                    s.src += "&";
+                else
+                    s.src += "?";
+                s.src += cc.game.config["customQuery"];
+            }
             s.addEventListener('load', function () {
                 s.parentNode.removeChild(s);
                 this.removeEventListener('load', arguments.callee, false);
@@ -850,6 +857,14 @@ cc.loader = (function () {
          * @param {function} [cb] arguments are : err, json
          */
         loadJson: function (url, cb) {
+            if (cc.game.config["customQuery"] && typeof url === "string" && !(/\?/.test(url))) {
+                if (/\?/.test(url))
+                    url += "&";
+                else
+                    url += "?";
+                url += cc.game.config["customQuery"];
+            }
+
             this.loadTxt(url, function (err, txt) {
                 if (err) {
                     cb(err);
@@ -967,6 +982,13 @@ cc.loader = (function () {
                     realUrl += "&_t=" + (new Date() - 0);
                 else
                     realUrl += "?_t=" + (new Date() - 0);
+            }
+            if (cc.game.config["customQuery"] && typeof realUrl === "string") {
+                if (/\?/.test(realUrl))
+                    realUrl += "&";
+                else
+                    realUrl += "?";
+                realUrl += cc.game.config["customQuery"];
             }
             loader.load(realUrl, url, item, function (err, data) {
                 if (err) {
