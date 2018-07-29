@@ -574,6 +574,25 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         }
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
+    movePosition: function(offsetOrXValue, yValue)
+    {
+        let locPosition = this._position;
+        let x = locPosition.x;
+        let y = locPosition.y;
+        
+        if(yValue === undefined)
+        {
+            x += offsetOrXValue.x;
+            y += offsetOrXValue.y;
+        }
+        else
+        {
+            x += offsetOrXValue;
+            y += yValue;
+        }
+
+        this.setPosition(x,y);
+    },
 
     /**
      * <p>Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.</p>
