@@ -36,6 +36,10 @@ cc.NODE_TAG_INVALID = -1;
  */
 cc.s_globalOrderOfArrival = 1;
 
+cc.NODE_FLAGS = {
+    HAS_UI_INTERACTION: 1
+};
+
 /**
  * <p>cc.Node is the root class of all node. Anything that gets drawn or contains things that get drawn is a cc.Node.<br/>
  * The most popular cc.Nodes are: cc.Scene, cc.Layer, cc.Sprite, cc.Menu.</p>
@@ -176,6 +180,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _cascadeOpacityEnabled: false,
 
     _renderCmd:null,
+    _flags: cc.NODE_FLAGS.HAS_UI_INTERACTION,
 
     /**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
@@ -185,6 +190,29 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this._initNode();
         this._initRendererCmd();
     },
+
+    getFlags: function()
+    {
+        return this._flags;
+    },
+
+    setFlag: function(flag, value)
+    {
+        if(value)
+        {
+            this._flags |= flag;
+        }
+        else
+        {
+            this._flags &= ~flag;
+        }
+    },
+
+    hasUIInteraction:function()
+    {
+        return this._flags & cc.NODE_FLAGS.HAS_UI_INTERACTION;
+    },
+
 
     _initNode: function () {
         var _t = this;
@@ -1082,6 +1110,57 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
     },
 
+/**
+     * Returns a "world" axis aligned bounding box of the node.
+     * @function
+     * @return {cc.Rect}
+     */
+    getBoundingBoxToWorld: function () {
+        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        var trans = this.getNodeToWorldTransform();
+        rect = cc.rectApplyAffineTransform(rect, trans);
+
+        //query child's BoundingBox
+        if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child._visible) {
+                var childRect = child._getBoundingBoxToCurrentNode(trans);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }
+        return rect;
+    },
+    /**
+     similar to getBoundingBox, but expands the bounding box to include all of its children, and is not relative to parent (i.e. a node without children will return a bb
+      at position (0,0) and size just its content size, unscaled)
+    */
+    getBoundingBoxIncludingChildren: function(_previousTransformation)
+    {
+        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        let previousTransformation = _previousTransformation || cc.affineTransformMakeIdentity();
+        let trans = cc.affineTransformConcat(this.getNodeToParentTransform(), previousTransformation);
+        rect = cc._rectApplyAffineTransformIn(rect, trans);
+
+        if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child._visible) {
+                var childRect = child.getBoundingBoxIncludingChildren(trans);
+                //childRect = cc._rectApplyAffineTransformIn(childRect, child.getNodeToParentTransform());
+                rect = cc.rectUnion(rect, childRect);
+            }
+        }
+        //return cc._rectApplyAffineTransformIn(rect,this.getNodeToParentTransform());
+        return rect;
+    },
     /**
      * Stops all running actions and schedulers
      * @function
@@ -2022,31 +2101,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     setGLServerState: function (state) {
     },
 
-    /**
-     * Returns a "world" axis aligned bounding box of the node.
-     * @function
-     * @return {cc.Rect}
-     */
-    getBoundingBoxToWorld: function () {
-        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
-        var trans = this.getNodeToWorldTransform();
-        rect = cc.rectApplyAffineTransform(rect, trans);
-
-        //query child's BoundingBox
-        if (!this._children)
-            return rect;
-
-        var locChildren = this._children;
-        for (var i = 0; i < locChildren.length; i++) {
-            var child = locChildren[i];
-            if (child && child._visible) {
-                var childRect = child._getBoundingBoxToCurrentNode(trans);
-                if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
-            }
-        }
-        return rect;
-    },
+    
 
     _getBoundingBoxToCurrentNode: function (parentTransform) {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);

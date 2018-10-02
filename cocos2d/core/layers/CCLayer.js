@@ -31,7 +31,7 @@
  */
 cc.Layer = cc.Node.extend(/** @lends cc.Layer# */{
     _className: "Layer",
-
+    
     /**
      * <p>Constructor of cc.Layer, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
@@ -41,6 +41,7 @@ cc.Layer = cc.Node.extend(/** @lends cc.Layer# */{
         this._ignoreAnchorPointForPosition = true;
         nodep.setAnchorPoint.call(this, 0.5, 0.5);
         nodep.setContentSize.call(this, cc.winSize);
+        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, false);
     },
 
     /**
