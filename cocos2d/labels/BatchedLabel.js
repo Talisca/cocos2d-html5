@@ -3,7 +3,7 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     //property String is Getter and Setter
     // string to render
     _string: null,
-
+    _flags: 0,
     /**
      * <p>
      *  Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />

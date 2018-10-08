@@ -1136,8 +1136,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         return rect;
     },
     /**
-     similar to getBoundingBox, but expands the bounding box to include all of its children, and is not relative to parent (i.e. a node without children will return a bb
-      at position (0,0) and size just its content size, unscaled)
+     similar to getBoundingBox, but expands the bounding box to include all of its children, and is relative to parent
     */
     getBoundingBoxIncludingChildren: function(_previousTransformation)
     {

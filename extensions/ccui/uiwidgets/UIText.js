@@ -53,7 +53,7 @@ ccui.Text = ccui.Widget.extend(/** @lends ccui.Text# */{
     _className: "Text",
     _type: null,
     _labelRendererAdaptDirty: true,
-
+    _flags: 0,
     /**
      * allocates and initializes a UILabel.
      * Constructor of ccui.Text. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.

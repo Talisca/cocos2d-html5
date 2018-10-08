@@ -99,7 +99,7 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
     _fontStyle: "normal",
     _fontWeight: "normal",
     _lineHeight: "normal",
-
+    _flags: 0,
     /**
      * Initializes the cc.LabelTTF with a font name, alignment, dimension and font size, do not call it by yourself,
      * you should pass the correct arguments in constructor to initialize the label.
