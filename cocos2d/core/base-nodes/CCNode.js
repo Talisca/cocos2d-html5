@@ -180,7 +180,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _cascadeOpacityEnabled: false,
 
     _renderCmd:null,
-    _flags: cc.NODE_FLAGS.HAS_UI_INTERACTION,
+    _flags: 0,
 
     /**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
@@ -208,6 +208,16 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         }
     },
 
+    enableUIInteraction: function()
+    {
+        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, true);
+    },
+
+    disableUIInteraction: function()
+    {
+        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, true);
+    },
+    
     hasUIInteraction:function()
     {
         return this._flags & cc.NODE_FLAGS.HAS_UI_INTERACTION;

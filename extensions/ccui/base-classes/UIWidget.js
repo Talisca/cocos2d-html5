@@ -28,6 +28,7 @@ ccui._FocusNavigationController = cc.Class.extend({
     _firstFocusedWidget: null,
     _enableFocusNavigation: false,
     _keyboardEventPriority: 1,
+    _flags: cc.NODE_FLAGS.HAS_UI_INTERACTION,
 
     enableFocusNavigation: function(flag){
         if (this._enableFocusNavigation === flag)
