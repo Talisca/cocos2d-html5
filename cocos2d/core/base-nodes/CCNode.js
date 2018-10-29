@@ -604,52 +604,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this.setPosition(x,y);
     },
 
-    /**
-     * <p>Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.</p>
-     * @function
-     * @return {cc.Point} The position (x,y) of the node in OpenGL coordinates
-     */
-    getPosition: function () {
-        return cc.p(this._position);
-    },
-
-    /**
-     * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
-     * @function
-     * @return {Number}
-     */
-    getPositionX: function () {
-        return this._position.x;
-    },
-
-    /**
-     * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
-     * @function
-     * @param {Number} x The new position in x axis
-     */
-    setPositionX: function (x) {
-        this._position.x = x;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-    },
-
-    /**
-     * <p>Returns the y axis position of the node in cocos2d coordinates.</p>
-     * @function
-     * @return {Number}
-     */
-    getPositionY: function () {
-        return  this._position.y;
-    },
-
-    /**
-     * <p>Sets the y axis position of the node in cocos2d coordinates.</p>
-     * @function
-     * @param {Number} y The new position in y axis
-     */
-    setPositionY: function (y) {
-        this._position.y = y;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-    },
+    
 
     /**
      * Returns the amount of children.
@@ -2376,6 +2331,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      *     The original point (0,0) is at the left-bottom corner of screen.<br/>
      *     Usually we use cc.p(x,y) to compose CCPoint object.<br/>
      *     and Passing two numbers (x,y) is more efficient than passing CCPoint object.
+     *      Rounds the coordinates to full integers.
      * </p>
      * @function
      * @param {cc.Point|Number} newPosOrxValue The position (x,y) of the node in coordinates or the X coordinate for position
@@ -2383,18 +2339,38 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @example
      *    var size = cc.winSize;
      *    node.setPosition(size.width/2, size.height/2);
-     */
-     
+ */
+cc.Node.prototype.setPositionInteger = function(newPosOrxValue, yValue)
+{
+    var locPosition = this._position;
+        if (yValue === undefined) {
+            if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
+                return;
+            locPosition.x = Math.round(newPosOrxValue.x);
+            locPosition.y = Math.round(newPosOrxValue.y);
+        } else {
+            if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
+                return;
+            locPosition.x = Math.round(newPosOrxValue);
+            locPosition.y = Math.round(yValue);
+
+        }
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+};
+
 if(cc.PIXEL_PERFECT)
 {
-    
+    cc.Node.prototype._truePosition = cc.p(0,0);
     cc.Node.prototype.setPosition = function (newPosOrxValue, yValue) {
         var locPosition = this._position;
+        var truePos = this._truePosition;
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
             locPosition.x = Math.floor(newPosOrxValue.x);
             locPosition.y = Math.floor(newPosOrxValue.y);
+            truePos.x = newPosOrxValue.x;
+            truePos.y = newPosOrxValue.y;
            // locPosition.x = newPosOrxValue.x;
             //locPosition.y = newPosOrxValue.y;
         } else {
@@ -2402,11 +2378,62 @@ if(cc.PIXEL_PERFECT)
                 return;
             locPosition.x = Math.floor(newPosOrxValue);
             locPosition.y = Math.floor(yValue);
+            truePos.x = newPosOrxValue;
+            truePos.y = yValue;
             //locPosition.x = newPosOrxValue;
             //locPosition.y = yValue;
         }
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     };
+
+    /**
+     * <p>Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.</p>
+     * @function
+     * @return {cc.Point} The position (x,y) of the node in OpenGL coordinates
+     */
+    cc.Node.prototype.getPosition = function () {
+        return cc.p(this._position);
+    },
+
+    /**
+     * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @return {Number}
+     */
+    cc.Node.prototype.getPositionX= function () {
+        return this._truePosition.x;
+    },
+
+    /**
+     * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @param {Number} x The new position in x axis
+     */
+    cc.Node.prototype.setPositionX= function (x) {
+        this._position.x = Math.floor(x);
+        this._truePosition.x = x;
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    },
+
+    /**
+     * <p>Returns the y axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @return {Number}
+     */
+    cc.Node.prototype.getPositionY= function () {
+        return  this._truePosition.y;
+    },
+
+    /**
+     * <p>Sets the y axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @param {Number} y The new position in y axis
+     */
+    cc.Node.prototype.setPositionY= function (y) {
+        this._position.y = Math.floor(y);
+        this._truePosition.y = y;
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    }
 }
 else
 {
@@ -2429,6 +2456,53 @@ else
         }
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     };
+
+    /**
+     * <p>Returns a copy of the position (x,y) of the node in cocos2d coordinates. (0,0) is the left-bottom corner.</p>
+     * @function
+     * @return {cc.Point} The position (x,y) of the node in OpenGL coordinates
+     */
+    cc.Node.prototype.getPosition = function () {
+        return cc.p(this._position);
+    },
+
+    /**
+     * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @return {Number}
+     */
+    cc.Node.prototype.getPositionX= function () {
+        return this._position.x;
+    },
+
+    /**
+     * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @param {Number} x The new position in x axis
+     */
+    cc.Node.prototype.setPositionX= function (x) {
+        this._position.x = x;
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    },
+
+    /**
+     * <p>Returns the y axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @return {Number}
+     */
+    cc.Node.prototype.getPositionY= function () {
+        return  this._position.y;
+    },
+
+    /**
+     * <p>Sets the y axis position of the node in cocos2d coordinates.</p>
+     * @function
+     * @param {Number} y The new position in y axis
+     */
+    cc.Node.prototype.setPositionY= function (y) {
+        this._position.y = y;
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    }
 }
 
 /**
