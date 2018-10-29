@@ -194,6 +194,7 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
         _t._rpNoBorder = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.NO_BORDER);
         _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
+        _t._rpPixelPerfect = new cc.ResolutionPolicy(_strategyer.PIXEL_PERFECT, _strategy.EXACT_FIT);
 
         _t._hDC = cc._canvas;
         _t._hRC = gl;
@@ -583,6 +584,8 @@ cc.EGLView = cc.Class.extend(/** @lends cc.view# */{
                 _t._resolutionPolicy = _t._rpFixedHeight;
             if(resolutionPolicy === _locPolicy.FIXED_WIDTH)
                 _t._resolutionPolicy = _t._rpFixedWidth;
+            if(resolutionPolicy === _locPolicy.PIXEL_PERFECT)
+                _t._resolutionPolicy = _t._rpPixelPerfect;
         }
     },
 
@@ -1026,6 +1029,41 @@ cc.ContentStrategy = cc.Class.extend(/** @lends cc.ContentStrategy# */{
 
     /**
      * @class
+     * @extends cc.ContainerStrategy
+     * doesn't change resolution unless it's an integer multiple of the design resolution, in order to 
+     * maintain pixel perfect scaling. If the current resolution isn't a perfect multiple, it will find the best fit
+     */
+    var PixelPerfect = cc.ContainerStrategy.extend({
+        apply: function (view, designedResolution) {
+            var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.container.style,
+                designW = designedResolution.width, designH = designedResolution.height,
+                containerW, containerH;
+            var scaleX = 1,scaleY=1;
+            if(frameW % designW === 0 && frameH % designH === 0)
+            {
+                scaleX = frameW/designW;
+                scaleY = frameH/designH;
+            }
+            containerW = designW * scaleX;
+            containerH = designH * scaleY;
+            
+            // Adjust container size with integer value
+            var offx = Math.round((frameW - containerW) / 2);
+            var offy = Math.round((frameH - containerH) / 2);
+            containerW = frameW - 2 * offx;
+            containerH = frameH - 2 * offy;
+
+            this._setupContainer(view, containerW, containerH);
+            // Setup container's margin
+            containerStyle.marginLeft = offx + "px";
+            containerStyle.marginRight = offx + "px";
+            containerStyle.marginTop = offy + "px";
+            containerStyle.marginBottom = offy + "px";
+        }
+    });
+
+    /**
+     * @class
      * @extends EqualToFrame
      */
     var EqualToWindow = EqualToFrame.extend({
@@ -1076,6 +1114,8 @@ cc.ContentStrategy = cc.Class.extend(/** @lends cc.ContentStrategy# */{
     cc.ContainerStrategy.PROPORTION_TO_FRAME = new ProportionalToFrame();
 // Alias: Strategy that keeps the original container's size
     cc.ContainerStrategy.ORIGINAL_CONTAINER = new OriginalContainer();
+
+    cc.ContainerStrategy.PIXEL_PERFECT = new PixelPerfect();
 
 // Content scale strategys
     var ExactFit = cc.ContentStrategy.extend({
@@ -1297,3 +1337,5 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  * Unknow policy
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
+
+cc.ResolutionPolicy.PIXEL_PERFECT = 6;

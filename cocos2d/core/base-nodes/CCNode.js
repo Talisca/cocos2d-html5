@@ -602,13 +602,13 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
-            locPosition.x = newPosOrxValue.x;
-            locPosition.y = newPosOrxValue.y;
+            locPosition.x = Math.floor(newPosOrxValue.x);
+            locPosition.y = Math.floor(newPosOrxValue.y);
         } else {
             if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
                 return;
-            locPosition.x = newPosOrxValue;
-            locPosition.y = yValue;
+            locPosition.x = Math.floor(newPosOrxValue);
+            locPosition.y = Math.floor(yValue);
         }
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
