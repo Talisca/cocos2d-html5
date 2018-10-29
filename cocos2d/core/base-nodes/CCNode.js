@@ -215,7 +215,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
 
     disableUIInteraction: function()
     {
-        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, true);
+        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, false);
     },
     
     hasUIInteraction:function()
