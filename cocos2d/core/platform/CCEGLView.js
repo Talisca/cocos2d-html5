@@ -1032,18 +1032,37 @@ cc.ContentStrategy = cc.Class.extend(/** @lends cc.ContentStrategy# */{
      * @extends cc.ContainerStrategy
      * doesn't change resolution unless it's an integer multiple of the design resolution, in order to 
      * maintain pixel perfect scaling. If the current resolution isn't a perfect multiple, it will find the best fit
+     * If the frame width /height is smaller than the design resolution, we just scale down to fit. will result in distortions, but its better than not showing part of the application at all!
      */
     var PixelPerfect = cc.ContainerStrategy.extend({
         apply: function (view, designedResolution) {
+
             var frameW = view._frameSize.width, frameH = view._frameSize.height, containerStyle = cc.container.style,
                 designW = designedResolution.width, designH = designedResolution.height,
                 containerW, containerH;
-            var scaleX = 1,scaleY=1;
-            if(frameW % designW === 0 && frameH % designH === 0)
+
+            //if design resolution is larger than the actual used screen/browser area, just use another policy and fit to screen
+            if(frameW  < designW || frameH < designH)
             {
-                scaleX = frameW/designW;
-                scaleY = frameH/designH;
+                ProportionalToFrame.prototype.apply.call(this, view,designedResolution);
+                return;
             }
+            
+            var scaleX = 1,scaleY=1;
+
+            var currentWidth = designW; var currentHeight = designH;
+
+            //find the largest upscale factor that stretches the image by an integer factor
+            var scale = 0;
+            while(currentWidth <= frameW && currentHeight < frameH)
+            {
+                currentWidth += designW;
+                currentHeight += designH;
+                scale++;
+            }
+
+            scaleX = scaleY = scale;
+
             containerW = designW * scaleX;
             containerH = designH * scaleY;
             

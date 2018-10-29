@@ -142,9 +142,22 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         var sizableWidth = size.width - locTopLeftContentSize.width - locTopRight.getContentSize().width;
         var sizableHeight = size.height - locTopLeftContentSize.height - locBottomRight.getContentSize().height;
 
+        //if pixel perfect mode is activated, it's possible that the computed center height and width aren't large enough, and we need to stretch the center 
+        //by 1 pixel
+        if(cc.PIXEL_PERFECT) 
+        {
+            if(sizableWidth %2 !== 0)
+            {
+                sizableWidth +=1;
+            }
+            if(sizableHeight % 2 !== 0)
+            {
+                sizableHeight += 1;
+            }
+        }
         var horizontalScale = sizableWidth / locCenterContentSize.width;
         var verticalScale = sizableHeight / locCenterContentSize.height;
-
+        
         var rescaledWidth = locCenterContentSize.width * horizontalScale;
         var rescaledHeight = locCenterContentSize.height * verticalScale;
 
@@ -175,7 +188,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         locBottomRight.setAnchorPoint(0, 1);
         locBottomRight.setPosition(leftWidth+rescaledWidth,bottomHeight);
 
-
         locTopLeft.setAnchorPoint(1, 0);
         locTopLeft.setPosition(leftWidth, bottomHeight+rescaledHeight);
 
@@ -197,11 +209,15 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         locBottom.setAnchorPoint(0.5, 1);
         locBottom.setPosition(leftWidth+rescaledWidth/2 + centerOffset.x,bottomHeight);
         locBottom.setScaleX(horizontalScale);
-
+        
         locCenter.setAnchorPoint(0.5, 0.5);
         locCenter.setPosition(leftWidth+rescaledWidth/2 + centerOffset.x, bottomHeight+rescaledHeight/2 + centerOffset.y);
         locCenter.setScaleX(horizontalScale);
         locCenter.setScaleY(verticalScale);
+
+        
+
+        
     },
 
     /**

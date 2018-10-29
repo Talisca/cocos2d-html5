@@ -215,7 +215,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
 
     disableUIInteraction: function()
     {
-        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, true);
+        this.setFlag(cc.NODE_FLAGS.HAS_UI_INTERACTION, false);
     },
     
     hasUIInteraction:function()
@@ -583,35 +583,7 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
 
-    /**
-     * <p>
-     *     Changes the position (x,y) of the node in cocos2d coordinates.<br/>
-     *     The original point (0,0) is at the left-bottom corner of screen.<br/>
-     *     Usually we use cc.p(x,y) to compose CCPoint object.<br/>
-     *     and Passing two numbers (x,y) is more efficient than passing CCPoint object.
-     * </p>
-     * @function
-     * @param {cc.Point|Number} newPosOrxValue The position (x,y) of the node in coordinates or the X coordinate for position
-     * @param {Number} [yValue] Y coordinate for position
-     * @example
-     *    var size = cc.winSize;
-     *    node.setPosition(size.width/2, size.height/2);
-     */
-    setPosition: function (newPosOrxValue, yValue) {
-        var locPosition = this._position;
-        if (yValue === undefined) {
-            if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
-                return;
-            locPosition.x = Math.floor(newPosOrxValue.x);
-            locPosition.y = Math.floor(newPosOrxValue.y);
-        } else {
-            if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
-                return;
-            locPosition.x = Math.floor(newPosOrxValue);
-            locPosition.y = Math.floor(yValue);
-        }
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-    },
+   
     movePosition: function(offsetOrXValue, yValue)
     {
         let locPosition = this._position;
@@ -2397,6 +2369,67 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         return ret;
     }
 });
+
+ /**
+     * <p>
+     *     Changes the position (x,y) of the node in cocos2d coordinates.<br/>
+     *     The original point (0,0) is at the left-bottom corner of screen.<br/>
+     *     Usually we use cc.p(x,y) to compose CCPoint object.<br/>
+     *     and Passing two numbers (x,y) is more efficient than passing CCPoint object.
+     * </p>
+     * @function
+     * @param {cc.Point|Number} newPosOrxValue The position (x,y) of the node in coordinates or the X coordinate for position
+     * @param {Number} [yValue] Y coordinate for position
+     * @example
+     *    var size = cc.winSize;
+     *    node.setPosition(size.width/2, size.height/2);
+     */
+     
+if(cc.PIXEL_PERFECT)
+{
+    
+    cc.Node.prototype.setPosition = function (newPosOrxValue, yValue) {
+        var locPosition = this._position;
+        if (yValue === undefined) {
+            if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
+                return;
+            locPosition.x = Math.floor(newPosOrxValue.x);
+            locPosition.y = Math.floor(newPosOrxValue.y);
+           // locPosition.x = newPosOrxValue.x;
+            //locPosition.y = newPosOrxValue.y;
+        } else {
+            if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
+                return;
+            locPosition.x = Math.floor(newPosOrxValue);
+            locPosition.y = Math.floor(yValue);
+            //locPosition.x = newPosOrxValue;
+            //locPosition.y = yValue;
+        }
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    };
+}
+else
+{
+    cc.Node.prototype.setPosition = function (newPosOrxValue, yValue) {
+        var locPosition = this._position;
+        if (yValue === undefined) {
+            if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
+                return;
+            locPosition.x = newPosOrxValue.x;
+            locPosition.y = newPosOrxValue.y;
+           // locPosition.x = newPosOrxValue.x;
+            //locPosition.y = newPosOrxValue.y;
+        } else {
+            if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
+                return;
+            locPosition.x = newPosOrxValue;
+            locPosition.y = yValue;
+            //locPosition.x = newPosOrxValue;
+            //locPosition.y = yValue;
+        }
+        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+    };
+}
 
 /**
  * Allocates and initializes a node.
