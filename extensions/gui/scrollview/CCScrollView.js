@@ -119,7 +119,8 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
         this._viewSize = cc.size(0, 0);
         this._parentScissorRect = new cc.Rect(0,0,0,0);
         this._tmpViewRect = new cc.Rect(0,0,0,0);
-
+        this.setFlag(cc.NODE_FLAGS.CLIP_CHILDREN_TO_BB, true);
+        
         if(container != undefined)
             this.initWithViewSize(size, container);
         else
@@ -166,11 +167,40 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
     },
 
     /**
+     * Returns a "world" axis aligned bounding box of the node.
+     * @function
+     * @return {cc.Rect}
+     */
+    getBoundingBoxToWorld: function () {
+        //scrollview has a separate getboundingboxtoworld implementation:
+        //child elements outside the rendered view size should not be considered 'visible', therefor their bounding box
+        //must be clipped to the local bounding box of this node
+        var rect = cc.rect(0, 0, this._viewSize.width, this._viewSize.height);
+        var trans = this.getNodeToWorldTransform();
+        rect = cc.rectApplyAffineTransform(rect, trans);
+
+        //query child's BoundingBox
+        /*if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child._visible) {
+                var childRect = child._getBoundingBoxToCurrentNode(trans);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }*/
+
+        return rect;
+    },
+    /**
      * Sets a new content offset. It ignores max/min offset. It just sets what's given. (just like UIKit's UIScrollView)
      *
      * @param {cc.Point} offset new offset
      * @param {Number} [animated=] If true, the view will scroll to the new offset
-     */
+     **/
     setContentOffset: function (offset, animated) {
         if (animated) { //animate scrolling
             this.setContentOffsetInDuration(offset, BOUNCE_DURATION);
@@ -189,7 +219,6 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
         if (locDelegate != null && locDelegate.scrollViewDidScroll) {
             locDelegate.scrollViewDidScroll(this);
         }
-
     },
 
     getContentOffset:function () {

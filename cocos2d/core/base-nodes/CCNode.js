@@ -37,7 +37,8 @@ cc.NODE_TAG_INVALID = -1;
 cc.s_globalOrderOfArrival = 1;
 
 cc.NODE_FLAGS = {
-    HAS_UI_INTERACTION: 1
+    HAS_UI_INTERACTION: 1,
+    CLIP_CHILDREN_TO_BB: 2
 };
 
 /**
@@ -194,6 +195,10 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     getFlags: function()
     {
         return this._flags;
+    },
+    getFlag: function(flag)
+    {
+        return this._flags & flag;
     },
 
     setFlag: function(flag, value)
