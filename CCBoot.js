@@ -32,6 +32,8 @@
  */
 var cc = cc || {};
 
+cc.PIXEL_PERFECT = false; //if this is true, various nodes in the engine will change positioning and scaling behaviour in order to guarantee pixel perfect display of sprites, etc.
+
 cc.create3DContext = function (canvas, opt_attribs) {
     var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     var context = null;

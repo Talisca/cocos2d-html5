@@ -1385,10 +1385,10 @@ cc.MoveBy = cc.ActionInterval.extend(/** @lends cc.MoveBy# */{
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
 
-                locStartPosition.x = locStartPosition.x + targetX - locPreviousPosition.x;
-                locStartPosition.y = locStartPosition.y + targetY - locPreviousPosition.y;
-                x = x + locStartPosition.x;
-                y = y + locStartPosition.y;
+                locStartPosition.x +=  targetX - locPreviousPosition.x;
+                locStartPosition.y +=  targetY - locPreviousPosition.y;
+                x += locStartPosition.x;
+                y += locStartPosition.y;
 	            locPreviousPosition.x = x;
 	            locPreviousPosition.y = y;
 	            this.target.setPosition(x, y);
