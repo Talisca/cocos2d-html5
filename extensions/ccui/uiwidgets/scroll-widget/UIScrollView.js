@@ -87,6 +87,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
      */
     ctor: function () {
         ccui.Layout.prototype.ctor.call(this);
+        this.setFlag(cc.NODE_FLAGS.CLIP_CHILDREN_TO_BB,true);
         this.setClippingEnabled(true);
         this._innerContainer.setTouchEnabled(false);
 
@@ -124,7 +125,35 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
         }
         return false;
     },
+     /**
+     * Returns a "world" axis aligned bounding box of the node.
+     * @function
+     * @return {cc.Rect}
+     */
+    getBoundingBoxToWorld: function () {
+        //scrollview has a separate getboundingboxtoworld implementation:
+        //child elements outside the rendered view size should not be considered 'visible', therefor their bounding box
+        //must be clipped to the local bounding box of this node
+        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        var trans = this.getNodeToWorldTransform();
+        rect = cc.rectApplyAffineTransform(rect, trans);
 
+        //query child's BoundingBox
+        /*if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child._visible) {
+                var childRect = child._getBoundingBoxToCurrentNode(trans);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }*/
+
+        return rect;
+    },
     /**
      * Calls the parent class' onEnter and schedules update function.
      * @override
