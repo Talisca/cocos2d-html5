@@ -33,6 +33,7 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
             return false;
         }
 
+        this._fontDict = dict;
         var textureFilename = dict.atlasName;
         this._charMap = dict.fontDefDictionary;
         this._lineHeight = this._originalLineHeight = dict.commonHeight;

@@ -92,7 +92,6 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     _hasChildren:null, //Whether the sprite contains children
     _shouldBeHidden:false, //should not be drawn because one of the ancestors is not visible
     _transformToBatch:null,
-
     //
     // Data used when the sprite is self-rendered
     //
@@ -282,13 +281,12 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
      * @param {cc.Rect} rect
      */
     setVertexRect:function (rect) {
-        var locRect = this._rect;
+        let locRect = this._rect;
         locRect.x = rect.x;
         locRect.y = rect.y;
         locRect.width = rect.width;
         locRect.height = rect.height;
     },
-
     /**
      * Sort all children of this sprite node.
      * @override
