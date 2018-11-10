@@ -9,6 +9,10 @@ cc.PixelLabel = cc.BatchedLabel.extend({
     {
         return this.baseFontSize;
     },
+    setPosition:function(x,y)
+    {
+        this.setPositionInteger(x,y);
+    },
     setFontSize: function(size)
     {
         if(size%this.baseFontSize === 0)
@@ -18,11 +22,14 @@ cc.PixelLabel = cc.BatchedLabel.extend({
         else
         {
             console.warn("scaling pixellabel fonts to non-multiple of their base font size is not supported to preserve pixel-perfectness. choose a different \
-             font size based on getBaseFontSize() or pick a font that as the font size you want to use.");
+             font size based on getBaseFontSize()*integerNumber or pick a font that as the font size you want to use.");
         }
     },
     setScale: function(scale)
     {
         console.warn("scaling PixelLabel is disabled to preserve pixel-perfectness.")
-    }
+    },
+    _createRenderCmd: function () {
+        return new cc.PixelLabel.WebGLRenderCmd(this);
+    },
 });

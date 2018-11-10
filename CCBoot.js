@@ -2534,7 +2534,7 @@ cc.game = /** @lends cc.game# */{
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
                 'preserveDrawingBuffer': true,
-                'antialias': !cc.sys.isMobile,
+                'antialias': false,
                 'alpha': true
             });
         }

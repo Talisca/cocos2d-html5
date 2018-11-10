@@ -279,7 +279,7 @@
             var cmd = renderCmds[i];
 
             //only consider other sprites for now
-            if (!(cmd.constructor === cc.BatchedLabel.WebGLRenderCmd)) {
+            if (!(cmd.constructor ===  this.constructor) || cmd.node._fontDict !== node._fontDict) {
                 break;
             }
             

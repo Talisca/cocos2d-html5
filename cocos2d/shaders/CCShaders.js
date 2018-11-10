@@ -243,6 +243,29 @@ cc.SHADER_POSITION_TEXTURE_COLOR_VERT_BATCHED =
         +"    v_colorScale = a_position.z; \n"
         + "}";
 
+cc.SHADER_POSITION_TEXTURE_COLOR_VERT_PIXELPERFECT_BATCHED =
+        "attribute vec4 a_position; \n"
+        + "attribute vec2 a_texCoord; \n"
+        + "attribute vec4 a_color;  \n"
+        + "attribute mat4 a_mvMatrix;"
+        + "varying lowp vec4 v_fragmentColor; \n"
+        + "varying mediump vec2 v_texCoord; \n"
+        + "varying float v_colorScale; \n"
+        + "uniform vec2 viewportSize; \n"
+
+        + "void main() \n"
+        + "{ \n"
+        //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
+        + "    vec4 pos =  (CC_PMatrix * a_mvMatrix) * vec4(a_position.xy,1.0,1.0);  \n"
+        + "    vec2 viewportCoord = pos.xy; \n"
+        + "    vec2 viewportPixelCoord = floor(viewportCoord * viewportSize + vec2(0.5,0.5)) + vec2(0.5,0.5); \n"
+        + "    pos = vec4(viewportPixelCoord / viewportSize,pos.zw); \n"
+        + "    gl_Position =  pos ; \n"
+        + "    v_fragmentColor = a_color; \n"
+        + "    v_texCoord = a_texCoord; \n"
+        +"    v_colorScale = a_position.z; \n"
+        + "}";
+
 /**
  * @constant
  * @type {String}

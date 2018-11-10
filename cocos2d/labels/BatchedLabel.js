@@ -43,6 +43,23 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
         texture = this._atlasTexture = cc.textureCache.addImage(textureFilename);
         this.setString(strText || "");
     },
+    setCharMapFile: function(_charMapFile)
+    {
+        var dict = cc.loader.getRes(_charMapFile || cc.BatchedLabel.prototype._defaultCharMapFile);
+
+        if (!dict) {
+            return false;
+        }
+
+        this._fontDict = dict;
+        var textureFilename = dict.atlasName;
+        this._charMap = dict.fontDefDictionary;
+        this._lineHeight = this._originalLineHeight = dict.commonHeight;
+        this._fontSize = this._lineHeight;
+        this._fontSizeFactor = this._fontSize / this._originalLineHeight;
+        this._atlasTexture = cc.textureCache.addImage(textureFilename);
+        this.setStringForced(this.getString());
+    },
     setFontSize: function(size)
     {
         this._fontSize = size;
@@ -99,12 +116,16 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
     {
         return this._renderCmd.getContentSize();
     },
-    setString: function (label) {
-        if (this._string === label)
-            return;
+    setStringForced: function(label)
+    {
         this._string = String(label);
         this._renderCmd.setString(this._string);
         this._renderCmd.updateAtlasValues();
+    },
+    setString: function (label) {
+        if (this._string === label)
+            return;
+        this.setStringForced(label);
 
         //update content size
         //this.setContentSize();

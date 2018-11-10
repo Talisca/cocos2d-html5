@@ -274,7 +274,8 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
         this._uniforms[cc.UNIFORM_SINTIME] = gl.getUniformLocation(this._programObj, cc.UNIFORM_SINTIME_S);
         this._uniforms[cc.UNIFORM_COSTIME] = gl.getUniformLocation(this._programObj, cc.UNIFORM_COSTIME_S);
         this._uniforms[cc.UNIFORM_MIPMAPBIAS] = gl.getUniformLocation(this._programObj, cc.UNIFORM_MIPMAPBIAS_S);
-
+        this._uniforms[cc.UNIFORM_VIEWPORTSIZE] = gl.getUniformLocation(this._programObj, cc.UNIFORM_VIEWPORTSIZE);
+        
         this._usesTime = (this._uniforms[cc.UNIFORM_TIME] != null || this._uniforms[cc.UNIFORM_SINTIME] != null || this._uniforms[cc.UNIFORM_COSTIME] != null);
 
         this._uniforms[cc.UNIFORM_RANDOM01] = gl.getUniformLocation(this._programObj, cc.UNIFORM_RANDOM01_S);

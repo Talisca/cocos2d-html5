@@ -89,6 +89,8 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
 	 * @type {Number}
 	 */
     TYPE_POSITION_TEXTURECOLOR_ALPHATEST_BATCHED: 8,
+
+    TYPE_POSITION_TEXTURECOLOR_ALPHATEST_PIXELPERFECT_BATCHED: 9,
     
 	/**
 	 * @public
@@ -106,6 +108,15 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
 
     _loadDefaultShader: function (program, type) {
         switch (type) {
+            case this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST_PIXELPERFECT_BATCHED:
+                program.initWithVertexShaderByteArray(cc.SHADER_POSITION_TEXTURE_COLOR_VERT_PIXELPERFECT_BATCHED, cc.SHADER_POSITION_TEXTURE_COLOR_ALPHATEST_FRAG);
+
+                program.addAttribute(cc.ATTRIBUTE_NAME_POSITION, cc.VERTEX_ATTRIB_POSITION);
+                program.addAttribute(cc.ATTRIBUTE_NAME_COLOR, cc.VERTEX_ATTRIB_COLOR);
+                program.addAttribute(cc.ATTRIBUTE_NAME_TEX_COORD, cc.VERTEX_ATTRIB_TEX_COORDS);
+
+                break;
+
             case this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST_BATCHED:
                 program.initWithVertexShaderByteArray(cc.SHADER_POSITION_TEXTURE_COLOR_VERT_BATCHED, cc.SHADER_POSITION_TEXTURE_COLOR_ALPHATEST_FRAG);
 
@@ -189,6 +200,30 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
         this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST_BATCHED);
         this._programs[cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED] = program;
         this._programs["ShaderPositionTextureColorAlphaTestBatched"] = program;
+
+        // Position Texture Color alpha test
+        program = new cc.GLProgram();
+        var ptappb = program;
+        this._loadDefaultShader(program, this.TYPE_POSITION_TEXTURECOLOR_ALPHATEST_PIXELPERFECT_BATCHED);
+        this._programs[cc.SHADER_POSITION_TEXTURECOLORALPHATEST_PIXELPERFECT_BATCHED ] = program;
+        this._programs["ShaderPositionTextureColorAlphaTestPixelPerfectBatched"] = program;
+        function updateViewportUniform()
+        {
+        	let current = cc._currentShaderProgram;
+
+        	ptappb.use();
+        	var viewport = gl.getParameter(gl.VIEWPORT);
+			var uniformLocation = ptappb.getUniformLocationForName("viewportSize");
+			if(uniformLocation)
+				ptappb.setUniformLocationWith2f(uniformLocation, viewport[2],viewport[3]);
+
+				//the line above doesn't work unless program is bound, however i can't be certain if binding an arbitrary shader program here is safe
+				//reminder: if we need pixel perfect functionality again or viewportSize in shaders, have to get current program, bind this program, then bind remembered program
+			
+			cc.glUseProgram(current);
+        }
+        updateViewportUniform();
+        cc.eventManager.addCustomListener("viewportChanged",updateViewportUniform);
 
         // Position Texture Color alpha test
         program = new cc.GLProgram();

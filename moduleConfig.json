@@ -174,7 +174,8 @@
         "cocos2d/core/utils/QuadBuffer.js",
         "cocos2d/labels/BatchedLabel.js",
         "cocos2d/labels/BatchedLabelWebGLRenderCmd.js",
-        "cocos2d/labels/PixelLabel.js"
+        "cocos2d/labels/PixelLabel.js",
+        "cocos2d/labels/PixelLabelWebGLRenderCmd.js"
       ],
         "menus" : [
             "core", "actions",

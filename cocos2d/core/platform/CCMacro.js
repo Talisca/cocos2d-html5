@@ -664,6 +664,8 @@ cc.SHADER_POSITION_TEXTURECOLORALPHATEST = "ShaderPositionTextureColorAlphaTest"
  * @type {String}
  */
 cc.SHADER_POSITION_TEXTURECOLORALPHATEST_BATCHED = "ShaderPositionTextureColorAlphaTestBatched";
+
+cc.SHADER_POSITION_TEXTURECOLORALPHATEST_PIXELPERFECT_BATCHED = "ShaderPositionTextureColorAlphaTestPixelPerfectBatched";
 /**
  * @constant
  * @type {String}
@@ -743,6 +745,7 @@ cc.UNIFORM_SAMPLER_S = "CC_Texture0";
 cc.UNIFORM_ALPHA_TEST_VALUE_S = "CC_alpha_value";
 
 cc.UNIFORM_MIPMAPBIAS_S = "mipmapBias";
+cc.UNIFORM_VIEWPORTSIZE = "viewportSize";
 
 //------------Attribute names--------------
 /**
