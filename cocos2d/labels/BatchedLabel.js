@@ -22,6 +22,8 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
         this._lineWidth = lineWidth || Number.MAX_VALUE;
         this._maxHeight = Number.MAX_VALUE;
         this._displayedColor = new cc.Color(255, 255, 255, 255);
+        this._bonusCharSpacing = 0;
+        this._bonusLineSpacing = 0;
 
         this.setAnchorPoint(0.5,0.5);
         this.setHorizontalAlignment(cc.TEXT_ALIGNMENT_LEFT);
@@ -42,6 +44,25 @@ cc.BatchedLabel = cc.Node.extend(/** @lends cc.LabelAtlas# */{
         var texture = null;
         texture = this._atlasTexture = cc.textureCache.addImage(textureFilename);
         this.setString(strText || "");
+    },
+    //increases distance between characters by the value provided
+    setBonusCharacterSpacing: function(value)
+    {
+        if(this._bonusCharSpacing != value)
+        {
+          this._bonusCharSpacing = value;
+          this.setStringForced(this.getString());  
+        }
+        
+    },
+    //increases the distance between different lines in multi-line text 
+    setBonusLineSpacing: function(value)
+    {
+        if(this._bonusLineSpacing != value)
+        {
+            this._bonusLineSpacing = value;
+            this.setStringForced(this.getString());  
+        }
     },
     setCharMapFile: function(_charMapFile)
     {

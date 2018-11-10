@@ -77,8 +77,64 @@
         cc.g_NumberOfDraws++;
     };
 
+    //splits preprocessed string lines according to contained newlines (\n) and measures the maximum line length, returning it
+    proto.splitNewLines = function(lines, lineWidths)
+    {
+        let map = this._node._charMap;
+        let sizeFactor = this._node._fontSizeFactor;
+        let maxX = 0;
+
+        for(let i=0;i<lines.length;++i)
+        {
+            let line = lines[i];
+            let splits = line.split("\n");
+            if(splits.length > 1) //will always be at least 1. with no split, the only element is the original line
+            {
+                //below code is pretty wasteful and will probably generate a lot of garbage. may need to optimize in the future
+
+                //the existing line and its linewidth have to be split into its new parts
+                //remove the existing part
+                lineWidths.splice(i,1);
+                lines.splice(i,1);
+                
+                for(let j=0;j<splits.length;++j)
+                {
+                    //measure line width
+                    let line = splits[j];
+                    let width = 0;
+                    for(let k=0;k<line.length;++k)
+                    {
+                        width += map[line.charCodeAt(k)].xAdvance ;
+                    }
+                    
+                    width*= sizeFactor;
+
+                    //insert at the place where we removed the original line and linewidth, sequentially
+                    lineWidths.splice(i+j,0,width);
+                    lines.splice(i+j,0,line);
+
+                    if(width > maxX)
+                    {
+                        maxX = width;
+                    }
+                }
+            }
+            else
+            {
+                //with only 1 split just keep the line as is, but update maxX if necessary
+                if(lineWidths[i] > maxX)
+                {
+                    maxX = lineWidths[i];
+                }
+            }
+        }
+
+        return maxX;
+    }
+
     //parses and prepares various string like splitting up the string into multiple lines based on the maximum line size
     //returns the maximum measured line length
+    //the outLines array may already contain lines but outLineWidths should be empty
     proto.prepareStringData = function(string, outLines, outLineWidths)
     {
         var map = this._node._charMap;
@@ -86,13 +142,13 @@
         var sizeFactor = this._node._fontSizeFactor;
         var lineWidths = outLineWidths;
         var lines = outLines;
-        var maxX = 0;
         var lineWidth = 0;
         var maxLineWidth = this._node._lineWidth;
-        var line = "";
         
-        var word = words[0];
-        var width = 0;
+        lineWidth = 0;
+        let line = "";
+        let word = words[0];
+        let width = 0;
         for(var j=word.length-1;j>=0;--j)
         {
             width += map[word.charCodeAt(j)].xAdvance * sizeFactor;
@@ -100,11 +156,10 @@
 
         line+= word;
         lineWidth += width;
-        maxX = Math.max(lineWidth,maxX);
-        
+       
         //first and last word must be handled differently (code is above and below this loop) so we start from i = 1
         var spaceWidth = map[" ".charCodeAt(0)].xAdvance * sizeFactor;
-        for(var i=1;i< words.length; ++i)
+        for(let i=1;i< words.length; ++i)
         {
             if(words[i].length ===0)
             {
@@ -115,7 +170,8 @@
             width = 0;
             for(var j=word.length-1;j>=0;--j)
             {
-                width += map[word.charCodeAt(j)].xAdvance;
+                if(word[j] != '\n') //newlines are ignored and treated later.
+                  width += map[word.charCodeAt(j)].xAdvance;
             }
             width *= sizeFactor;
             
@@ -134,7 +190,6 @@
                 line += word;
                 lineWidth = newLineWidth;
             }
-            maxX = Math.max(lineWidth,maxX);
         }
 
         lines.push(line);
@@ -145,7 +200,8 @@
         }
 
         lineWidths.push(lineWidth);
-
+        
+        let maxX = this.splitNewLines(lines,lineWidths);
         return maxX;
     }
 
@@ -180,6 +236,8 @@
         var alignmentOffsetX = 0;
         var alignmentOffsetY = 0;
         
+        var charSpacing = node._bonusCharSpacing;
+        var lineSpacing = node._bonusLineSpacing;
         if(node._maxHeight !== Number.MAX_VALUE)
         {
             var maxY = Math.floor(node._maxHeight / lineHeight) * lineHeight;
@@ -193,9 +251,10 @@
                     break;
             }
         }
+
         var sizeFactor = node._fontSizeFactor;
         for (var line = 0; line < lines.length; ++line) {
-            var y = -lineHeight * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
+            var y = (-lineHeight + lineSpacing) * line + lines.length*lineHeight; //the +lineHeight is because we start with an offset of 1 line, so the first line isn't drawn 'below the screen' if you place the text at y =0
             var word = lines[line];
             x = 0;
             
@@ -232,24 +291,24 @@
                 locQuadBR.texCoords.u = right;
                 locQuadBR.texCoords.v = bottom;
 
-                locQuadBL.vertices.x = x + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
-                locQuadBL.vertices.y = y - rect.height * sizeFactor- mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
+                locQuadBL.vertices.x = x + mapEntry.xOffset * sizeFactor  + alignmentOffsetX;
+                locQuadBL.vertices.y = y - rect.height * sizeFactor- mapEntry.yOffset * sizeFactor+ alignmentOffsetY;
                 locQuadBL.vertices.z = 0.0;
-                locQuadBR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
-                locQuadBR.vertices.y = y - rect.height * sizeFactor - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
+                locQuadBR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor + alignmentOffsetX;
+                locQuadBR.vertices.y = y - rect.height * sizeFactor - mapEntry.yOffset * sizeFactor  + alignmentOffsetY;
                 locQuadBR.vertices.z = 0.0;
-                locQuadTL.vertices.x = x + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
-                locQuadTL.vertices.y = y - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
+                locQuadTL.vertices.x = x + mapEntry.xOffset * sizeFactor + alignmentOffsetX;
+                locQuadTL.vertices.y = y - mapEntry.yOffset * sizeFactor  + alignmentOffsetY;
                 locQuadTL.vertices.z = 0.0;
-                locQuadTR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor + 0.5 + alignmentOffsetX;
-                locQuadTR.vertices.y = y - mapEntry.yOffset * sizeFactor + 0.5 + alignmentOffsetY;
+                locQuadTR.vertices.x = x + rect.width * sizeFactor + mapEntry.xOffset * sizeFactor  + alignmentOffsetX;
+                locQuadTR.vertices.y = y - mapEntry.yOffset * sizeFactor + alignmentOffsetY;
                 locQuadTR.vertices.z = 0.0;
                 locQuadTL.colors = curColor;
                 locQuadTR.colors = curColor;
                 locQuadBL.colors = curColor;
                 locQuadBR.colors = curColor;
 
-                x += mapEntry.xAdvance * sizeFactor;
+                x += mapEntry.xAdvance * sizeFactor + charSpacing;
                 currentChar++;
                 maxX = Math.max(x, maxX);
             }
