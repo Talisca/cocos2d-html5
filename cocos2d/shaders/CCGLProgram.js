@@ -608,6 +608,10 @@ cc.GLProgram = cc.Class.extend(/** @lends cc.GLProgram# */{
             this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
     },
 
+    _setUniformForRandomWithVec4: function () {
+        if (this._uniforms[cc.UNIFORM_RANDOM01] !== -1)
+            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
+    },
     /**
      * will update the MVP matrix on the MVP uniform if it is different than the previous call for this same shader program.
      */

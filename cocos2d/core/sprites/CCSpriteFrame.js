@@ -61,7 +61,8 @@ cc.SpriteFrame = cc.Class.extend(/** @lends cc.SpriteFrame# */{
     _originalSizeInPixels:null,
     _texture:null,
     _textureFilename:"",
-    _textureLoaded:false,
+    _textureLoaded: false,
+    _name: "",
 
     ctor:function (filename, rect, rotated, offset, originalSize) {
         this._offset = cc.p(0, 0);
@@ -70,6 +71,7 @@ cc.SpriteFrame = cc.Class.extend(/** @lends cc.SpriteFrame# */{
         this._rotated = false;
         this._originalSizeInPixels = cc.size(0, 0);
         this._textureFilename = "";
+        this._name = "";
         this._texture = null;
         this._textureLoaded = false;
 
@@ -79,6 +81,14 @@ cc.SpriteFrame = cc.Class.extend(/** @lends cc.SpriteFrame# */{
             else
                 this.initWithTexture(filename, rect, rotated, offset, originalSize)
         }
+    },
+
+    setName: function (name) {
+        this._name = name;
+    },
+
+    getName: function () {
+        return this._name;
     },
 
     /**
@@ -286,6 +296,7 @@ cc.SpriteFrame = cc.Class.extend(/** @lends cc.SpriteFrame# */{
         var frame = new cc.SpriteFrame();
         frame.initWithTexture(this._textureFilename, this._rectInPixels, this._rotated, this._offsetInPixels, this._originalSizeInPixels);
         frame.setTexture(this._texture);
+        frame.setName(this._name);
         return frame;
     },
 
@@ -297,6 +308,7 @@ cc.SpriteFrame = cc.Class.extend(/** @lends cc.SpriteFrame# */{
         var copy = new cc.SpriteFrame();
         copy.initWithTexture(this._textureFilename, this._rectInPixels, this._rotated, this._offsetInPixels, this._originalSizeInPixels);
         copy.setTexture(this._texture);
+        copy.setName(this._name);
         return copy;
     },
 

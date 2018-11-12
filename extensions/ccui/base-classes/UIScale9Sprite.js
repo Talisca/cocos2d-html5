@@ -90,6 +90,8 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
     _flippedX: false,
     _flippedY: false,
 
+    _spriteFrame: null,
+
     /**
      * return  texture is loaded
      * @returns {boolean}
@@ -550,6 +552,9 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         }
         var batchNode = new cc.SpriteBatchNode(spriteFrame.getTexture(), 9);
         // the texture is rotated on Canvas render mode, so isRotated always is false.
+
+        this._spriteFrame = spriteFrame;
+
         return this.initWithBatchNode(batchNode, spriteFrame.getRect(), cc._renderType === cc.game.RENDER_TYPE_WEBGL && spriteFrame.isRotated(), capInsets);
     },
 
@@ -948,7 +953,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         // Reset insets
         if (!capInsets)
             capInsets = cc.rect();
-        var sprite = new cc.Sprite(spriteFrame.getTexture());
+        var sprite = new cc.Sprite(spriteFrame);
         var locLoaded = spriteFrame.textureLoaded();
         this._textureLoaded = locLoaded;
         if(!locLoaded){
@@ -963,12 +968,21 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
                 this.dispatchEvent("load");
             },this);
         }
-        this.updateWithSprite(sprite, spriteFrame.getRect(),spriteFrame.isRotated(),spriteFrame.getOffset(),spriteFrame.getOriginalSize(),capInsets);
+
+        this.updateWithSprite(sprite, spriteFrame.getRect(), spriteFrame.isRotated(), spriteFrame.getOffset(), spriteFrame.getOriginalSize(), capInsets);
 
         this._insetLeft = capInsets.x;
         this._insetTop = capInsets.y;
         this._insetRight = this._originalSize.width - this._insetLeft - capInsets.width;
         this._insetBottom = this._originalSize.height - this._insetTop - capInsets.height;
+
+        this._spriteFrame = spriteFrame;
+    },
+
+    getSpriteFrame: function () {
+        if (this._spriteFrame)
+            return this._spriteFrame;
+        return this.getSprite().getSpriteFrame();
     },
 
     //v3.3

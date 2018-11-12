@@ -119,6 +119,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     _textureLoaded:false,
     _className:"Sprite",
 
+    _spriteFrame: null,
+
     ctor: function (fileName, rect, rotated) {
         var self = this;
         cc.Node.prototype.ctor.call(self);
@@ -804,6 +806,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             _t.setTextureRect(newFrame.getRect(), newFrame.isRotated(), newFrame.getOriginalSize());
         }
         this._renderCmd._updateForSetSpriteFrame(pNewTexture);
+
+        this._spriteFrame = newFrame;
     },
 
     /**
@@ -840,7 +844,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
      * @return {cc.SpriteFrame}
      */
     getSpriteFrame: function () {
-        return new cc.SpriteFrame(this._texture,
+        return this._spriteFrame || new cc.SpriteFrame(this._texture,
             cc.rectPointsToPixels(this._rect),
             this._rectRotated,
             cc.pointPointsToPixels(this._unflippedOffsetPositionFromCenter),
@@ -881,6 +885,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         this._renderCmd._setTexture(texture);
         if(change)
             this._changeRectWithTexture(texture);
+        this._spriteFrame = null;
     },
 
     _changeRectWithTexture: function(texture){
