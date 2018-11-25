@@ -588,7 +588,26 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
     },
 
-   
+    movePositionInteger: function(offsetOrXValue, yValue)
+    {
+        let locPosition = this._position;
+        let x = locPosition.x;
+        let y = locPosition.y;
+        
+        if(yValue === undefined)
+        {
+            x += offsetOrXValue.x;
+            y += offsetOrXValue.y;
+        }
+        else
+        {
+            x += offsetOrXValue;
+            y += yValue;
+        }
+
+        this.setPositionInteger(x,y);
+    },
+
     movePosition: function(offsetOrXValue, yValue)
     {
         let locPosition = this._position;
@@ -2351,13 +2370,13 @@ cc.Node.prototype.setPositionInteger = function(newPosOrxValue, yValue)
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
-            locPosition.x = Math.round(newPosOrxValue.x);
-            locPosition.y = Math.round(newPosOrxValue.y);
+            locPosition.x = Math.floor(newPosOrxValue.x);
+            locPosition.y = Math.floor(newPosOrxValue.y);
         } else {
             if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
                 return;
-            locPosition.x = Math.round(newPosOrxValue);
-            locPosition.y = Math.round(yValue);
+            locPosition.x = Math.floor(newPosOrxValue);
+            locPosition.y = Math.floor(yValue);
 
         }
         this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);

@@ -340,11 +340,6 @@ cc.Node.RenderCmd.prototype = {
         }
         return this._transform;
     },
-    setRenderZ: function(z)
-    {
-        this._stackMatrix.mat[14] = z;
-        return;
-    },
     _syncStatus: function (parentCmd) {
         
         //  In the visit logic does not restore the _dirtyFlag
