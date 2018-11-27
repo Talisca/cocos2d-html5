@@ -956,25 +956,33 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         var sprite = new cc.Sprite(spriteFrame);
         var locLoaded = spriteFrame.textureLoaded();
         this._textureLoaded = locLoaded;
-        if(!locLoaded){
-            spriteFrame.addEventListener("load", function(sender){
+        if (!locLoaded) {
+            spriteFrame.addEventListener("load", function (sender) {
                 // the texture is rotated on Canvas render mode, so isRotated always is false.
                 var preferredSize = this._preferredSize, restorePreferredSize = preferredSize.width !== 0 && preferredSize.height !== 0;
                 if (restorePreferredSize) preferredSize = cc.size(preferredSize.width, preferredSize.height);
                 this.updateWithBatchNode(this._scale9Image, sender.getRect(), cc._renderType === cc.game.RENDER_TYPE_WEBGL && sender.isRotated(), this._capInsets);
-                if (restorePreferredSize)this.setPreferredSize(preferredSize);
+                if (restorePreferredSize) this.setPreferredSize(preferredSize);
                 this._positionsAreDirty = true;
                 this.setNodeDirty();
                 this.dispatchEvent("load");
-            },this);
+            }, this);
+            return false;
         }
+        var preferredSize = this._preferredSize, restorePreferredSize = preferredSize.width !== 0 && preferredSize.height !== 0;
+        var contentSize = this.getContentSize(), restoreContentSize = contentSize.width !== 0 && contentSize.height !== 0;
+        if (restorePreferredSize) preferredSize = cc.size(preferredSize.width, preferredSize.height);
+        if (restoreContentSize) contentSize = cc.size(contentSize.width, contentSize.height);
 
         this.updateWithSprite(sprite, spriteFrame.getRect(), spriteFrame.isRotated(), spriteFrame.getOffset(), spriteFrame.getOriginalSize(), capInsets);
 
-        this._insetLeft = capInsets.x;
+        if (restorePreferredSize) this.setPreferredSize(preferredSize);
+        if (restoreContentSize) this.setContentSize(contentSize);
+
+        /*this._insetLeft = capInsets.x;
         this._insetTop = capInsets.y;
         this._insetRight = this._originalSize.width - this._insetLeft - capInsets.width;
-        this._insetBottom = this._originalSize.height - this._insetTop - capInsets.height;
+        this._insetBottom = this._originalSize.height - this._insetTop - capInsets.height;*/
 
         this._spriteFrame = spriteFrame;
     },
