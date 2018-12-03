@@ -1055,7 +1055,7 @@ cc.ContentStrategy = cc.Class.extend(/** @lends cc.ContentStrategy# */{
 
             //find the largest upscale factor that stretches the image by an integer factor
             var scale = 0;
-            while(currentWidth <= frameW && currentHeight < frameH)
+            while(currentWidth <= frameW && currentHeight <= frameH)
             {
                 currentWidth += designW;
                 currentHeight += designH;
