@@ -1070,8 +1070,6 @@ cc.ContentStrategy = cc.Class.extend(/** @lends cc.ContentStrategy# */{
             // Adjust container size with integer value
             var offx = Math.round((frameW - containerW) / 2);
             var offy = Math.round((frameH - containerH) / 2);
-            containerW = frameW - 2 * offx;
-            containerH = frameH - 2 * offy;
 
             this._setupContainer(view, containerW, containerH);
             // Setup container's margin
