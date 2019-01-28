@@ -292,7 +292,7 @@ cc.SHADER_POSITION_TEXTURE_COLOR_VERT =
  * @type {String}
  */
 cc.SHADER_POSITION_TEXTURE_COLOR_ALPHATEST_FRAG =
-        "precision lowp float;   \n"
+        "\n"
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord;   \n"
         + "varying float v_colorScale; \n"
