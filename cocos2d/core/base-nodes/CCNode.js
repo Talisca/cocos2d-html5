@@ -591,9 +591,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
    
     movePosition: function(offsetOrXValue, yValue)
     {
-        let locPosition = this._position;
-        let x = locPosition.x;
-        let y = locPosition.y;
+        var locPosition = this._position;
+        var x = locPosition.x;
+        var y = locPosition.y;
         
         if(yValue === undefined)
         {
@@ -1083,8 +1083,8 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     getBoundingBoxIncludingChildren: function(_previousTransformation)
     {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
-        let previousTransformation = _previousTransformation || cc.affineTransformMakeIdentity();
-        let trans = cc.affineTransformConcat(this.getNodeToParentTransform(), previousTransformation);
+        var previousTransformation = _previousTransformation || cc.affineTransformMakeIdentity();
+        var trans = cc.affineTransformConcat(this.getNodeToParentTransform(), previousTransformation);
         rect = cc._rectApplyAffineTransformIn(rect, trans);
 
         if (!this._children)
