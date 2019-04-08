@@ -151,6 +151,9 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
     _running: false,
     _parent: null,
 
+    _bbwCacheDirty: true,
+    _bbwCache: cc.rect(),
+
     // "whole screen" objects. like Scenes and Layers, should set _ignoreAnchorPointForPosition to true
     _ignoreAnchorPointForPosition: false,
     tag: cc.NODE_TAG_INVALID,
@@ -1058,13 +1061,18 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
      * @return {cc.Rect}
      */
     getBoundingBoxToWorld: function () {
-        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        if (!this._bbwCacheDirty) {
+            return this._bbwCache;
+        }
+        this._bbwCache = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
         var trans = this.getNodeToWorldTransform();
-        rect = cc.rectApplyAffineTransform(rect, trans);
+        this._bbwCache = cc.rectApplyAffineTransform(this._bbwCache, trans);
+
+        this._bbwCacheDirty = false;
 
         //query child's BoundingBox
         if (!this._children)
-            return rect;
+            return this._bbwCache;
 
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
@@ -1072,10 +1080,10 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
             if (child && child._visible) {
                 var childRect = child._getBoundingBoxToCurrentNode(trans);
                 if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
+                    this._bbwCache = cc.rectUnion(this._bbwCache, childRect);
             }
         }
-        return rect;
+        return this._bbwCache;
     },
     /**
      similar to getBoundingBox, but expands the bounding box to include all of its children, and is relative to parent
