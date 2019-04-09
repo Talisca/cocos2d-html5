@@ -130,14 +130,18 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
      * @function
      * @return {cc.Rect}
      */
-    getBoundingBoxToWorld: function () {
+    getBoundingBoxToWorld: function() {
+        if (!this._bbwCacheDirty && !this.getInnerContainer()._bbwCacheDirty)
+            return this._bbwCache;
+        this._bbwCacheDirty = false;
+        this.getInnerContainer()._bbwCacheDirty = false;
         //scrollview has a separate getboundingboxtoworld implementation:
         //child elements outside the rendered view size should not be considered 'visible', therefor their bounding box
         //must be clipped to the local bounding box of this node
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
         var trans = this.getNodeToWorldTransform();
         rect = cc.rectApplyAffineTransform(rect, trans);
-
+        this._bbwCache = rect;
         //query child's BoundingBox
         /*if (!this._children)
             return rect;
