@@ -24,22 +24,6 @@
 
 //---------------------- Customer render cmd --------------------
 
-function enumerateChildren(rootNode, callback, depth) {
-    if (!rootNode)
-        return;
-    if (!cc.isNumber(depth))
-        depth = -1;
-    if (depth == 0)
-        return;
-    var children = rootNode.getChildren();
-    if (!children)
-        return;
-    for (var i = 0, len = children.length; i < len; i++) {
-        callback(children[i]);
-        enumerateChildren(children[i], callback, depth - 1);
-    }
-}
-
 cc.CustomRenderCmd = function (target, func) {
     this._needDraw = true;
     this._target = target;
@@ -143,11 +127,8 @@ cc.Node.RenderCmd.prototype = {
         if (this._dirtyFlag === 0 && dirtyFlag !== 0)
             _cc.renderer.pushDirtyNode(this);
         this._dirtyFlag |= dirtyFlag;
-        if (!this._node._bbwCacheDirty && (dirtyFlag & cc.Node._dirtyFlags.transformDirty || dirtyFlag & cc.Node._dirtyFlags.textDirty)) {
-            this._node._bbwCacheDirty = true;
-            enumerateChildren(this._node, function (node) {
-                node._bbwCacheDirty = true;
-            });
+        if (dirtyFlag & cc.Node._dirtyFlags.transformDirty || dirtyFlag & cc.Node._dirtyFlags.textDirty) {
+            this._node.setBoundingBoxToWorldCacheDirty();
         }
     },
 

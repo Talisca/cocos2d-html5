@@ -1034,6 +1034,25 @@ cc.Node = cc.Class.extend(/** @lends cc.Node# */{
         }
     },
 
+    _enumerateChildren: function (callback) {
+        var children = this.getChildren();
+        if (!children)
+            return;
+        for (var i = 0, len = children.length; i < len; i++) {
+            callback(children[i]);
+            children[i]._enumerateChildren(callback);
+        }
+    },
+
+    setBoundingBoxToWorldCacheDirty: function() {
+        if (this._bbwCacheDirty)
+            return;
+        this._bbwCacheDirty = true;
+        this._enumerateChildren(function (node) {
+            node._bbwCacheDirty = true;
+        });
+    },
+
     /**
      * Returns a "local" axis aligned bounding box of the node. <br/>
      * @deprecated since v3.0, please use getBoundingBox instead
